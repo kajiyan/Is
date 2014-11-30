@@ -33,7 +33,7 @@ GET
 				{
 					"id": 0
 					"uri": "http://xxxxxx",
-					"image" "http://xxxxxx/images/screen/xxxxx.jpg",
+					"image" "http://is-eternal.me/images/screen/xxxxx.jpg",
 					"date": "Sunday 30 November 2014 13:59:56",
 					"indicator": 0,
 					"farame": 60,
@@ -52,7 +52,7 @@ GET
 					"id": 1
 					"uri": "http://xxxxxx",
 					"date": "Sunday 30 November 2014 13:59:56",
-					"image" "http://xxxxxx/images/screen/xxxxx.jpg",
+					"image" "http://is-eternal.me/images/screen/xxxxx.jpg",
 					"indicator": 0,
 					"farame": 60,
 					"positions": [
@@ -107,7 +107,7 @@ GET
 				{
 					"id": 0
 					"uri": "http://xxxxxx",
-					"image" "http://xxxxxx/images/screen/xxxxx.jpg",
+					"image" "http://is-eternal.me/images/screen/xxxxx.jpg",
 					"date": "Sunday 30 November 2014 13:59:56",
 					"indicator": 0,
 					"farame": 60,
@@ -126,7 +126,7 @@ GET
 					"id": 1
 					"uri": "http://xxxxxx",
 					"date": "Sunday 30 November 2014 13:59:56",
-					"image" "http://xxxxxx/images/screen/xxxxx.jpg",
+					"image" "http://is-eternal.me/images/screen/xxxxx.jpg",
 					"indicator": 0,
 					"farame": 60,
 					"positions": [
@@ -177,7 +177,7 @@ GET
 			{
 				"id": 0
 				"uri": "http://xxxxxx",
-				"image" "http://xxxxxx/images/screen/xxxxx.jpg",
+				"image" "http://is-eternal.me/images/screen/xxxxx.jpg",
 				"date": "Sunday 30 November 2014 13:59:56",
 				"indicator": 0,
 				"farame": 60,
