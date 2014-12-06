@@ -1,0 +1,43 @@
+{
+  "author": {
+    "name": "Chun-hao Hu",
+    "email": "hu.chunhao@gmail.com",
+    "url": "http://blog.huchunhao.com"
+  },
+  "name": "mongo-express",
+  "description": "Web-based admin interface for MongoDB",
+  "version": "0.20.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/andzdroid/mongo-express.git"
+  },
+  "dependencies": {
+    "express": "~3.4.8",
+    "mongodb": "~1.3.23",
+    "consolidate": "~0.10.0",
+    "swig": "~1.3.2",
+    "underscore": "~1.6.0",
+    "async": "~0.8.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.18.2",
+    "chai": "~1.9.1"
+  },
+  "engine": "node >= 0.10",
+  "license": "MIT",
+  "scripts": {
+    "start": "node app",
+    "test": "mocha"
+  },
+  "main": "./app",
+  "readme": "mongo-express\n=============\n\nWeb-based MongoDB admin interface written with Node.js and express\n\n[![Build Status](https://secure.travis-ci.org/andzdroid/mongo-express.png?branch=master)](http://travis-ci.org/andzdroid/mongo-express) - Master (stable) branch\n\n[![Build Status](https://secure.travis-ci.org/andzdroid/mongo-express.png?branch=develop)](http://travis-ci.org/andzdroid/mongo-express) - Develop branch\n\n\nFeatures\n--------\n\nCurrent features:\n\n* Connect to multiple databases\n* Connect and authenticate to individual databases\n* Authenticate as admin to view all databases\n* Database blacklist/whitelist\n* View/add/rename/delete collections\n* View/add/update/delete documents\n* Use BSON data types in documents\n\nPlanned features:\n\n* Support for replica set connections\n* Web-based command-line interface\n* Site authentication\n* REST interface\n\n\nLimitations\n-----------\n\n* Documents must have `document._id` property to be edited\n* No GridFS support (might become a planned feature)\n* Binary BSON data type not tested\n\nJSON documents are parsed through a javascript virtual machine, so the web\ninterface can be used for executing malicious javascript on a server.\n\n**mongo-express should only be used privately for development purposes**.\n\n\nScreenshots\n-----------\n\n<img src=\"http://i.imgur.com/DOi3b.png\" title=\"Viewing documents in a collection\" />\n\nClick here for more screenshots: \n[http://imgur.com/a/OTZHe](http://imgur.com/a/OTZHe)\n\nThese screenshots are from version 0.11.0.\n\n\nUsage\n-----\n\n**To install:**\n\n    npm install mongo-express\n\nOr if you want to install a global copy:\n\n    npm install -g mongo-express\n\n**To configure:**\n\nCopy or rename `config.default.js` into a new file called `config.js`.\n\nFill in your MongoDB connection details, and any other options you want to change.\n\n**To run:**\n\n    node app\n\n**To use:**\n\nVisit `http://localhost:8081` or whatever URL/port you entered into your config.\n\n\nBSON Data Types\n---------------\n\nThe following BSON data types are supported in the mongo-express document editor/viewer.\n\n**Native Javascript Types**\n\nStrings, numbers, lists, booleans, null, etc.\n\nAll numbers in Javascript are 64-bit floating points.\n\n**ObjectID/ObjectId**\n\n    ObjectID()\n\nCreates a new Object ID type.\n\n    ObjectID(id)\n\nUse Object ID with the given 24-digit hexadecimal string.\n\n**ISODate**\n\n    ISODate()\n\nCreates a new ISODate object with current time.\n\n`new Date()` can also be used (note the `new` keyword there).\n\n    ISODate(timestamp)\n\nUses ISODate object with the given timestamp.\n\n**DBRef/Dbref**\n\n    DBRef(collection, objectID)\n\n    DBRef(collection, objectID, database)\n\nObject ID is the ID string, not the ObjectID type.\n\nThe database value is optional.\n\n**Timestamp**\n\n    Timestamp()\n\nCreates a new Timestamp object with a value of 0.\n\n    Timestamp(time, ordinal)\n\nExample: `Timestamp(ISODate(), 0)`.\n\nSee [http://www.mongodb.org/display/DOCS/Timestamp+data+type](http://www.mongodb.org/display/DOCS/Timestamp+data+type) for more info about the Timestamp data type.\n\n**Code**\n\n    Code(code)\n\nCode can be a native Javascript function, or it can be a string.\n\nSpecifying a scope/context is not supported.\n\n**MinKey**\n\n    MinKey()\n\n**MaxKey**\n\n    MaxKey()\n\n**Symbol**\n\n    Symbol(string)\n\n---\n\nNot tested:\n\n* Binary/BinData\n\nHere is an example of a document which can be read/edited in mongo-express:\n\n    {\n      \"_id\": ObjectID(), // or ObjectId()\n      \"dates\": {\n        \"date\": ISODate(\"2012-05-14T16:20:09.314Z\"),\n        \"new_date\": ISODate(),\n        \"alternative\": new Date()\n      },\n      \"bool\": true,\n      \"string\": \"hello world!\",\n      \"list of numbers\": [\n        123,\n        111e+87,\n        4.4,\n        -12345.765\n      ],\n      \"reference\": DBRef(\"collection\", \"4fb1299686a989240b000001\"),\n      \"ts\": Timestamp(ISODate(), 1),\n      \"minkey\": MinKey(),\n      \"maxkey\": MaxKey(),\n      \"func\": Code(function() { alert('Hello World!') }),\n      \"symbol\": Symbol(\"test\")\n    }\n\nLicense\n-------\nMIT License\n\nCopyright (c) 2012 Chun-hao Hu\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/andzdroid/mongo-express/issues"
+  },
+  "homepage": "https://github.com/andzdroid/mongo-express",
+  "_id": "mongo-express@0.20.0",
+  "_shasum": "5d0d4ce5ce197179b047c46d5abc9191d1dd5b32",
+  "_from": "https://github.com/andzdroid/mongo-express/tarball/master",
+  "_resolved": "https://github.com/andzdroid/mongo-express/tarball/master"
+}
