@@ -10,3 +10,6 @@ I believe in you just forever……
 
 ## API 仕様書
 * [https://github.com/kajiyan/Is/blob/master/docs/api.md](https://github.com/kajiyan/Is/blob/master/docs/api.md)
+
+## Database
+* [Schema](https://docs.google.com/spreadsheets/d/1tqye_4OQtYUFEn3kdeUpj9TfiIDQIdgxXQL2oaOt46E/edit#gid=0)
