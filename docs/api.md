@@ -35,8 +35,6 @@ GET
 					"uri": "http://xxxxxx",
 					"image": "http://is-eternal.me/images/screen/xxxxx.jpg",
 					"date": "Sunday 30 November 2014 13:59:56",
-					"indicator": 0,
-					"farame": 60,
 					"positions": [
 						{
 							x: 0,
@@ -53,8 +51,6 @@ GET
 					"uri": "http://xxxxxx",
 					"date": "Sunday 30 November 2014 13:59:56",
 					"image": "http://is-eternal.me/images/screen/xxxxx.jpg",
-					"indicator": 0,
-					"farame": 60,
 					"positions": [
 						{
 							x: 0,
@@ -73,8 +69,6 @@ data[0].id (int): 登録されている軌跡のID
 data[0].uri (string): 登録時に閲覧していたサイトのURI  
 data[0].image (string): 登録時に閲覧していたサイトのスクリーンショット  
 data[0].date (string): 登録時の時間  
-date[0].indicator: 軌跡の再生位置  
-date[0].frame: 軌跡のトータルフレーム  
 date[0].positions.x: 軌跡の x座標  
 date[0].positions.y: 軌跡の y座標
 
@@ -109,8 +103,6 @@ GET
 					"uri": "http://xxxxxx",
 					"image": "http://is-eternal.me/images/screen/xxxxx.jpg",
 					"date": "Sunday 30 November 2014 13:59:56",
-					"indicator": 0,
-					"farame": 60,
 					"positions": [
 						{
 							x: 0,
@@ -127,8 +119,6 @@ GET
 					"uri": "http://xxxxxx",
 					"date": "Sunday 30 November 2014 13:59:56",
 					"image": "http://is-eternal.me/images/screen/xxxxx.jpg",
-					"indicator": 0,
-					"farame": 60,
 					"positions": [
 						{
 							x: 0,
@@ -147,8 +137,6 @@ data[0].id (int): 登録されている軌跡のID
 data[0].uri (string): 登録時に閲覧していたサイトのURI  
 data[0].image (string): 登録時に閲覧していたサイトのスクリーンショット  
 data[0].date (string): 登録時の時間  
-date[0].indicator: 軌跡の再生位置  
-date[0].frame: 軌跡のトータルフレーム  
 date[0].positions.x: 軌跡の x座標  
 date[0].positions.y: 軌跡の y座標
 
@@ -179,8 +167,6 @@ GET
 				"uri": "http://xxxxxx",
 				"image" "http://is-eternal.me/images/screen/xxxxx.jpg",
 				"date": "Sunday 30 November 2014 13:59:56",
-				"indicator": 0,
-				"farame": 60,
 				"positions": [
 					{
 						x: 0,
@@ -198,8 +184,6 @@ data[0].id (int): 登録されている軌跡のID
 data[0].uri (string): 登録時に閲覧していたサイトのURI  
 data[0].image (string): 登録時に閲覧していたサイトのスクリーンショット  
 data[0].date (string): 登録時の時間  
-date[0].indicator: 軌跡の再生位置  
-date[0].frame: 軌跡のトータルフレーム  
 date[0].positions.x: 軌跡の x座標  
 date[0].positions.y: 軌跡の y座標
 
