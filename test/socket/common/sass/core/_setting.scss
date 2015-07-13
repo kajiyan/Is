@@ -1,0 +1,91 @@
+// Base Font size(px)
+$font-size: 10;
+$rem-base: $font-size;
+// Base line-height
+$line-height: ($font-size / 15);
+
+// IE6,IE7にclearfixを対応するかしないか
+$support-clearfix-legacy: false;
+
+// レガシーブラウザ用にpxを出力するかしないか
+$support-rem-legacy: true;
+
+
+// Base Window Size
+$baseWidth: 980px;
+$smallBaseWidth: 320px;
+
+// $baseWidth: 660px;
+$baseHeight: 600px;
+$baceMaxWidth: 1280px;
+$baceMaxHeight: 600px;
+$baceMinWidth: 1000px;
+$baceMinHeight: 560px;
+
+
+// Colors
+$color-base:    #222222; //base text color
+$color-bg:      #ffffff; //base background color
+$color-link:    #999999; //:link color 
+$color-hover:   #cccccc; //:hover color 
+$color-active:  #cccccc; //:active color 
+$color-visited: #aaaaaa; //:visited color 
+$color-focus:   #cccccc; //:focus color 
+
+
+// Break Point
+$mq-small: 600px;
+$mq-middle: 900px;
+$mq-large: 1200px;
+
+
+$color-deep-blue: #002469;
+$color-light-grayish-blue: #9faec1;
+$color-grayish-blue: #717983;
+$color-pale-blue: #d7e4ed;
+
+$color-soft-orabge: #cfae78;
+
+$color-light-grayish-black: #999999;
+$color-gray-black: #666666;
+$color-dark-grayish-black: #444444;
+
+
+// $mq-small:   480px;
+// $mq-middle:  768px;
+// $mq-large:  1200px;
+
+
+// Border Radius
+$radius-base: 4px;
+
+
+// Font Settings
+$font-family-body: Verdana, Roboto, "Droid Sans", "小塚ゴシック Pro R", "Kozuka Gothic Pro R", "游ゴシック", YuGothic, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", "メイリオ", Meiryo, sans-serif;
+// $font-family-body: Verdana, Roboto, "Droid Sans", "游ゴシック", YuGothic, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", "メイリオ", Meiryo, sans-serif;
+// $font-family-body: "Noto Sans Japanese", "游ゴシック体", "Yu Gothic", "YuGothic", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", 'Meiryo', "メイリオ", "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+// $font-family-body: "Noto Sans Japanese";
+// $font-family-body: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", 'Meiryo', "メイリオ", "ＭＳ Ｐゴシック", "MS PGothic", Verdana, Roboto, "Droid Sans", sans-serif;
+
+
+// Path
+// $path-common: "/common/";
+$path-absolute-img: "/images/";
+
+// IMG SRC
+// $path-common: "/renewal/common/";
+$path-common: "/-/hiranomami/common/";
+
+//== Grid system
+//
+//## Define your custom responsive grid.
+
+//** Number of columns in the grid.
+// $grid-columns:              12 !default;
+$grid-columns:              12 !default;
+//** Padding between columns. Gets divided in half for the left and right.
+// $grid-gutter-width:         20px !default;
+$grid-gutter-width:         20px !default;
+
+$baseInnerWidth: $baseWidth - $grid-gutter-width;
+$smallBaseInnerWidth: $smallBaseWidth - $grid-gutter-width;

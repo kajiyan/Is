@@ -1,0 +1,125 @@
+/* =============================================================================
+    Module
+   ========================================================================== */
+@font-face{ 
+  font-family: 'NotoSansCJKjp-Light';
+  src: url('#{$path-common}fonts/NotoSansCJKjp-Light-J1.eot');
+  src: url('#{$path-common}fonts/NotoSansCJKjp-Light-J1.eot?#iefix') format('embedded-opentype'),
+    url('#{$path-common}fonts/NotoSansCJKjp-Light-J1.woff') format('woff'),
+    url('#{$path-common}fonts/NotoSansCJKjp-Light-J1.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face{ 
+  font-family: 'NotoSansCJKjp-Thin';
+  src: url('#{$path-common}fonts/NotoSansCJKjp-Thin-J1.eot');
+  src: url('#{$path-common}fonts/NotoSansCJKjp-Thin-J1.eot?#iefix') format('embedded-opentype'),
+    url('#{$path-common}fonts/NotoSansCJKjp-Thin-J1.woff') format('woff'),
+    url('#{$path-common}fonts/NotoSansCJKjp-Thin-J1.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'icons';
+  src:url('#{$path-common}fonts/icons.eot');
+  src:url('#{$path-common}fonts/icons.eot?#iefix') format('embedded-opentype'),
+    url('#{$path-common}fonts/icons.woff') format('woff'),
+    url('#{$path-common}fonts/icons.ttf') format('truetype'),
+    url('#{$path-common}fonts/icons.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  font-family: 'icons';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-window:before {
+  content: "\e600";
+}
+
+.button {
+  $font-size: 20px;
+  -webkit-background-clip: padding-box;
+  border: 1px solid #000000;
+  @include border-radius(1.5em);
+  @include remod(font-size, $font-size);
+  text-align: center;
+  display: block;
+  .button-label {
+    color: #000000; 
+    display: block;
+    text-align: center;
+    letter-spacing: 0.002em;
+    line-height: (58px / $font-size);
+  }
+}
+
+@mixin ec-box($baseWidth: 168px, $offsetX: 0px, $offsetY: 0px) {
+  $boxWidth: 168px;
+
+  $boxTopBackHeight: image-height("#{$path-common}images/ec-back-top-0.png");
+  $boxBottomBackHeight: image-height("#{$path-common}images/ec-back-bottom-0.png");
+
+  .ec-content {
+    // background-color: #ffffff;
+    // width: percentage($boxWidth / $baseWidth);
+    width: $boxWidth;
+    margin: percentage($offsetY / $baseWidth) 0 0 (-(percentage( ($boxWidth / 2) / $baseWidth )));
+    position: absolute;
+    top: 0;
+    left: 50%;
+    &:before, &:after {
+      content: " ";
+      display: block;
+      width: 100%;
+    }
+    &:before {
+      background-image: url("#{$path-common}images/ec-back-top-0.png");
+      background-repeat: no-repeat;
+      background-size: 100% auto;
+      padding: percentage($boxTopBackHeight / $boxWidth) 0 0 0;
+    }
+    &:after {
+      background-image: url("#{$path-common}images/ec-back-bottom-0.png");
+      background-repeat: no-repeat;
+      background-size: 100% auto;
+      padding: 0 0 percentage($boxBottomBackHeight / $boxWidth) 0;
+    }
+    .ec-list {
+      display: block;
+    }
+      .ec-item {
+        background-repeat: no-repeat;
+        background-size: 100% auto;
+        text-align: center;
+        display: block;
+        padding: 5px 0 5px 0;
+        // padding: percentage(5px / $boxWidth) 0 percentage(5px / $boxWidth) 0;
+      }
+        .ec-link {
+        }
+      /* &.ec-item */
+      .item-1 { background-image: url("#{$path-common}images/ec-back-middle-1-0.png"); }
+      .item-2 { background-image: url("#{$path-common}images/ec-back-middle-2-0.png"); }
+      .item-3 { background-image: url("#{$path-common}images/ec-back-middle-3-0.png"); }
+      .item-4 { background-image: url("#{$path-common}images/ec-back-middle-4-0.png"); }
+      .item-5 {
+        background-image: url("#{$path-common}images/ec-back-middle-5-0.png");
+        padding: percentage(5px / $boxWidth) 0 percentage(4px / $boxWidth) 0;
+      }
+        .ec-link-label {
+          vertical-align: top;
+        }
+  }
+}

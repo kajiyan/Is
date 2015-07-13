@@ -1,0 +1,122 @@
+/* memo randum
+--------------------------------------------------------------
+
+---------- Examples
+	padding: 5px 0;
+	padding: 0.357142857rem 0; (5 / $rembase)
+
+	font-size: 16px
+	font-size: 1.142857143rem; (16 / $rembase)
+	line-height: 1.5; ($line-height / 16)
+
+---------- Vertical spacing
+	margin: 24px 0;
+	margin: 1.714285714rem 0; ( 24 / $rembase )
+
+-------------------------------------------------------------- */
+section, nav, article, aside, hgroup, header, footer, figure, figcaption, details { display: block; }
+video, audio, canvas { display: inline-block; *display: inline; *zoom: 1; }
+audio:not([controls]) { display: none; }
+[hidden] { display: none; }
+html { font-size: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: none; }
+body { font-family: sans-serif; margin: 0; }
+h1, h2, h3, h4, h5, h6 { font-size: 1em; margin: 0; }
+p, blockquote, dl, dd, figure { margin: 0; }
+hr { color: inherit; height: auto; -moz-box-sizing: content-box; box-sizing: content-box; }
+pre { font-family: monospace, sans-serif; white-space: pre-wrap; word-wrap: break-word; margin: 0; }
+ol, ul { padding: 0; margin: 0; }
+li { list-style: none; }
+a:focus { outline: thin dotted; }
+a:hover, a:active { outline: 0; }
+strong, b { font-weight: bold; }
+small { font-size: 0.83em; }
+q { quotes: none; }
+abbr[title] { border-bottom: 1px dotted; }
+code, samp, kbd { font-family: monospace, sans-serif; }
+mark { color: black; background-color: yellow; }
+sub, sup { font-size: 0.83em; line-height: 0; vertical-align: baseline; position: relative; }
+sub { bottom: -0.25em; }
+sup { top: -0.5em; }
+br { letter-spacing: 0; }
+img { border: 0; -ms-interpolation-mode: bicubic; }
+svg:not(:root) { overflow: hidden; }
+table { border-collapse: collapse; border-spacing: 0; }
+caption { padding: 0; text-align: left; }
+th, td { text-align: left; vertical-align: baseline; padding: 0; }
+form { margin: 0; }
+fieldset { border: 0; padding: 0; margin: 0; }
+legend { border: 0; *margin-left: -7px; }
+input, button, select, textarea { font-family: inherit; font-size: 1em; color: inherit; margin: 0; }
+input, button { line-height: normal; vertical-align: inherit; *vertical-align: middle; }
+input::-moz-focus-inner, button::-moz-focus-inner { border: 0; padding: 0; }
+input[type="search"] { -webkit-appearance: textfield; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; }
+input[type="search"]:focus { outline-offset: -2px; }
+input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
+input[type="checkbox"], input[type="radio"] { box-sizing: border-box; padding: 0; }
+input[type="submit"], input[type="reset"], input[type="button"], button { cursor: pointer; -webkit-appearance: button; *overflow: visible; }
+select { background-color: inherit; line-height: normal; }
+textarea { vertical-align: top; overflow: auto; *font-family: sans-serif; }
+
+:root { font-size: #{$font-size}px; }
+
+* {
+	-webkit-text-size-adjust: 100%;
+     -moz-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+       -o-text-size-adjust: 100%;
+          text-size-adjust: 100%;
+	text-align: justify;
+	text-justify: inter-ideograph;
+	-webkit-overflow-scrolling: touch;
+		-webkit-box-sizing: border-box;
+		   -moz-box-sizing: border-box;
+		        box-sizing: border-box;
+	-webkit-font-smoothing: antialiased;
+	   -moz-font-smoothing: antialiased;
+ -moz-osx-font-smoothing: grayscale;
+	        font-smoothing: antialiased;
+	// text-rendering: optimizeLegibility;
+}
+
+html {
+	overflow-y: scroll;
+	font-size: 100%;
+	// -webkit-transform: translate3d(0,0,0);
+	// -webkit-backface-visibility: hidden;
+}
+
+/* テキスト選択時のハイライトカラー */
+::-moz-selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+::selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+/* タップ時のハイライトカラー */
+a { -webkit-tap-highlight-color: rgba(0, 0, 0, 0.5); }
+
+// // img {
+//   // image-rendering: -webkit-optimizeQuality;
+//   // image-rendering: -moz-optimizeQuality;
+//   // image-rendering: -o-optimizeQuality;
+//   // image-rendering: optimizeQuality;
+//   // -ms-interpolation-mode: nearest-neighbor;
+
+//   // image-rendering: -webkit-crisp-edges;
+//   // image-rendering: -moz-crisp-edges;
+//   // image-rendering: -o-crisp-edges;
+//   // image-rendering: crisp-edges;
+//   // -ms-interpolation-mode: nearest-neighbor;
+// // }
+
+// /* 
+//  * Web Fonts 使用時のアンチエイリアス対応 (文字色 無彩色 低明度 想定)
+//  */
+// /* windows Chorome用 */
+// .winchrm { text-shadow: 0 0 1px rgba(0, 0, 0, 0.3); }
+// /* windows Firefox用 */
+// .winff { text-shadow: 0 0 1px rgba(68, 68, 68, 0.2); }

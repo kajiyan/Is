@@ -1,0 +1,30 @@
+@include keyframes(showText) {
+  0% {
+    @include text-shadow(0 0 1em $color-deep-blue);
+  }
+  100% {
+    color: $color-deep-blue;
+    @include text-shadow(0 0 0 $color-deep-blue);
+  }
+}
+
+@include keyframes(showBlur) {
+  0% {
+    $blur: 10;
+    -webkit-filter: blur(#{$blur}px);
+    -moz-filter: blur(#{$blur}px);
+    -ms-filter: blur(#{$blur}px);
+    -o-filter: blur(#{$blur}px);
+    filter: blur(#{$blur}px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=10);
+  }
+  100% {
+    $blur: 0;
+    -webkit-filter: blur(#{$blur}px);
+    -moz-filter: blur(#{$blur}px);
+    -ms-filter: blur(#{$blur}px);
+    -o-filter: blur(#{$blur}px);
+    filter: blur(#{$blur}px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=(cast(10)));
+  }
+}

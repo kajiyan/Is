@@ -1,0 +1,462 @@
+//==========================================
+// Clearfix
+// @include clearfix;
+//==========================================
+@mixin clearfix {
+  @if $support-clearfix-legacy == true {
+    *zoom: 1;
+    &:before,
+    &:after {
+      content: " ";
+      display: table;
+    }
+    &:after {
+      clear: both;
+    }
+  }
+  @else {
+    &:after {
+      content:"";
+      display:table;
+      clear:both;
+    }
+  }
+}
+
+
+
+//==========================================
+// Link Colors
+// @include link-colors($normal, $hover, $active, $visited, $focus)
+//==========================================
+@mixin link-colors($normal, $hover: false, $active: false, $visited: false, $focus: false) {
+  color: $normal;
+  @if $visited {
+    &:visited { color: $visited; }
+  }
+  @if $focus {
+    &:focus { color: $focus; }
+  }
+  @if $hover {
+    &:hover { color: $hover; }
+  }
+  @if $active {
+    &:active { color: $active; }
+  }
+}
+
+
+
+//==========================================
+// Link Underline
+// @include link-underline();
+// @param $type {String} 下線の種類（none, line, line-to-none, none-to-line）
+// @param $important {String or Boolean} 'important' or true
+//==========================================
+@mixin link-underline($type, $important: false) {
+  @if $important == 'important' or $important == true {
+    $important: ' !important';
+  }
+  @else {
+    $important: '';
+  }
+
+  @if $type == line-to-none {
+    &:link,
+    &:visited { text-decoration: underline#{$important}; }
+    &:hover,
+    &:active,
+    &:focus {
+      text-decoration: none#{$important};
+    }
+  }
+  @else if $type == line {
+    &:link,
+    &:visited,
+    &:hover,
+    &:active,
+    &:focus {
+      text-decoration: underline#{$important};
+    }
+  }
+  @else if $type == none-to-line {
+    &:link,
+    &:visited {
+      text-decoration: none#{$important};
+    }
+    &:hover,
+    &:active,
+    &:focus {
+      text-decoration: underline#{$important};
+    }
+  }
+  @else if $type == none {
+    &:link,
+    &:visited,
+    &:hover,
+    &:active,
+    &:focus {
+      text-decoration: none#{$important};
+    }
+  }
+}
+
+
+
+//==========================================
+// em
+// font-size: em(12);
+// font-size: em(12, 24);
+@function em($pxval, $base: $font-base) {
+  @if not unitless($pxval) {
+      $pxval: strip-units($pxval);
+  }
+  @if not unitless($base) {
+      $base: strip-units($base);
+  }
+  @return ($pxval / $base) * 1em;
+}
+
+// rem
+// font-size: rem(12);
+@function rem($pxval) {
+  @if not unitless($pxval) {
+      $pxval: strip-units($pxval);
+  }
+
+  $base: $font-base;
+  @if not unitless($base) {
+      $base: strip-units($base);
+  }
+  @return ($pxval / $base) * 1rem;
+}
+
+// font-size: rem
+// @include fz-rem(12);
+@mixin fz-rem($pxval) {
+  @if $support-rem-legacy == true {
+    font-size: $pxval;
+  }
+  font-size: rem($pxval);
+}
+//==========================================
+
+
+
+//==========================================
+// Image Replace
+// @include image-replace;
+//==========================================
+@mixin image-replace {
+  white-space:nowrap;
+  text-indent: 100%;
+  overflow: hidden;
+}
+
+
+//==========================================
+// ellipsis
+// @include ellipsis;
+//==========================================
+@mixin ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+// フォントサイズ
+$fontSizeList: 62%, 70%, 77%, 85%, 93%, 100%, 108%, 116%, 124%, 131%, 139%, 147%, 154%, 162%, 170%, 177%, 185%, 193%, 200%, 208%, 216%, 224%, 231%, 239%, 247%, 254%, 262%, 270%, 277%, 285%, 293%, 300%, 308%;
+@mixin fz($size) {
+  @if $size < 8 {
+    $size: 8;
+  }
+  @if $size > 40 {
+    $size: 40;
+  }
+  font-size: nth($fontSizeList, $size - 7);
+}
+
+@mixin cover() {
+  background-color: #fff;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+
+
+//==========================================
+@function cast($value) {
+  @return $value / (1 + $value - $value);
+}
+
+@mixin remod($property, $values...) {
+  $def-value: "";
+  $rem-value: "";
+
+  $i: 0;
+  @each $v in $values {
+    @if $i == 0 {
+      $def-value: #{$v}
+    } @else {
+      $def-value: #{$def-value} #{$v}
+    }
+    $i: $i + 1;
+  }
+
+  $i: 0;
+  @each $v in $values {
+    @if unitless($v) == false {
+      $v: cast($v)
+    }
+
+    @if $i == 0 {
+      $rem-value: #{($v / $rem-base)+"rem"}
+    } @else {
+      $rem-value: #{$rem-value} #{($v / $rem-base)+"rem"}
+    }
+    $i: $i + 1;
+  }
+
+  #{$property}: #{$def-value};
+  #{$property}: #{$rem-value};
+}
+
+@mixin reremod($rem, $property, $values...) {
+  $def-value: "";
+  $rem-value: "";
+
+  $i: 0;
+  @each $v in $values {
+    @if $i == 0 {
+      $def-value: #{$v}
+    } @else {
+      $def-value: #{$def-value} #{$v}
+    }
+    $i: $i + 1;
+  }
+
+  $i: 0;
+  @each $v in $values {
+    @if unitless($v) == false {
+      $v: cast($v)
+    }
+
+    @if $i == 0 {
+      $rem-value: #{($v / $rem)+"rem"}
+    } @else {
+      $rem-value: #{$rem-value} #{($v / $rem)+"rem"}
+    }
+    $i: $i + 1;
+  }
+
+  #{$property}: #{$def-value};
+  #{$property}: #{$rem-value};
+}
+
+
+
+//==========================================
+@mixin keyframes($name) {
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+  @-ms-keyframes #{$name} {
+    @content;
+  }
+  @keyframes #{$name} {
+    @content;
+  }
+}
+
+$default-animation-name: none !default;
+$default-animation-duration: 1s !default;
+$default-animation-function: false !default;
+$default-animation-delay: false !default;
+$default-animation-fill-mode: none !default;
+$default-animation-iteration-count: infinite;
+
+// One or more name to animation
+//
+// * for multiple, use a comma-delimited list
+// * also accepts "all" or "none"
+@mixin animation-name($names: $default-animation-name) {
+  @include experimental(animation-name, unquote($names),
+    -moz, -webkit, -o, -ms, not -khtml, official
+  );
+}
+
+// One or more durations in seconds
+//
+// * for multiple, use a comma-delimited list
+// * these durations will affect the properties in the same list position
+@mixin animation-duration($duration: $default-animation-duration) {
+  @if type-of($duration) == string { $duration: unquote($duration); }
+  @include experimental(animation-duration, $duration,
+    -moz, -webkit, -o, -ms, not -khtml, official
+  );
+}
+
+// One or more timing functions
+//
+// * [ ease | linear | ease-in | ease-out | ease-in-out | cubic-bezier(x1, y1, x2, y2)]
+// * For multiple, use a comma-delimited list
+// * These functions will effect the properties in the same list position
+@mixin animation-timing-function($function: $default-animation-function) {
+  @include experimental(animation-timing-function, unquote($function),
+    -moz, -webkit, -o, -ms, not -khtml, official
+  );
+}
+
+// One or more animation-delays in seconds
+//
+// * for multiple, use a comma-delimited list
+// * these delays will effect the properties in the same list position
+@mixin animation-delay($delay: $default-animation-delay) {
+  @if type-of($delay) == string { $delay: unquote($delay); }
+  @include experimental(animation-delay, $delay,
+    -moz, -webkit, -o, -ms, not -khtml, official
+  );
+}
+
+// One or more fill mode
+//
+// * [none | forwards | backwards | both]
+// * For multiple, use a comma-delimited list
+@mixin animation-fill-mode($fill-mode: $default-animation-fill-mode) {
+  @include experimental(animation-fill-mode, unquote($fill-mode),
+    -moz, -webkit, -o, -ms, not -khtml, official
+  );
+}
+
+@mixin animation-iteration-count($count: $default-animation-iteration-count) {
+  @include experimental(animation-iteration-count, unquote($count),
+    -moz, -webkit, -o, -ms, not -khtml, official
+  );
+}
+
+// animation all-in-one shorthand
+@mixin single-animation(
+  $name: $default-animation-name,
+  $duration: $default-animation-duration,
+  $function: $default-animation-function,
+  $delay: $default-animation-delay,
+  $fill-mode: $default-animation-fill-mode
+) {
+  @include animation-name($name);
+  @include animation-duration($duration);
+  @if $function { @include animation-timing-function($function); }
+  @if $delay { @include animation-delay($delay); }
+  @if $fill-mode { @include animation-fill-mode($fill-mode); }
+}
+
+
+//==========================================
+@mixin blur($size) {
+  @if not unitless($size) {
+      $size: strip-units($size);
+  }
+
+  filter: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="filter"><feGaussianBlur stdDeviation="#{$size}" /></filter></svg>#filter');
+  -webkit-filter: blur($size*1px);
+          filter: blur($size*1px);
+}
+
+
+//==========================================
+@mixin mq-large {
+  @media (min-width: $mq-middle) {
+    @content;
+  }
+}
+
+@mixin mq-middle {
+  @media (min-width: $mq-small) and (max-width: $mq-middle - 1) {
+    @content;
+  }
+}
+ 
+@mixin mq-small {
+  @media (max-width: #{$mq-small - 1}) {
+    @content;
+  }
+}
+
+
+// //==========================================
+// // スプライトマップ群
+
+// // 非Retina用
+// $sprite-bg-x1: sprite-map("sprite/x1/*.png", $layout: sprite);
+// // Retina用
+// $sprite-bg-x2: sprite-map("sprite/x2/*.png", $layout: sprite);
+
+// //==========================================
+// // スプライトの内容を出し分けるmixin
+
+// @mixin dpr-based-sprite-sprite(
+//   $map-x1, $map-x2, $name, $device-pixel-ratio,
+//   $offset-x, $offset-y
+// ) {
+
+//   // 等倍用
+//   @if $device-pixel-ratio == 1 {
+//     // スプライトの位置を取得して指定
+//     $position: sprite-position($map-x1, $name, $offset-x, $offset-y);
+//     background-position: $position;
+//   }
+
+//   // Retina用
+//   @if $device-pixel-ratio == 2 {
+//     // スプライトの位置を取得
+//     // 画像の大きさは本来の画像の二倍なので、offsetも2倍として計算する
+//     $position: sprite-position($map-x2, $name, $offset-x*2, $offset-y*2);
+//     // そしてbackground-sizeで本来のサイズの1/2に縮めているので
+//     // X, Yもそれぞれ半分にする
+//     $x: nth($position, 1) / 2;
+//     $y: nth($position, 2) / 2;
+//     // 計算した値を指定
+//     background-position: $x $y;
+
+//   }
+
+// }
+
+// //==========================================
+// // 背景画像ベースのクラス
+
+// // 非Retina
+// %dpr1-sprite-bg-base {
+//   background: sprite-url($sprite-bg-x1) no-repeat;
+// }
+// // Retina
+// %dpr2-sprite-bg-base {
+//   background: sprite-url($sprite-bg-x2) no-repeat;
+//   background-size: image-width(sprite-path($sprite-bg-x2)) / 2;
+// }
+
+// //==========================================
+// // Retina、非Retinaのセレクタを出力するmixin
+
+// @mixin sprite-bg($name, $offset-x:0, $offset-y:0) {
+//   .dpr-1 & {
+//     @extend %dpr1-sprite-bg-base;
+//     @include dpr-based-sprite-sprite(
+//       $sprite-bg-x1, $sprite-bg-x2, $name, 1,
+//       $offset-x, $offset-y
+//     );
+//   }
+//   .dpr-2 & {
+//     @extend %dpr2-sprite-bg-base;
+//     @include dpr-based-sprite-sprite(
+//       $sprite-bg-x1, $sprite-bg-x2, $name, 2,
+//       $offset-x, $offset-y
+//     );
+//   }
+// }
+
+// // @include diagonal-bg(arrow1, $offset-y: 8px);

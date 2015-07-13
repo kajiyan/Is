@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html id="you-root" class="you-root no-js ie ie6" lang="ja"> <![endif]-->
+<!--[if IE 7]>    <html id="you-root" class="you-root no-js ie ie7" lang="ja"> <![endif]-->
+<!--[if IE 8]>    <html id="you-root" class="you-root no-js ie ie8" lang="ja"> <![endif]-->
+<!--[if IE 9]>    <html id="you-root" class="you-root no-js ie ie9" lang="ja"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html id="you-root" lang="ja" class="you-roo no-js"> <!--<![endif]-->
+<head prefix="og: http://ogp.me/ns# fb: http://www.facebook.com/2008/fbml">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta http-equiv="content-language" content="ja">
+  <meta name="robots" content="index,follow">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="keywords" content="{{ CONFIG.PAGE.INDEX.KEYWORDS }}">
+  <meta name="description" content="{{ CONFIG.PAGE.INDEX.DESCRIPTION }}">
+  <meta http-equiv="imagetoolbar" content="no">
+
+
+  <meta name="viewport" content="{{ CONFIG.META.VIEWPORT }}">
+
+  <!-- [[ OGP ]] -->
+  <meta name="twitter:card" content="{{ CONFIG.PAGE.INDEX.TWITTER.CARD }}">
+  <meta name="twitter:title" content="{{ CONFIG.PAGE.INDEX.TWITTER.TITLE }}">
+  <meta name="twitter:description" content="{{ CONFIG.PAGE.INDEX.TWITTER.DESCRIPTION }}">
+  <meta name="twitter:image:src" content="{{ CONFIG.PAGE.INDEX.TWITTER.IMAGE.SRC }}">
+  <meta name="twitter:image:width" content="{{ CONFIG.PAGE.INDEX.TWITTER.IMAGE.WIDTH }}">
+  <meta name="twitter:image:height" content="{{ CONFIG.PAGE.INDEX.TWITTER.IMAGE.HEIGHT }}">
+  <meta name="twitter:domain" content="{{ CONFIG.PAGE.INDEX.TWITTER.DOMAIN }}">
+
+  <meta property="og:title" content="{{ CONFIG.PAGE.INDEX.OGP.TITLE }}">
+  <meta property="og:type" content="{{ CONFIG.PAGE.INDEX.OGP.TYPE }}">
+  <meta property="og:description" content="{{ CONFIG.PAGE.INDEX.OGP.DESCRIPTION }}">
+  <meta property="og:url" content="{{ CONFIG.PAGE.INDEX.OGP.URL }}">
+  <meta property="og:image" content="{{ CONFIG.PAGE.INDEX.OGP.IMAGE }}">
+  
+  <title>{{ CONFIG.PAGE.INDEX.TITLE }}</title>
+
+  <link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,300' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" media="all" type="text/css" href="{{ PATH.ABSOLUTE_CSS }}style.css?v=1.0.0">
+
+  {% set icons = PATH.COMMON_ENGINE + "layout/head-icons.swig.html" %}
+  {% include icons %}
+  
+  <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+  <![endif]-->
+  <script src="{{ PATH.COMMON_JS }}common.js?v=1.0.0"></script><!-- * -->
+  <script src="{{ PATH.ABSOLUTE_JS }}index.js?v=1.0.0"></script>
+</head>
+
+
+<body class="you-body is-invisibility">
+
+  <!--[if lt IE 7]>
+    <p class="browsehappy">当サイトを最適な状態で閲覧していただくにはブラウザの<a href="http://browsehappy.com/">アップレード</a>が必要です。現在ご利用中のブラウザでは正しい情報を取得できない場合がございます。</p>
+  <![endif]-->
+  <noscript>
+    <div class="noscript">当サイトを最適な状態で閲覧していただくにはブラウザの<span>javaScriptを有効</span>にしてご利用下さい。<br>javaScriptを無効のままご覧いただいた場合、正しい情報を取得できない場合がございます。</div>
+  </noscript>
+  
+  <!--
+  {% set header = PATH.COMMON_ENGINE + "layout/header.swig.html" %}
+  {% include header %}
+  -->
+
+  
+
+  <!--
+  {% set footer = PATH.COMMON_ENGINE + "layout/footer.swig.html" %}
+  {% include footer %}
+  -->
+
+
+  <!-- [[ Google Analytics ]] -->
+  <!-- [[ End Google Analytics ]] -->
+</body>
+</html>

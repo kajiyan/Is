@@ -1,0 +1,9 @@
+{
+  "apps" : [
+    {
+      "name": "socket",
+      "script": "bin/www",
+      "watch": true
+    }
+  ]
+}

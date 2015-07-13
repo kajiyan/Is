@@ -1,0 +1,46 @@
+/* =============================================================================
+    State
+   ========================================================================== */
+.is-debug {
+  @include box-shadow(rgb(0, 0, 0) 0px 0px 0px 1px inset);
+  background-color: rgba(204, 204, 204, 0.5);
+  * {
+		@include box-shadow(rgb(0, 0, 0) 0px 0px 0px 1px inset);
+    background-color: rgba(204, 204, 204, 0.5);
+	}
+}
+
+.is-hidden {
+  position: fixed;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.is-invisibility {
+  @include opacity(0.0);
+}
+
+.is-transparent {
+  color: transparent;
+}
+
+// %clearfix {
+//   overflow: none;
+//   *zoom: 1;
+// }
+
+// aside, footer {
+//   @extend %clearfix;
+// }
+
+// #grid-container {
+//   @extend %clearfix;
+// }
+
+// //こうなる
+// aside, footer, #grid-container {
+//   overflow: none;
+//   *zoom: 1;
+// }
