@@ -3,7 +3,9 @@
 module.exports = (sn, $, _) ->
 	class Stage extends Backbone.Model
     # ------------------------------------------------------------
-    defaults: {}
+    defaults: 
+      selsectTabId: null
+      isBrowserAction: false
 		
     # ------------------------------------------------------------
     constructor: () ->
@@ -17,6 +19,9 @@ module.exports = (sn, $, _) ->
     # ------------------------------------------------------------
     initialize: () ->
       console.log "[Model] Stage -> initialize"
+
+      # ブラウザアクションが始まった時に呼び出される
+      @on "change:isBrowserAction", @_changeBrowserActionHandler
 
       # @listenTo sn.bb.model.overture, "visibility", -> alert ""
 
@@ -37,6 +42,33 @@ module.exports = (sn, $, _) ->
 
         @_setEvent()
 
+        # setInterval =>
+        #   console.log "test"
+          
+        #   try
+        #     chrome.tabCapture.capture
+        #       audio: false
+        #       video: true
+        #       videoConstraints:
+        #         mandatory:
+        #           chromeMediaSource: 'tab'
+        #           maxWidth: 1000
+        #           minWidth: 1000
+        #           maxHeight: 1000
+        #           minHeight: 1000
+        #       ,
+        #       ( stream ) ->
+        #         video = document.createElement "video"
+        #         $("body").append(video)
+        #         video.src = window.URL.createObjectURL stream
+        #         video.play();
+        #   catch e
+        #     console.log e
+          
+
+        # , 1000
+        
+
         # @listenTo @, "change:isScroll", @_changeScrollHandler
 
         # isFirstView の状態がCookie かLocalStrage に残っているか
@@ -53,39 +85,45 @@ module.exports = (sn, $, _) ->
     _setEvent: () ->
       console.log "[Model] Stage -> _setEvent"
 
-      # 新規にタブが開かれた時
-      chrome.tabs.onCreated.addListener @_onCreatedHandler
+      # Content Scriptや Browser Action からのデータを受け取る
+      chrome.runtime.onConnect.addListener ( port ) ->
+        console.log port.name
+
+      # # 新規にタブが開かれた時
+      # chrome.tabs.onCreated.addListener @_onCreatedHandler
       
       chrome.tabs.onUpdated.addListener @_onUpdatedHandler
-      # タブの順番を入れ替えた時
-      chrome.tabs.onMoved.addListener @_onMovedHandler
-      # タブが切り替えられた時
-      chrome.tabs.onSelectionChanged.addListener @_onSelectionChangedHandler
-      # タブが切り替えられてアクティブな状態になった時
-      chrome.tabs.onActiveChanged.addListener @_onActiveChangedHandler
+      # # タブの順番を入れ替えた時
+      # chrome.tabs.onMoved.addListener @_onMovedHandler
+      # # タブが切り替えられた時
+      # chrome.tabs.onSelectionChanged.addListener @_onSelectionChangedHandler
+      # # タブが切り替えられてアクティブな状態になった時
+      # chrome.tabs.onActiveChanged.addListener @_onActiveChangedHandler
 
       chrome.tabs.onActivated.addListener @_onActivatedHandler
 
-# chrome.tabs.onHighlightChanged.addListener ( e ) ->
-#   console.log "onHighlightChanged", e
+      # chrome.tabs.onHighlightChanged.addListener @_onSelectionChangedHandler
 
-# chrome.tabs.onHighlighted.addListener ( e ) ->
-#   console.log "onHighlighted", e
+      # chrome.tabs.onHighlighted.addListener @_onDetachedHandler
 
-# chrome.tabs.onDetached.addListener ( e ) ->
-#   console.log "onDetached", e
+      # chrome.tabs.onDetached.addListener @_onDetachedHandler
 
-# chrome.tabs.onAttached.addListener ( e ) ->
-#   console.log "onAttached", e
+      # chrome.tabs.onAttached.addListener @_onAttachedHandler
 
-# chrome.tabs.onRemoved.addListener ( e ) ->
-#   console.log "onRemoved", e
+      # chrome.tabs.onRemoved.addListener @_onRemovedHandler
 
-# chrome.tabs.onReplaced.addListener ( e ) ->  
-#   console.log "onReplaced", e
+      # chrome.tabs.onReplaced.addListener @_onReplacedHandler
 
-# chrome.tabs.onZoomChange.addListener ( e ) ->  
-#   console.log "onZoomChange", e
+      # chrome.tabs.onZoomChange.addListener @_onZoomChangeHandler
+
+    # エクステンション起動時に開いているタブを取得する
+    # ------------------------------------------------------------
+    _changeBrowserActionHandler: () ->
+      console.log "[Model] Stage -> _changeBrowserActionHandler"
+
+      if @get "isBrowserAction"
+        chrome.tabs.getSelected ( tab ) =>
+          @set "selsectTabId", tab.id
 
 
     # ------------------------------------------------------------
@@ -95,7 +133,8 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onCreatedHandler: ( tab ) ->
-      console.log "onCreated", tab
+      console.log "[Model] Stage -> _onCreated", tab
+
 
     # ------------------------------------------------------------
     # /**
@@ -105,8 +144,17 @@ module.exports = (sn, $, _) ->
     #  * @param {Object} tab - https://developer.chrome.com/extensions/tabs#type-Tab
     #  */
     # ------------------------------------------------------------
-    _onUpdatedHandler: ( tabId, changeInfo, tab ) ->
-      console.log "onUpdated", tabId, changeInfo, tab
+    _onUpdatedHandler: ( tabId, changeInfo, tab ) =>
+      console.log "[Model] Stage -> _onUpdated", tabId, changeInfo, tab
+
+      # エクステンションを起動した状態で、リロードが行われた場合
+      # これまで保持していた selsectTabId を破棄して再度、selsectTabIdを設定する
+      if @get( "isBrowserAction" ) and ( changeInfo.status is "complete" ) and ( @get( "selsectTabId" ) is tabId ) 
+        @set(
+          { "selsectTabId": null },
+          { "silent": true }
+        )
+        @set( "selsectTabId", tabId )
 
     # ------------------------------------------------------------
     # /**
@@ -116,7 +164,7 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onMovedHandler: ( tabId, moveInfo ) ->
-      console.log "onMoved", tabId, moveInfo
+      console.log "[Model] Stage -> _onMoved", tabId, moveInfo
 
     # ------------------------------------------------------------
     # /**
@@ -126,7 +174,7 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onSelectionChangedHandler: ( tabId, selectInfo ) ->
-      console.log "onSelectionChanged", tabId, selectInfo
+      console.log "[Model] Stage -> _onSelectionChanged", tabId, selectInfo
 
     # ------------------------------------------------------------
     # /**
@@ -136,7 +184,7 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onActiveChangedHandler: ( tabId, selectInfo ) ->
-      console.log "onActiveChangedHandler", tabId, selectInfo
+      console.log "[Model] Stage -> _onActiveChangedHandler", tabId, selectInfo
 
     # ------------------------------------------------------------
     # /**
@@ -144,8 +192,29 @@ module.exports = (sn, $, _) ->
     #  * @param {Object} activeInfo
     #  */
     # ------------------------------------------------------------
-    _onActivatedHandler: ( activeInfo ) ->
-      console.log "onActivatedHandler", activeInfo
+    _onActivatedHandler: ( activeInfo ) =>
+      console.log "[Model] Stage -> _onActivatedHandler", activeInfo
+
+      if @get "isBrowserAction"
+        @set "selsectTabId", activeInfo.tabId
+
+
+      # chrome.tabCapture.capture
+      #   audio: false
+      #   video: true
+      #   videoConstraints:
+      #     mandatory:
+      #       chromeMediaSource: 'tab'
+      #       maxWidth: 1000
+      #       minWidth: 1000
+      #       maxHeight: 1000
+      #       minHeight: 1000
+      #   ,
+      #   ( stream ) ->
+      #     video = document.createElement "video"
+      #     $("body").append(video)
+      #     video.src = window.URL.createObjectURL stream
+      #     video.play();
 
     # ------------------------------------------------------------
     # /**
@@ -154,7 +223,7 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onHighlightChangedHandler: ( selectInfo ) ->
-      console.log "onHighlightChangedHandler", selectInfo      
+      console.log "[Model] Stage -> _onHighlightChangedHandler", selectInfo      
 
     # ------------------------------------------------------------
     # /**
@@ -163,7 +232,7 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onHighlightedHandler: ( highlightInfo ) ->
-      console.log "onHighlightedHandler", highlightInfo 
+      console.log "[Model] Stage -> _onHighlightedHandler", highlightInfo 
 
     # ------------------------------------------------------------
     # /**
@@ -173,7 +242,7 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onDetachedHandler: ( tabId, detachInfo ) ->
-      console.log "onDetachedHandler", tabId, detachInfo
+      console.log "[Model] Stage -> _onDetachedHandler", tabId, detachInfo
 
     # ------------------------------------------------------------
     # /**
@@ -183,7 +252,7 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onAttachedHandler: ( tabId, attachInfo ) ->
-      console.log "_onAttachedHandler", tabId, attachInfo
+      console.log "[Model] Stage -> _onAttachedHandler", tabId, attachInfo
 
     # ------------------------------------------------------------
     # /**
@@ -193,7 +262,7 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onRemovedHandler: ( tabId, removeInfo ) ->
-      console.log "_onRemovedHandler", tabId, removeInfo
+      console.log "[Model] Stage -> _onRemovedHandler", tabId, removeInfo
 
     # ------------------------------------------------------------
     # /**
@@ -203,7 +272,7 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onReplacedHandler: ( addedTabId, removedTabId ) ->
-      console.log "_onReplacedHandler", addedTabId, removedTabId
+      console.log "[Model] Stage -> _onReplacedHandler", addedTabId, removedTabId
 
     # ------------------------------------------------------------
     # /**
@@ -212,19 +281,12 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onZoomChangeHandler: ( zoomChangeInfo ) ->
-      console.log "_onZoomChangeHandler", ZoomChangeInfo    
+      console.log "[Model] Stage -> _onZoomChangeHandler", zoomChangeInfo    
 
 
 
 
 
-
-
-
-
-    # ------------------------------------------------------------
-    _changeScrollHandler: () ->
-      # console.log "Model | Stage -> _changeScrollHandler"
 
 
 

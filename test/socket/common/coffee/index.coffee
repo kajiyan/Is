@@ -77,7 +77,7 @@ do (window=window, document=document, $=jQuery) ->
    
     # --------------------------------------------------------------
     common.tf.windowResized (width, height) ->
-      window.common.stage.windowResized()
+      # window.common.stage.windowResized()
    
     # --------------------------------------------------------------
     common.tf.fullScreenChange (full) ->

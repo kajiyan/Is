@@ -28,6 +28,7 @@
   "permissions": [
     "<all_urls>",
     "tabs",
-    "tabCapture"
+    "tabCapture",
+    "activeTab"
   ]
 }

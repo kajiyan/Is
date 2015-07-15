@@ -71,9 +71,7 @@
 	    common.tf.pointerOver(function() {});
 	    common.tf.pointerUp(function() {});
 	    common.tf.windowScroll(function(top) {});
-	    common.tf.windowResized(function(width, height) {
-	      return window.common.stage.windowResized();
-	    });
+	    common.tf.windowResized(function(width, height) {});
 	    return common.tf.fullScreenChange(function(full) {});
 	  });
 	})(window, document, jQuery);

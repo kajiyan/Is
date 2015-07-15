@@ -44,65 +44,19 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(jQuery) {var bg;
-	
-	bg = chrome.extension.getBackgroundPage();
-	
-	console.log(bg);
-	
-	console.log(bg.test());
-	
-	(function(window, document, $) {
+	/* WEBPACK VAR INJECTION */(function(jQuery) {(function(window, document, $) {
 	  "use strict";
+	  var bg;
+	  bg = chrome.extension.getBackgroundPage();
+	  bg.sn.bb.models.stage.set("isBrowserAction", true);
 	  sn.tf = new TypeFrameWork();
 	  return $(window).load(function() {
+	    var $console;
 	    console.log(SETTING);
+	    $console = $("#js__console");
 	    sn.tf.setup(function() {
 	      var util;
-	      util = __webpack_require__(2)(sn);
-	      console.log(util);
-	      chrome.tabs.query({}, function(tabs) {
-	        var i, index, len, tab;
-	        console.log(tabs);
-	        for (index = i = 0, len = tabs.length; i < len; index = ++i) {
-	          tab = tabs[index];
-	          console.log(tab);
-	        }
-	        return chrome.tabs.sendMessage(tabs[0].id, {
-	          text: ""
-	        }, function(response) {
-	          var url;
-	          url = tabs[0].url;
-	          return $('#place').text(response.title + ' ' + url);
-	        });
-	      });
-	      chrome.tabs.onActivated.addListener(function(e) {
-	        return console.log(e);
-	      });
-	      chrome.windows.onFocusChanged.addListener(function(e) {
-	        return console.log(e);
-	      });
-	      return chrome.tabCapture.capture({
-	        audio: false,
-	        video: true,
-	        videoConstraints: {
-	          mandatory: {
-	            maxWidth: 1000,
-	            minWidth: 1000,
-	            maxHeight: 1000,
-	            minHeight: 1000
-	          }
-	        }
-	      }, function(stream) {
-	        var video;
-	        video = document.createElement("video");
-	        $("body").append(video);
-	        video.src = window.URL.createObjectURL(stream);
-	        video.play();
-	        return chrome.tabCapture.getCapturedTabs(function(e) {
-	          return console.log(e);
-	        });
-	      });
+	      return util = __webpack_require__(2)(sn);
 	    });
 	    sn.tf.update(function() {});
 	    sn.tf.draw(function() {});

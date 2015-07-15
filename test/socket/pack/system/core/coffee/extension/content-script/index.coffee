@@ -1,99 +1,91 @@
+# popupとの連携
+chrome.runtime.onMessage.addListener ( msg, sender, sendResponse ) ->
+  console.log(msg, sender, sendResponse)
+  
+  ret = $('title').text()
+  dev = $('title').text()
+  sendResponse { title: ret }
+
 do (window=window, document=document, $=jQuery) ->
   "use strict"
+
+  window.sn = {}
 
   # ============================================================
   # TypeFrameWork
   sn.tf = new TypeFrameWork()
+
 
   $ ->
     # --------------------------------------------------------------
     sn.tf.setup ->
       console.log "setup content script"
 
-      # chrome.tabs.onCreated.addListener ( e ) ->
-      #   console.log "onCreated", e
+      # # popupとの連携
+      # chrome.runtime.onMessage.addListener ( msg, sender, sendResponse ) ->
+      #   console.log(msg, sender, sendResponse)
+        
+      #   ret = $('title').text()
+      #   dev = $('title').text()
+      #   sendResponse { title: ret }
 
-      # chrome.tabs.onUpdated.addListener ( e ) ->
-      #   console.log "onUpdated", e
-
-      # chrome.tabs.onSelectionChanged.addListener ( e ) ->
-      #   console.log "onSelectionChanged", e
-
-      # chrome.tabs.onActiveChanged.addListener ( e ) ->
-      #   console.log "onActiveChanged", e
-
-      # chrome.tabs.onActivated.addListener ( e ) ->
-        # console.log "onActivated", e
-
-      # chrome.tabs.onHighlightChanged.addListener ( e ) ->
-      #   console.log "onHighlightChanged", e
-
-      # chrome.tabs.onHighlighted.addListener ( e ) ->
-      #   console.log "onHighlighted", e
-
-      # chrome.tabs.onDetached.addListener ( e ) ->
-      #   console.log "onDetached", e
-
-      # chrome.tabs.onAttached.addListener ( e ) ->
-      #   console.log "onAttached", e
-
-      # chrome.tabs.onRemoved.addListener ( e ) ->
-      #   console.log "onRemoved", e
-
-      # chrome.tabs.onReplaced.addListener ( e ) ->  
-      #   console.log "onReplaced", e
-
-      # chrome.tabs.onZoomChange.addListener ( e ) ->  
-      #   console.log "onZoomChange", e
-
-
-      dev = ""
-
-      # popupとの連携
-      chrome.runtime.onMessage.addListener (msg, sender, sendResponse ) ->
-        ret = $('title').text()
-        dev = $('title').text()
-        sendResponse { title: ret }
-
-      setInterval ->
-        console.log dev
-        # clearInterval(timer)
-      , 1000
-
-      # setTimeout ->
-      #   console.log "timeout"
-      #   chrome.tabCapture.capture
-      #     audio: false
-      #     video: true
-      #     videoConstraints:
-      #       mandatory:
-      #         maxWidth: 1000
-      #         minWidth: 1000
-      #         maxHeight: 1000
-      #         minHeight: 1000
-      #     ,
-      #     ( stream ) ->
-      #       video = document.createElement "video"
-      #       $("body").append(video)
-      #       video.src = window.URL.createObjectURL stream
-      #       video.play();
-
-      # , 4000
       
 
       $html = $("<div>Hello World</div>")
-      $("body").append($html)
+      $("body").prepend($html)
       
-      port = chrome.extension.connect name: "knockknock"
-      port.postMessage joke: "Knock knock"
-      port.onMessage.addListener (msg) ->
-        console.log msg
-        if msg.question is "Who's there?"
-          port.postMessage answer: "Madame"
-        else if msg.question is "Madame who?"
-          port.postMessage answer: "Madame... Bovary"
+      backgroundScriptSender = {}
+      backgroundScriptSender = chrome.extension.connect name: "fromContentScript"
+      backgroundScriptSender.postMessage joke: "fromContentScript"
 
-      console.log port
+      # setTimeout ->
+      #   console.log "timeout"
+      #   port = chrome.runtime.connect "name": "contentScriptSender"
+      #   console.log port
+      #   port.onMessage.addListener ( msg ) ->
+      #     console.log msg
+      # , 10000
+
+      # # backgroundScriptReceiver
+      backgroundScriptReceiver = {}
+
+      chrome.runtime.onConnect.addListener ( port ) ->
+        console.log port.name
+        if port.name is "contentScriptSender"
+          backgroundScriptReceiver = port
+          backgroundScriptReceiver.onMessage.addListener ( message ) ->
+            console.log message
+
+      #   # port.onMessage.addListener ( message ) ->
+      #     # console.log message
+
+      # chrome.tabs.onConnect.addListener ( port ) ->
+        # console.log port
+
+      # chrome.extension.onConnect.addListener ( port ) ->
+        # console.log port
+
+      # chrome.runtime.onMessage.addListener (message) ->
+      #   $("body").prepend($html)
+      #   console.log message
+
+      # chrome.runtime.sendMessage 'from content script'
+
+      # chrome.runtime.onConnect.addListener ( port ) ->
+      #   console.log port
+      #   port.onMessage.addListener (msg) -> 
+      #     console.log msg
+
+      # port = chrome.extension.connect name: "contentScript"
+      # # # port.postMessage joke: "Knock knock"
+      # port.onMessage.addListener (msg) ->
+      #   console.log msg
+      #   if msg.question is "Who's there?"
+      #     port.postMessage answer: "Madame"
+      #   else if msg.question is "Madame who?"
+      #     port.postMessage answer: "Madame... Bovary"
+
+      # console.log port
 
     # --------------------------------------------------------------
     sn.tf.update ->

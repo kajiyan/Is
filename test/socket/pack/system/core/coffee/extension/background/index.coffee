@@ -1,3 +1,9 @@
+# chrome.app.runtime.onLaunched.addListener () ->
+#   chrome.app.window.create "../debug/index.html",
+#     bounds: 
+#       width: 700
+#       height: 600
+
 connect = ( ob ) ->
   console.log "[stage] connect", ob
 
@@ -22,45 +28,8 @@ connect = ( ob ) ->
             unconnectedData = null;
 
 
-
-
-
-# chrome.tabs.onCreated.addListener ( e ) ->
-#   console.log "onCreated", e
-
-# chrome.tabs.onUpdated.addListener ( e ) ->
-#   console.log "onUpdated", e
-
-# chrome.tabs.onSelectionChanged.addListener ( e ) ->
-#   console.log "onSelectionChanged", e
-
-# chrome.tabs.onActiveChanged.addListener ( e ) ->
-#   console.log "onActiveChanged", e
-
-# chrome.tabs.onActivated.addListener ( e ) ->
-#   connect()
-#   console.log "onActivated", e
-
-# chrome.tabs.onHighlightChanged.addListener ( e ) ->
-#   console.log "onHighlightChanged", e
-
-# chrome.tabs.onHighlighted.addListener ( e ) ->
-#   console.log "onHighlighted", e
-
-# chrome.tabs.onDetached.addListener ( e ) ->
-#   console.log "onDetached", e
-
-# chrome.tabs.onAttached.addListener ( e ) ->
-#   console.log "onAttached", e
-
-# chrome.tabs.onRemoved.addListener ( e ) ->
-#   console.log "onRemoved", e
-
-# chrome.tabs.onReplaced.addListener ( e ) ->  
-#   console.log "onReplaced", e
-
-# chrome.tabs.onZoomChange.addListener ( e ) ->  
-#   console.log "onZoomChange", e
+# chrome.browserAction.onClicked.addListener () ->
+  # console.log "----------"
 
 do (window=window, document=document, $=jQuery) ->
   "use strict"
@@ -69,7 +38,23 @@ do (window=window, document=document, $=jQuery) ->
   $("body").append($html)
 
   window.test = () ->
-    return "bg test"
+    chrome.tabCapture.capture
+      audio: false
+      video: true
+      videoConstraints:
+        mandatory:
+          maxWidth: 1000
+          minWidth: 1000
+          maxHeight: 1000
+          minHeight: 1000
+      ,
+      ( stream ) ->
+        video = document.createElement "video"
+        # $("body").append(video)
+        video.src = window.URL.createObjectURL stream
+        video.play()
+
+  window.sn = {}
 
   # ============================================================
   # TypeFrameWork
@@ -88,6 +73,9 @@ do (window=window, document=document, $=jQuery) ->
     stage: do ->
       Stage = require("./models/stage")(sn, $, _)
       return new Stage()
+    connect: do ->
+      Connect = require("./models/connect")(sn, $, _)
+      return new Connect()
 
 
 
@@ -102,6 +90,13 @@ do (window=window, document=document, $=jQuery) ->
   $ ->
     # --------------------------------------------------------------
     sn.tf.setup ->
+      # chrome.app.runtime.onLaunched.addListener () ->
+      #   chrome.app.window.create 'index.html',
+      #     bounds: 
+      #       width: 700
+      #       height: 600
+
+
       $.when(
         for key, model of sn.bb.models
           model.setup?()
@@ -169,15 +164,15 @@ do (window=window, document=document, $=jQuery) ->
 
 
       # content scriptと通信
-      chrome.extension.onConnect.addListener ( port ) ->
-        console.assert(port.name == "knockknock")
-        port.onMessage.addListener ( msg ) ->
-          if msg.joke is "Knock knock"
-            port.postMessage question: "Who's there?"
-          else if msg.answer is "Madame"
-            port.postMessage question: "Madame who?"
-          else if msg.answer is "Madame... Bovary"
-            port.postMessage question: "I don't get it."  
+      # chrome.extension.onConnect.addListener ( port ) ->
+      #   console.assert(port.name == "knockknock")
+      #   port.onMessage.addListener ( msg ) ->
+      #     if msg.joke is "Knock knock"
+      #       port.postMessage question: "Who's there?"
+      #     else if msg.answer is "Madame"
+      #       port.postMessage question: "Madame who?"
+      #     else if msg.answer is "Madame... Bovary"
+      #       port.postMessage question: "I don't get it."  
 
     # --------------------------------------------------------------
     sn.tf.update ->

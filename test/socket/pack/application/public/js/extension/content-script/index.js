@@ -44,46 +44,43 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(jQuery) {(function(window, document, $) {
+	/* WEBPACK VAR INJECTION */(function($, jQuery) {chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
+	  var dev, ret;
+	  console.log(msg, sender, sendResponse);
+	  ret = $('title').text();
+	  dev = $('title').text();
+	  return sendResponse({
+	    title: ret
+	  });
+	});
+	
+	(function(window, document, $) {
 	  "use strict";
+	  window.sn = {};
 	  sn.tf = new TypeFrameWork();
 	  return $(function() {
 	    sn.tf.setup(function() {
-	      var $html, dev, port;
+	      var $html, backgroundScriptReceiver, backgroundScriptSender;
 	      console.log("setup content script");
-	      dev = "";
-	      chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-	        var ret;
-	        ret = $('title').text();
-	        dev = $('title').text();
-	        return sendResponse({
-	          title: ret
-	        });
-	      });
-	      setInterval(function() {
-	        return console.log(dev);
-	      }, 1000);
 	      $html = $("<div>Hello World</div>");
-	      $("body").append($html);
-	      port = chrome.extension.connect({
-	        name: "knockknock"
+	      $("body").prepend($html);
+	      backgroundScriptSender = {};
+	      backgroundScriptSender = chrome.extension.connect({
+	        name: "fromContentScript"
 	      });
-	      port.postMessage({
-	        joke: "Knock knock"
+	      backgroundScriptSender.postMessage({
+	        joke: "fromContentScript"
 	      });
-	      port.onMessage.addListener(function(msg) {
-	        console.log(msg);
-	        if (msg.question === "Who's there?") {
-	          return port.postMessage({
-	            answer: "Madame"
-	          });
-	        } else if (msg.question === "Madame who?") {
-	          return port.postMessage({
-	            answer: "Madame... Bovary"
+	      backgroundScriptReceiver = {};
+	      return chrome.runtime.onConnect.addListener(function(port) {
+	        console.log(port.name);
+	        if (port.name === "contentScriptSender") {
+	          backgroundScriptReceiver = port;
+	          return backgroundScriptReceiver.onMessage.addListener(function(message) {
+	            return console.log(message);
 	          });
 	        }
 	      });
-	      return console.log(port);
 	    });
 	    sn.tf.update(function() {});
 	    sn.tf.draw(function() {});
@@ -104,7 +101,7 @@
 	  });
 	})(window, document, jQuery);
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(1)))
 
 /***/ },
 /* 1 */

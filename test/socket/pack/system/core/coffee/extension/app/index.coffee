@@ -1,13 +1,5 @@
-bg = chrome.extension.getBackgroundPage()
-console.log bg
-console.log bg.test()
-# alert ""
 
 
-# click = (e) ->
-#   console.log("test");
-
-# alert ""
 
 # document.addEventListener "DOMContentLoaded", () ->
 #   divs = document.querySelectorAll 'div'
@@ -16,6 +8,11 @@ console.log bg.test()
 
 do (window=window, document=document, $=jQuery) ->
   "use strict"
+
+  # background scriptを取得
+  bg = chrome.extension.getBackgroundPage()
+
+  bg.sn.bb.models.stage.set "isBrowserAction", true
 
   # alert "click"
   
@@ -29,6 +26,7 @@ do (window=window, document=document, $=jQuery) ->
   
 
   # console.log io
+
 
 
   # ============================================================
@@ -51,83 +49,39 @@ do (window=window, document=document, $=jQuery) ->
   $(window).load ->
     console.log SETTING
 
+    $console = $("#js__console")
+
     # --------------------------------------------------------------
     sn.tf.setup ->
       util = require("./helper/util")(sn)
-      console.log util
+      # console.log util
 
-      # タブの一覧を取り出す
-      chrome.tabs.query {}
-        # active: false
-        # lastFocusedWindow: false
-        # currentWindow: false
-        ,
-        ( tabs ) ->
-          console.log tabs
+      # # タブの一覧を取り出す
+      # chrome.tabs.query
+      #   active: true
+      #   # active: false
+      #   # lastFocusedWindow: false
+      #   # currentWindow: false
+      #   ,
+      #   ( tabs ) ->
+      #     console.log tabs
 
-          for tab, index in tabs
-            console.log tab
-            # console.log a,b
+      #     for tab, index in tabs
+      #       $console.text(index)
+      #       # console.log a,b
 
-          chrome.tabs.sendMessage tabs[0].id
-            ,
-            text: ""
-            ,
-            ( response ) ->
-              url = tabs[0].url
-              $('#place').text(response.title + ' ' + url)
+      #     $console.text(tabs[0].id)
 
-      chrome.tabs.onActivated.addListener ( e ) ->
-        console.log( e );
-        
+      #     chrome.tabs.sendMessage tabs[0].id
+      #       ,
+      #       text: "popup"
+      #       ,
+      #       ( response ) ->
+      #         $console.text(response)
+      #         url = tabs[0].url
+      #         $('#place').text(response.title + ' ' + url)
 
-      chrome.windows.onFocusChanged.addListener ( e ) ->
-        console.log( e );
-      
-      chrome.tabCapture.capture
-        audio: false
-        video: true
-        videoConstraints:
-          mandatory:
-            maxWidth: 1000
-            minWidth: 1000
-            maxHeight: 1000
-            minHeight: 1000
-        ,
-        ( stream ) ->
-          video = document.createElement "video"
-          $("body").append(video)
-          video.src = window.URL.createObjectURL stream
-          video.play();
-
-          chrome.tabCapture.getCapturedTabs (e) ->
-            console.log e
-
-
-
-      # chrome.tabCapture.capture(
-      #   {
-      #     audio:false,
-      #     video:true,
-      #     videoConstraints:{
-      #       mandatory: {
-      #         chromeMediaSource: 'tab',
-      #         minWidth: tabW,
-      #         maxWidth: tabW,
-      #         minHeight: tabH,
-      #         maxHeight: tabH
-      #       }
-      #     }
-      #   },function(stream){
-      #     that.stream = stream;
-      #     var video = document.createElement('video');
-      #     that.video = video;
-      #     video.src = window.URL.createObjectURL(stream);
-      #     video.addEventListener('canplay',function(event){
-      #       deferred.resolve();
-      #     });
-      #     video.play();
-      #   });
+      # $('#place').text('test')
 
 
     # --------------------------------------------------------------
