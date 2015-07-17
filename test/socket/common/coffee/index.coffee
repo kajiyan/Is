@@ -1,7 +1,9 @@
 do (window=window, document=document, $=jQuery) ->
   "use strict"
 
-  window.sn = $.typeApp = {}
+  window.SETTING = require("setting")() # option {m: "production"}
+  
+  # window.sn = $.typeApp = {}
   window.common = {}
 
   # ============================================================
@@ -19,11 +21,7 @@ do (window=window, document=document, $=jQuery) ->
   # Detect / Normalize event names
 
 
-
-
-  $(window).load ->
-    window.SETTING = require("setting")() # option {m: "production"}
-
+  $ ->
     # ============================================================
     # Module
 

@@ -4,6 +4,9 @@
 #       width: 700
 #       height: 600
 
+# console.log io.connect "http://#{@_setting.HOST}:#{@_setting.PORT}/client"
+
+
 connect = ( ob ) ->
   console.log "[stage] connect", ob
 
@@ -37,22 +40,8 @@ do (window=window, document=document, $=jQuery) ->
   $html = $("<div>Background Hello World</div>")
   $("body").append($html)
 
-  window.test = () ->
-    chrome.tabCapture.capture
-      audio: false
-      video: true
-      videoConstraints:
-        mandatory:
-          maxWidth: 1000
-          minWidth: 1000
-          maxHeight: 1000
-          minHeight: 1000
-      ,
-      ( stream ) ->
-        video = document.createElement "video"
-        # $("body").append(video)
-        video.src = window.URL.createObjectURL stream
-        video.play()
+  console.log SETTING
+  
 
   window.sn = {}
 
@@ -76,7 +65,9 @@ do (window=window, document=document, $=jQuery) ->
     connect: do ->
       Connect = require("./models/connect")(sn, $, _)
       return new Connect()
-
+    socket: do ->
+      Socket = require("./models/socket")(sn, $, _)
+      return new Socket()
 
 
   # ============================================================
@@ -217,7 +208,13 @@ do (window=window, document=document, $=jQuery) ->
     sn.tf.windowScroll (top) ->
 
     # --------------------------------------------------------------
-    sn.tf.windowResized (width, height) ->
+    sn.tf.windowResized ( width, height ) ->
+      # console.log width, height
 
     # --------------------------------------------------------------
     sn.tf.fullScreenChange (full) ->
+
+
+
+
+

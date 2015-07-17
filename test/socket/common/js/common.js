@@ -46,14 +46,13 @@
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {(function(window, document, $) {
 	  "use strict";
-	  window.sn = $.typeApp = {};
+	  window.SETTING = __webpack_require__(2)();
 	  window.common = {};
-	  __webpack_require__(2)(window, document, $);
+	  __webpack_require__(4)(window, document, $);
 	  common.tf = new $.TypeFrameWork();
-	  __webpack_require__(6);
-	  __webpack_require__(7);
-	  return $(window).load(function() {
-	    window.SETTING = __webpack_require__(8)();
+	  __webpack_require__(8);
+	  __webpack_require__(9);
+	  return $(function() {
 	    common.tf.setup(function() {
 	      return $.when(console.log("- SETUP COMMON JAVA SCRIPT -"));
 	    });
@@ -9293,6 +9292,873 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* WEBPACK VAR INJECTION */(function(__dirname) {module.exports = function( options ){
+	  if (options == null) {
+	    options = {};
+	  };
+	
+	  var defaults = {
+	    m: "DEBUG", // mode
+	    l: true     // is localhost
+	  };
+	
+	  for (var key in options) {
+	    if ( options.hasOwnProperty( key ) ) {
+	      defaults[key] = options[key];
+	    }
+	  }
+	
+	  defaults.l = (defaults.l == "false") ? false : defaults.l;
+	
+	  var setting = {};
+	
+	  setting.MODE = defaults.m.toUpperCase(); // string
+	  setting.IS_LOCALHOST = defaults.l;       // bool
+	
+	  setting.IS_FRONT_END_SETTING = true;     // bool
+	
+	  setting.TARGET = {
+	    index: ""
+	  };
+	
+	  setting.PRODUCTION_HOST = "54.65.140.79";
+	  setting.PRODUCTION_PORT = 8001;
+	
+	  setting.DEBUG_HOST = "localhost";
+	  setting.DEBUG_PORT = 8001;
+	
+	  setting.DEBUG_LOCAL_HOST = "localhost";
+	  setting.DEBUG_LOCAL_PORT = 8001;
+	
+	  setting.SYSTEM      = "system";
+	  setting.SYSTEM_CORE = "core";
+	  setting.APPLICATION = "application";
+	
+	  setting.CORE = "../" + setting.SYSTEM_CORE + "/";
+	  setting.DIST = "../../" + setting.APPLICATION  + "/public/";
+	  
+	  setting.COMMON  = "common";
+	  setting.IMAGES  = "images";
+	  setting.CSS     = "css";
+	  setting.JS      = "js";
+	  setting.FONT    = "fonts";
+	  setting.AUDIO   = "audio";
+	  setting.VIDEO   = "video";
+	
+	  setting.BUILDER          = "gulp";
+	  setting.ENGINE           = "swig";
+	  setting.ENGINE_ATTRIBUTE = "swig";
+	  setting.STYLE            = "sass";
+	  setting.ALT_JS           = "coffee";
+	
+	
+	  if (setting.MODE === "PRODUCTION") {
+	    /*
+	     * 本番用サーバーの設定
+	     */
+	    setting.PROTOCOL = "http";
+	    setting.HOST = setting.PRODUCTION_HOST;
+	    setting.PORT = setting.PRODUCTION_PORT;
+	    setting.BASE_URL = "//" + setting.PRODUCTION_HOST + "/";
+	    setting.BASE_PATH = "";
+	    setting.BASE_VIDEO_URL = "";
+	    setting.BASE_SOUND_URL = "";
+	    setting.BASE_IMG_URL = "";
+	  } else {
+	    if (!setting.IS_LOCALHOST) {
+	      /*
+	       * 開発用サーバーの設定
+	       */
+	      setting.PROTOCOL = "http";
+	      setting.HOST = setting.DEBUG_HOST;
+	      setting.PORT = setting.DEBUG_PORT;
+	      setting.BASE_URL = "//" + setting.DEBUG_HOST + "/-/hiranomami/";
+	      setting.BASE_PATH = "";
+	      setting.BASE_VIDEO_URL = "";
+	      setting.BASE_SOUND_URL = "";
+	      setting.BASE_IMG_URL = "";
+	    } else {
+	      /*
+	       * ローカルサーバーの設定
+	       */
+	      setting.PROTOCOL = "http";
+	      setting.HOST = setting.DEBUG_LOCAL_HOST;
+	      setting.PORT = setting.DEBUG_LOCAL_PORT;
+	      setting.BASE_URL = "//" + setting.DEBUG_LOCAL_HOST + ":" + setting.DEBUG_LOCAL_PORT + "/";
+	      setting.BASE_PATH = "";
+	      setting.BASE_VIDEO_URL = "";
+	      setting.BASE_SOUND_URL = "";
+	      setting.BASE_IMG_URL = "";
+	    }
+	  }
+	
+	
+	
+	  if (typeof window !== "undefined" && window !== null && setting.IS_FRONT_END_SETTING) {
+	    var noop = function() {};
+	
+	    if (setting.MODE === "DEBUG") {
+	      if (window.console == null) {
+	        window.console = { log: noop };
+	      }
+	    } else if (setting.MODE === "PRODUCTION") {
+	      window.console = { log: noop };
+	    }
+	
+	    if ( window.location.hostname.indexOf(setting.PRODUCTION_HOST) >= 0 ) {
+	      setting.PROTOCOL = "http";
+	      setting.HOST = setting.PRODUCTION_HOST;
+	      setting.PORT = setting.PRODUCTION_PORT;
+	      setting.BASE_URL = "//" + setting.PRODUCTION_HOST + "/";
+	      setting.BASE_PATH = "top/";
+	      setting.BASE_VIDEO_URL = "";
+	      setting.BASE_SOUND_URL = "";
+	      setting.BASE_IMG_URL = ""; 
+	    } else if ( window.location.hostname.indexOf(setting.DEBUG_HOST) >= 0 ){
+	      setting.PROTOCOL = "http";
+	      setting.HOST = setting.DEBUG_HOST;
+	      setting.PORT = setting.DEBUG_PORT;
+	      setting.BASE_URL = "//" + setting.DEBUG_HOST + "/renewal/";
+	      setting.BASE_PATH = "";
+	      setting.BASE_VIDEO_URL = "";
+	      setting.BASE_SOUND_URL = "";
+	      setting.BASE_IMG_URL = "";
+	    } else if ( window.location.hostname.indexOf(setting.DEBUG_LOCAL_HOST) >= 0 ) {
+	      setting.PROTOCOL = "http";
+	      setting.HOST = setting.DEBUG_LOCAL_HOST;
+	      setting.PORT = setting.DEBUG_LOCAL_PORT;
+	      setting.BASE_URL = "//" + setting.DEBUG_LOCAL_HOST + ":" + setting.DEBUG_LOCAL_PORT + "/";
+	      setting.BASE_PATH = "";
+	      setting.BASE_VIDEO_URL = "";
+	      setting.BASE_SOUND_URL = "";
+	      setting.BASE_IMG_URL = "";
+	    }
+	
+	    console.log( "Front End Setting | /system/core/config/setting.js" );
+	  } else {
+	    console.log( "MODE: " + defaults.m.toUpperCase() + "| IS_LOCALHOST: " + defaults.l );
+	    console.log( "HOST: " + setting.HOST + "| PORT: " + setting.PORT );
+	  }
+	
+	
+	
+	  setting.PATH = {
+	    COMMON: setting.BASE_URL + setting.COMMON + "/",
+	    COMMON_IMAGES: setting.BASE_URL + setting.COMMON + "/" + setting.IMAGES + "/",
+	    COMMON_CSS: setting.BASE_URL + setting.COMMON + "/" + setting.CSS + "/",
+	    COMMON_JS: setting.BASE_URL + setting.COMMON + "/" + setting.JS + "/",
+	    COMMON_FONT: setting.BASE_URL + setting.COMMON + "/" + setting.FONT + "/",
+	    COMMON_AUDIO: setting.BASE_URL + setting.COMMON + "/" + setting.AUDIO + "/",
+	    COMMON_VIDEO: setting.BASE_URL + setting.COMMON + "/" + setting.VIDEO + "/",
+	    ABSOLUTE: setting.BASE_URL + setting.BASE_PATH,
+	    ABSOLUTE_IMAGES: setting.BASE_URL + setting.BASE_PATH + setting.IMAGES + "/",
+	    ABSOLUTE_CSS: setting.BASE_URL + setting.BASE_PATH + setting.CSS + "/",
+	    ABSOLUTE_JS: setting.BASE_URL + setting.BASE_PATH + setting.JS + "/",
+	    ABSOLUTE_FONT: setting.BASE_URL + setting.BASE_PATH + setting.FONT + "/",
+	    ABSOLUTE_AUDIO: setting.BASE_URL + setting.BASE_PATH + setting.AUDIO + "/",
+	    ABSOLUTE_VIDEO: setting.BASE_URL + setting.BASE_PATH + setting.VIDEO + "/"
+	  };
+	
+	  if (!(typeof window !== "undefined" && window !== null)) {
+	    // フロントからの呼び出しでなければコマンドライン用のモジュールを読み込む
+	    var path = __webpack_require__(3);
+	
+	    var common = path.join(__dirname, "../../../../") + setting.COMMON + "/";
+	
+	    setting.PATH.COMMON_FILE     = common;
+	    setting.PATH.COMMON_ENGINE   = common + setting.ENGINE + "/";
+	    setting.PATH.COMMON_SASS     = common + setting.STYLE + "/";
+	    setting.PATH.COMMON_ALT_JS   = common + setting.ALT_JS + "/";
+	  }
+	
+	  setting.CONFIG = {
+	    COMMON: {
+	      BASE_WIDTH      : 1000,
+	      BASE_HEIGHT     : 600,
+	      BASE_MAX_WIDTH  : 1600,
+	      BASE_MAX_HEIGHT : 900,
+	      BASE_MIN_WIDTH  : 1000,
+	      BASE_MIN_HEIGHT : 600
+	    },
+	    PAGE: {
+	      INDEX: {
+	        TITLE: "",
+	        META: {
+	          KEYWORDS: "KEYWORDS",
+	          DESCRIPTION: "DESCRIPTION",
+	        },
+	        OGP: {
+	          TITLE: "TITLE",
+	          TYPE: "website",
+	          DESCRIPTION: "DESCRIPTION",
+	          URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
+	          IMAGE: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png"
+	        },
+	        FACEBOOK: {
+	          TITLE: "TITLE",
+	          TYPE: "website",
+	          DESCRIPTION: "DESCRIPTION",
+	          URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
+	          IMAGE: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png"
+	        },
+	        TWITTER: {
+	          CARD: "summary_large_image",
+	          TITLE: "TITLE",
+	          DESCRIPTION: "DESCRIPTION",
+	          URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
+	          IMAGE: {
+	            SRC: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png",
+	            WIDTH: 900,
+	            HEIGHT: 400
+	          },
+	          HASH_TAGS: "",
+	          DOMAIN: setting.HOST
+	        }
+	      }
+	    },
+	    META: {
+	      VIEWPORT: "width=980"
+	    },
+	    MODE: {
+	      REFRESH_INTERVAL: 10
+	    },
+	    IMAGES: {
+	      MAX_NUMBER_OF_IMAGES: 25,
+	      STUBS: [
+	        {
+	          WIDTH: 480,
+	          HEIGHT: 640,
+	          DATA: ""
+	        },
+	        {
+	          WIDTH: 480,
+	          HEIGHT: 640,
+	          DATA: ""
+	        },
+	        {
+	          WIDTH: 640,
+	          HEIGHT: 480,
+	          DATA: ""
+	        }
+	      ]
+	    },
+	    VIEWER: {
+	      VIEW: {
+	        IMAGE: {
+	          BASE_SIZE_RATIO: 0.75,
+	          MAX_ROTATION: 15
+	        }
+	      }
+	    },
+	    CLIENT: {
+	      DEVICE_ORIENTATION: {
+	        THRESHOLD: 1.5 * 9.8
+	      }
+	    },
+	    RESIZE: {
+	      WIDTH: 640,
+	      HEIGHT: 640
+	    }
+	  };
+	
+	  // if (typeof window !== "undefined" && window !== null && setting.IS_FRONT_END_SETTING) {
+	  //   var noop = function() {};
+	
+	  //   if ( window.location.hostname.indexOf(setting.DEBUG_LOCAL_HOST) >= 0 ) {
+	  //     if (window.console == null) {
+	  //       window.console = {
+	  //         log: noop
+	  //       };
+	  //     }
+	  //   } else if ( window.location.hostname.indexOf(setting.DEBUG_HOST) >= 0 ){
+	  //     if (window.console == null) {
+	  //       window.console = {
+	  //         log: noop
+	  //       };
+	  //     }
+	  //   } else {
+	  //     window.console = {
+	  //       log: noop
+	  //     };
+	  //   }
+	
+	  //   console.log( "Front End Setting! | /system/core/config/setting.js" );
+	  // }else{
+	  //   console.log( "Gulp Setting! | /system/core/config/setting.js" );
+	  //   console.log( "MODE: " + defaults.m.toUpperCase() + "| IS_LOCALHOST: " + defaults.l );
+	  //   console.log( "HOST: " + setting.HOST + "| PORT: " + setting.PORT );
+	  // }
+	
+	  return setting;
+	};
+	
+	// module.exports = function( options ){
+	//   if (options == null) {
+	//     options = {};
+	//   };
+	
+	//   var defaults = {
+	//     m: "DEBUG", // mode
+	//     l: true     // is localhost
+	//   };
+	
+	//   for (var key in options) {
+	//     if ( options.hasOwnProperty( key ) ) {
+	//       defaults[key] = options[key];
+	//     }
+	//   }
+	
+	//   defaults.l = (defaults.l == "false") ? false : defaults.l;
+	
+	//   var setting = {};
+	
+	//   setting.MODE = defaults.m.toUpperCase(); // string
+	//   setting.IS_LOCALHOST = defaults.l;       // bool
+	
+	//   setting.IS_FRONT_END_SETTING = true;     // bool
+	
+	//   setting.TARGET = {
+	//     index: ""
+	//   };
+	
+	//   setting.PRODUCTION_HOST = "";
+	//   setting.PRODUCTION_PORT = 80;
+	
+	//   setting.DEBUG_HOST = "";
+	//   setting.DEBUG_PORT = 80;
+	
+	//   setting.DEBUG_LOCAL_HOST = "localhost";
+	//   setting.DEBUG_LOCAL_PORT = 10022;
+	
+	//   setting.SYSTEM      = "system";
+	//   setting.SYSTEM_CORE = "core";
+	//   setting.APPLICATION = "application";
+	
+	//   setting.CORE = "../" + setting.SYSTEM_CORE + "/";
+	//   setting.DIST = "../../" + setting.APPLICATION  + "/public/";
+	  
+	//   setting.COMMON  = "common";
+	//   setting.IMAGES  = "images";
+	//   setting.CSS     = "css";
+	//   setting.JS      = "js";
+	//   setting.FONT    = "fonts";
+	//   setting.AUDIO   = "audio";
+	//   setting.VIDEO   = "video";
+	
+	//   setting.BUILDER          = "gulp";
+	//   setting.ENGINE           = "swig";
+	//   setting.ENGINE_ATTRIBUTE = "swig";
+	//   setting.STYLE            = "sass";
+	//   setting.ALT_JS           = "coffee";
+	
+	
+	//   if (setting.MODE === "PRODUCTION") {
+	//     /*
+	//      * 本番用サーバーの設定
+	//      */
+	//     setting.PROTOCOL = "http";
+	//     setting.HOST = setting.PRODUCTION_HOST;
+	//     setting.PORT = setting.PRODUCTION_PORT;
+	//     setting.BASE_URL = "//" + setting.PRODUCTION_HOST + "/";
+	//     setting.BASE_PATH = "";
+	//     setting.BASE_VIDEO_URL = "";
+	//     setting.BASE_SOUND_URL = "";
+	//     setting.BASE_IMG_URL = "";
+	//   } else {
+	//     if (!setting.IS_LOCALHOST) {
+	//       /*
+	//        * 開発用サーバーの設定
+	//        */
+	//       setting.PROTOCOL = "http";
+	//       setting.HOST = setting.DEBUG_HOST;
+	//       setting.PORT = setting.DEBUG_PORT;
+	//       setting.BASE_URL = "//" + setting.DEBUG_HOST + "/-/hiranomami/";
+	//       setting.BASE_PATH = "";
+	//       setting.BASE_VIDEO_URL = "";
+	//       setting.BASE_SOUND_URL = "";
+	//       setting.BASE_IMG_URL = "";
+	//     } else {
+	//       /*
+	//        * ローカルサーバーの設定
+	//        */
+	//       setting.PROTOCOL = "http";
+	//       setting.HOST = setting.DEBUG_LOCAL_HOST;
+	//       setting.PORT = setting.DEBUG_LOCAL_PORT;
+	//       setting.BASE_URL = "//" + setting.DEBUG_LOCAL_HOST + ":" + setting.DEBUG_LOCAL_PORT + "/";
+	//       setting.BASE_PATH = "";
+	//       setting.BASE_VIDEO_URL = "";
+	//       setting.BASE_SOUND_URL = "";
+	//       setting.BASE_IMG_URL = "";
+	//     }
+	//   }
+	
+	//   setting.PATH = {
+	//     COMMON: setting.BASE_URL + setting.COMMON + "/",
+	//     COMMON_IMAGES: setting.BASE_URL + setting.COMMON + "/" + setting.IMAGES + "/",
+	//     COMMON_CSS: setting.BASE_URL + setting.COMMON + "/" + setting.CSS + "/",
+	//     COMMON_JS: setting.BASE_URL + setting.COMMON + "/" + setting.JS + "/",
+	//     COMMON_FONT: setting.BASE_URL + setting.COMMON + "/" + setting.FONT + "/",
+	//     COMMON_AUDIO: setting.BASE_URL + setting.COMMON + "/" + setting.AUDIO + "/",
+	//     COMMON_VIDEO: setting.BASE_URL + setting.COMMON + "/" + setting.VIDEO + "/",
+	//     ABSOLUTE: setting.BASE_URL + setting.BASE_PATH,
+	//     ABSOLUTE_IMAGES: setting.BASE_URL + setting.BASE_PATH + setting.IMAGES + "/",
+	//     ABSOLUTE_CSS: setting.BASE_URL + setting.BASE_PATH + setting.CSS + "/",
+	//     ABSOLUTE_JS: setting.BASE_URL + setting.BASE_PATH + setting.JS + "/",
+	//     ABSOLUTE_FONT: setting.BASE_URL + setting.BASE_PATH + setting.FONT + "/",
+	//     ABSOLUTE_AUDIO: setting.BASE_URL + setting.BASE_PATH + setting.AUDIO + "/",
+	//     ABSOLUTE_VIDEO: setting.BASE_URL + setting.BASE_PATH + setting.VIDEO + "/"
+	//   };
+	
+	//   if (!(typeof window !== "undefined" && window !== null)) {
+	//     // フロントからの呼び出しでなければコマンドライン用のモジュールを読み込む
+	//     var path = require("path");
+	
+	//     var common = path.join(__dirname, "../../../../") + setting.COMMON + "/";
+	
+	//     setting.PATH.COMMON_FILE     = common;
+	//     setting.PATH.COMMON_ENGINE   = common + setting.ENGINE + "/";
+	//     setting.PATH.COMMON_SASS     = common + setting.STYLE + "/";
+	//     setting.PATH.COMMON_ALT_JS   = common + setting.ALT_JS + "/";
+	//   }
+	
+	//   setting.CONFIG = {
+	//     COMMON: {
+	//       BASE_WIDTH      : 1000,
+	//       BASE_HEIGHT     : 600,
+	//       BASE_MAX_WIDTH  : 1600,
+	//       BASE_MAX_HEIGHT : 900,
+	//       BASE_MIN_WIDTH  : 1000,
+	//       BASE_MIN_HEIGHT : 600
+	//     },
+	//     PAGE: {
+	//       INDEX: {
+	//         TITLE: "",
+	//         META: {
+	//           KEYWORDS: "KEYWORDS",
+	//           DESCRIPTION: "DESCRIPTION",
+	//         },
+	//         OGP: {
+	//           TITLE: "TITLE",
+	//           TYPE: "website",
+	//           DESCRIPTION: "DESCRIPTION",
+	//           URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
+	//           IMAGE: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png"
+	//         },
+	//         FACEBOOK: {
+	//           TITLE: "TITLE",
+	//           TYPE: "website",
+	//           DESCRIPTION: "DESCRIPTION",
+	//           URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
+	//           IMAGE: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png"
+	//         },
+	//         TWITTER: {
+	//           CARD: "summary_large_image",
+	//           TITLE: "TITLE",
+	//           DESCRIPTION: "DESCRIPTION",
+	//           URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
+	//           IMAGE: {
+	//             SRC: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png",
+	//             WIDTH: 900,
+	//             HEIGHT: 400
+	//           },
+	//           HASH_TAGS: "",
+	//           DOMAIN: setting.HOST
+	//         }
+	//       }
+	//     },
+	//     META: {
+	//       VIEWPORT: "width=980"
+	//     },
+	//     MODE: {
+	//       REFRESH_INTERVAL: 10
+	//     },
+	//     IMAGES: {
+	//       MAX_NUMBER_OF_IMAGES: 25,
+	//       STUBS: [
+	//         {
+	//           WIDTH: 480,
+	//           HEIGHT: 640,
+	//           DATA: ""
+	//         },
+	//         {
+	//           WIDTH: 480,
+	//           HEIGHT: 640,
+	//           DATA: ""
+	//         },
+	//         {
+	//           WIDTH: 640,
+	//           HEIGHT: 480,
+	//           DATA: ""
+	//         }
+	//       ]
+	//     },
+	//     VIEWER: {
+	//       VIEW: {
+	//         IMAGE: {
+	//           BASE_SIZE_RATIO: 0.75,
+	//           MAX_ROTATION: 15
+	//         }
+	//       }
+	//     },
+	//     CLIENT: {
+	//       DEVICE_ORIENTATION: {
+	//         THRESHOLD: 1.5 * 9.8
+	//       }
+	//     }
+	//   };
+	
+	//   if (typeof window !== "undefined" && window !== null && setting.IS_FRONT_END_SETTING) {
+	//     var noop = function() {};
+	
+	//     if ( window.location.hostname.indexOf(setting.DEBUG_LOCAL_HOST) >= 0 ) {
+	//       if (window.console == null) {
+	//         window.console = {
+	//           log: noop
+	//         };
+	//       }
+	//     } else if ( window.location.hostname.indexOf(setting.DEBUG_HOST) >= 0 ){
+	//       if (window.console == null) {
+	//         window.console = {
+	//           log: noop
+	//         };
+	//       }
+	//     } else {
+	//       window.console = {
+	//         log: noop
+	//       };
+	//     }
+	
+	//     console.log( "Front End Setting! | /system/core/config/setting.js" );
+	//   }else{
+	//     console.log( "Gulp Setting! | /system/core/config/setting.js" );
+	//     console.log( "MODE: " + defaults.m.toUpperCase() + "| IS_LOCALHOST: " + defaults.l );
+	//     console.log( "HOST: " + setting.HOST + "| PORT: " + setting.PORT );
+	//   }
+	
+	//   return setting;
+	// };
+	/* WEBPACK VAR INJECTION */}.call(exports, "/"))
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	var process = process || {};
+	(function () {
+	  "use strict";
+	
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+	
+	
+	var isWindows = process.platform === 'win32';
+	
+	
+	// resolves . and .. elements in a path array with directory names there
+	// must be no slashes, empty elements, or device names (c:\) in the array
+	// (so also no leading and trailing slashes - it does not distinguish
+	// relative and absolute paths)
+	function normalizeArray(parts, allowAboveRoot) {
+	  // if the path tries to go above the root, `up` ends up > 0
+	  var up = 0;
+	  for (var i = parts.length; i >= 0; i--) {
+	    var last = parts[i];
+	    if (last == '.') {
+	      parts.splice(i, 1);
+	    } else if (last === '..') {
+	      parts.splice(i, 1);
+	      up++;
+	    } else if (up) {
+	      parts.splice(i, 1);
+	      up--;
+	    }
+	  }
+	
+	  // if the path is allowed to go above the root, restore leading ..s
+	  if (allowAboveRoot) {
+	    for (; up--; up) {
+	      parts.unshift('..');
+	    }
+	  }
+	
+	  return parts;
+	}
+	
+	
+	if (isWindows) {
+	
+	  // Regex to split a filename into [*, dir, basename, ext]
+	  // windows version
+	  var splitPathRe = /^(.+(?:[\\\/](?!$)|:)|[\\\/])?((?:.+?)?(\.[^.]*)?)$/;
+	
+	  // Regex to split a windows path into three parts: [*, device, slash,
+	  // tail] windows-only
+	  var splitDeviceRe =
+	      /^([a-zA-Z]:|[\\\/]{2}[^\\\/]+[\\\/][^\\\/]+)?([\\\/])?(.*?)$/;
+	
+	  // path.resolve([from ...], to)
+	  // windows version
+	  exports.resolve = function() {
+	    var resolvedDevice = '',
+	        resolvedTail = '',
+	        resolvedAbsolute = false;
+	
+	    for (var i = arguments.length; i >= -1; i--) {
+	      var path = (i >= 0)
+	          ? arguments[i]
+	          : process.cwd();
+	
+	      // Skip empty and invalid entries
+	      if (typeof path !== 'string' || !path) {
+	        continue;
+	      }
+	
+	      var result = splitDeviceRe.exec(path),
+	          device = result[1] || '',
+	          isUnc = device && device.charAt(1) !== ':',
+	          isAbsolute = !!result[2] || isUnc, // UNC paths are always absolute
+	          tail = result[3];
+	
+	      if (device &&
+	          resolvedDevice &&
+	          device.toLowerCase() !== resolvedDevice.toLowerCase()) {
+	        // This path points to another device so it is not applicable
+	        continue;
+	      }
+	
+	      if (!resolvedDevice) {
+	        resolvedDevice = device;
+	      }
+	      if (!resolvedAbsolute) {
+	        resolvedTail = tail + '\\' + resolvedTail;
+	        resolvedAbsolute = isAbsolute;
+	      }
+	
+	      if (resolvedDevice && resolvedAbsolute) {
+	        break;
+	      }
+	    }
+	
+	    if (!resolvedAbsolute && resolvedDevice) {
+	      // If we still don't have an absolute path,
+	      // prepend the current path for the device found.
+	
+	      // TODO
+	      // Windows stores the current directories for 'other' drives
+	      // as hidden environment variables like =C:=c:\windows (literally)
+	      // var deviceCwd = os.getCwdForDrive(resolvedDevice);
+	      var deviceCwd = '';
+	
+	      // If there is no cwd set for the drive, it is at root
+	      resolvedTail = deviceCwd + '\\' + resolvedTail;
+	      resolvedAbsolute = true;
+	    }
+	
+	    // Replace slashes (in UNC share name) by backslashes
+	    resolvedDevice = resolvedDevice.replace(/\//g, '\\');
+	
+	    // At this point the path should be resolved to a full absolute path,
+	    // but handle relative paths to be safe (might happen when process.cwd()
+	    // fails)
+	
+	    // Normalize the tail path
+	
+	    function f(p) {
+	      return !!p;
+	    }
+	
+	    resolvedTail = normalizeArray(resolvedTail.split(/[\\\/]+/).filter(f),
+	                                  !resolvedAbsolute).join('\\');
+	
+	    return (resolvedDevice + (resolvedAbsolute ? '\\' : '') + resolvedTail) ||
+	           '.';
+	  };
+	
+	  // windows version
+	  exports.normalize = function(path) {
+	    var result = splitDeviceRe.exec(path),
+	        device = result[1] || '',
+	        isUnc = device && device.charAt(1) !== ':',
+	        isAbsolute = !!result[2] || isUnc, // UNC paths are always absolute
+	        tail = result[3],
+	        trailingSlash = /[\\\/]$/.test(tail);
+	
+	    // Normalize the tail path
+	    tail = normalizeArray(tail.split(/[\\\/]+/).filter(function(p) {
+	      return !!p;
+	    }), !isAbsolute).join('\\');
+	
+	    if (!tail && !isAbsolute) {
+	      tail = '.';
+	    }
+	    if (tail && trailingSlash) {
+	      tail += '\\';
+	    }
+	
+	    return device + (isAbsolute ? '\\' : '') + tail;
+	  };
+	
+	  // windows version
+	  exports.join = function() {
+	    function f(p) {
+	      return p && typeof p === 'string';
+	    }
+	
+	    var paths = Array.prototype.slice.call(arguments, 0).filter(f);
+	    var joined = paths.join('\\');
+	
+	    // Make sure that the joined path doesn't start with two slashes
+	    // - it will be mistaken for an unc path by normalize() -
+	    // unless the paths[0] also starts with two slashes
+	    if (/^[\\\/]{2}/.test(joined) && !/^[\\\/]{2}/.test(paths[0])) {
+	      joined = joined.slice(1);
+	    }
+	
+	    return exports.normalize(joined);
+	  };
+	
+	
+	} else /* posix */ {
+	
+	  // Regex to split a filename into [*, dir, basename, ext]
+	  // posix version
+	  var splitPathRe = /^(.+\/(?!$)|\/)?((?:.+?)?(\.[^.]*)?)$/;
+	
+	  // path.resolve([from ...], to)
+	  // posix version
+	  exports.resolve = function() {
+	    var resolvedPath = '',
+	        resolvedAbsolute = false;
+	
+	    for (var i = arguments.length; i >= -1 && !resolvedAbsolute; i--) {
+	      var path = (i >= 0)
+	          ? arguments[i]
+	          : process.cwd();
+	
+	      // Skip empty and invalid entries
+	      if (typeof path !== 'string' || !path) {
+	        continue;
+	      }
+	
+	      resolvedPath = path + '/' + resolvedPath;
+	      resolvedAbsolute = path.charAt(0) === '/';
+	    }
+	
+	    // At this point the path should be resolved to a full absolute path, but
+	    // handle relative paths to be safe (might happen when process.cwd() fails)
+	
+	    // Normalize the path
+	    resolvedPath = normalizeArray(resolvedPath.split('/').filter(function(p) {
+	      return !!p;
+	    }), !resolvedAbsolute).join('/');
+	
+	    return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+	  };
+	
+	  // path.normalize(path)
+	  // posix version
+	  exports.normalize = function(path) {
+	    var isAbsolute = path.charAt(0) === '/',
+	        trailingSlash = path.slice(-1) === '/';
+	
+	    // Normalize the path
+	    path = normalizeArray(path.split('/').filter(function(p) {
+	      return !!p;
+	    }), !isAbsolute).join('/');
+	
+	    if (!path && !isAbsolute) {
+	      path = '.';
+	    }
+	    if (path && trailingSlash) {
+	      path += '/';
+	    }
+	
+	    return (isAbsolute ? '/' : '') + path;
+	  };
+	
+	
+	  // posix version
+	  exports.join = function() {
+	    var paths = Array.prototype.slice.call(arguments, 0);
+	    return exports.normalize(paths.filter(function(p, index) {
+	      return p && typeof p === 'string';
+	    }).join('/'));
+	  };
+	}
+	
+	
+	exports.dirname = function(path) {
+	  var dir = splitPathRe.exec(path)[1] || '';
+	  if (!dir) {
+	    // No dirname
+	    return '.';
+	  } else if (dir.length === 1 ||
+	      (isWindows && dir.length <= 3 && dir.charAt(1) === ':')) {
+	    // It is just a slash or a drive letter with a slash
+	    return dir;
+	  } else {
+	    // It is a full dirname, strip trailing slash
+	    return dir.substring(0, dir.length - 1);
+	  }
+	};
+	
+	
+	exports.basename = function(path, ext) {
+	  var f = splitPathRe.exec(path)[2] || '';
+	  // TODO: make this comparison case-insensitive on windows?
+	  if (ext && f.substr(-1 * ext.length) === ext) {
+	    f = f.substr(0, f.length - ext.length);
+	  }
+	  return f;
+	};
+	
+	
+	exports.extname = function(path) {
+	  return splitPathRe.exec(path)[3] || '';
+	};
+	
+	
+	exports.exists = function(path, callback) {
+	  process.binding('fs').stat(path, function(err, stats) {
+	    if (callback) callback(err ? false : true);
+	  });
+	};
+	
+	
+	exports.existsSync = function(path) {
+	  try {
+	    process.binding('fs').stat(path);
+	    return true;
+	  } catch (e) {
+	    return false;
+	  }
+	};
+	
+	}());
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(jQuery) {var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty,
@@ -9309,7 +10175,7 @@
 	  if ($ == null) {
 	    $ = jQuery;
 	  }
-	  __webpack_require__(3)(window, document, $);
+	  __webpack_require__(5)(window, document, $);
 	  $window = $(window);
 	  $document = $(document);
 	  sn = $.TypeFrameWork = {};
@@ -10700,7 +11566,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ },
-/* 3 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {module.exports = function(window, document, $) {
@@ -10713,14 +11579,14 @@
 	  if ($ == null) {
 	    $ = jQuery;
 	  }
-	  __webpack_require__(4)(window);
-	  return __webpack_require__(5)(window, document, $);
+	  __webpack_require__(6)(window);
+	  return __webpack_require__(7)(window, document, $);
 	};
 	
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ },
-/* 4 */
+/* 6 */
 /***/ function(module, exports) {
 
 	var slice = [].slice;
@@ -10809,7 +11675,7 @@
 
 
 /***/ },
-/* 5 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -10826,7 +11692,7 @@
 	  if ($ == null) {
 	    $ = jQuery;
 	  }
-	  __webpack_require__(4)(window);
+	  __webpack_require__(6)(window);
 	  sn = $.TypeFrameWork = {};
 	  sn.TypeThread = (function(superClass) {
 	    extend(TypeThread, superClass);
@@ -10904,7 +11770,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports) {
 
 	/*** IMPORTS FROM imports-loader ***/
@@ -12319,878 +13185,11 @@
 	}.call(window));
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*! device.js 0.2.0 */
 	(function(){var a,b,c,d,e,f,g,h,i,j;b=window.device,a={},window.device=a,d=window.document.documentElement,j=window.navigator.userAgent.toLowerCase(),a.ios=function(){return a.iphone()||a.ipod()||a.ipad()},a.iphone=function(){return e("iphone")},a.ipod=function(){return e("ipod")},a.ipad=function(){return e("ipad")},a.android=function(){return e("android")},a.androidPhone=function(){return a.android()&&e("mobile")},a.androidTablet=function(){return a.android()&&!e("mobile")},a.blackberry=function(){return e("blackberry")||e("bb10")||e("rim")},a.blackberryPhone=function(){return a.blackberry()&&!e("tablet")},a.blackberryTablet=function(){return a.blackberry()&&e("tablet")},a.windows=function(){return e("windows")},a.windowsPhone=function(){return a.windows()&&e("phone")},a.windowsTablet=function(){return a.windows()&&e("touch")&&!a.windowsPhone()},a.fxos=function(){return(e("(mobile;")||e("(tablet;"))&&e("; rv:")},a.fxosPhone=function(){return a.fxos()&&e("mobile")},a.fxosTablet=function(){return a.fxos()&&e("tablet")},a.meego=function(){return e("meego")},a.cordova=function(){return window.cordova&&"file:"===location.protocol},a.nodeWebkit=function(){return"object"==typeof window.process},a.mobile=function(){return a.androidPhone()||a.iphone()||a.ipod()||a.windowsPhone()||a.blackberryPhone()||a.fxosPhone()||a.meego()},a.tablet=function(){return a.ipad()||a.androidTablet()||a.blackberryTablet()||a.windowsTablet()||a.fxosTablet()},a.desktop=function(){return!a.tablet()&&!a.mobile()},a.portrait=function(){return window.innerHeight/window.innerWidth>1},a.landscape=function(){return window.innerHeight/window.innerWidth<1},a.noConflict=function(){return window.device=b,this},e=function(a){return-1!==j.indexOf(a)},g=function(a){var b;return b=new RegExp(a,"i"),d.className.match(b)},c=function(a){g(a)||(d.className+=" "+a)},i=function(a){g(a)&&(d.className=d.className.replace(" "+a,""))},a.ios()?a.ipad()?c("ios ipad tablet"):a.iphone()?c("ios iphone mobile"):a.ipod()&&c("ios ipod mobile"):c(a.android()?a.androidTablet()?"android tablet":"android mobile":a.blackberry()?a.blackberryTablet()?"blackberry tablet":"blackberry mobile":a.windows()?a.windowsTablet()?"windows tablet":a.windowsPhone()?"windows mobile":"desktop":a.fxos()?a.fxosTablet()?"fxos tablet":"fxos mobile":a.meego()?"meego mobile":a.nodeWebkit()?"node-webkit":"desktop"),a.cordova()&&c("cordova"),f=function(){a.landscape()?(i("portrait"),c("landscape")):(i("landscape"),c("portrait"))},h=window.hasOwnProperty("onorientationchange")?"orientationchange":"resize",window.addEventListener?window.addEventListener(h,f,!1):window.attachEvent?window.attachEvent(h,f):window[h]=f,f(),true?!(__WEBPACK_AMD_DEFINE_RESULT__ = function(){return a}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)):"undefined"!=typeof module&&module.exports?module.exports=a:window.device=a}).call(this);
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(__dirname) {module.exports = function( options ){
-	  if (options == null) {
-	    options = {};
-	  };
-	
-	  var defaults = {
-	    m: "DEBUG", // mode
-	    l: true     // is localhost
-	  };
-	
-	  for (var key in options) {
-	    if ( options.hasOwnProperty( key ) ) {
-	      defaults[key] = options[key];
-	    }
-	  }
-	
-	  defaults.l = (defaults.l == "false") ? false : defaults.l;
-	
-	  var setting = {};
-	
-	  setting.MODE = defaults.m.toUpperCase(); // string
-	  setting.IS_LOCALHOST = defaults.l;       // bool
-	
-	  setting.IS_FRONT_END_SETTING = true;     // bool
-	
-	  setting.TARGET = {
-	    index: ""
-	  };
-	
-	  setting.PRODUCTION_HOST = "54.65.140.79";
-	  setting.PRODUCTION_PORT = 10022;
-	
-	  setting.DEBUG_HOST = "localhost";
-	  setting.DEBUG_PORT = 10022;
-	
-	  setting.DEBUG_LOCAL_HOST = "localhost";
-	  setting.DEBUG_LOCAL_PORT = 10022;
-	
-	  setting.SYSTEM      = "system";
-	  setting.SYSTEM_CORE = "core";
-	  setting.APPLICATION = "application";
-	
-	  setting.CORE = "../" + setting.SYSTEM_CORE + "/";
-	  setting.DIST = "../../" + setting.APPLICATION  + "/public/";
-	  
-	  setting.COMMON  = "common";
-	  setting.IMAGES  = "images";
-	  setting.CSS     = "css";
-	  setting.JS      = "js";
-	  setting.FONT    = "fonts";
-	  setting.AUDIO   = "audio";
-	  setting.VIDEO   = "video";
-	
-	  setting.BUILDER          = "gulp";
-	  setting.ENGINE           = "swig";
-	  setting.ENGINE_ATTRIBUTE = "swig";
-	  setting.STYLE            = "sass";
-	  setting.ALT_JS           = "coffee";
-	
-	
-	  if (setting.MODE === "PRODUCTION") {
-	    /*
-	     * 本番用サーバーの設定
-	     */
-	    setting.PROTOCOL = "http";
-	    setting.HOST = setting.PRODUCTION_HOST;
-	    setting.PORT = setting.PRODUCTION_PORT;
-	    setting.BASE_URL = "//" + setting.PRODUCTION_HOST + "/";
-	    setting.BASE_PATH = "";
-	    setting.BASE_VIDEO_URL = "";
-	    setting.BASE_SOUND_URL = "";
-	    setting.BASE_IMG_URL = "";
-	  } else {
-	    if (!setting.IS_LOCALHOST) {
-	      /*
-	       * 開発用サーバーの設定
-	       */
-	      setting.PROTOCOL = "http";
-	      setting.HOST = setting.DEBUG_HOST;
-	      setting.PORT = setting.DEBUG_PORT;
-	      setting.BASE_URL = "//" + setting.DEBUG_HOST + "/-/hiranomami/";
-	      setting.BASE_PATH = "";
-	      setting.BASE_VIDEO_URL = "";
-	      setting.BASE_SOUND_URL = "";
-	      setting.BASE_IMG_URL = "";
-	    } else {
-	      /*
-	       * ローカルサーバーの設定
-	       */
-	      setting.PROTOCOL = "http";
-	      setting.HOST = setting.DEBUG_LOCAL_HOST;
-	      setting.PORT = setting.DEBUG_LOCAL_PORT;
-	      setting.BASE_URL = "//" + setting.DEBUG_LOCAL_HOST + ":" + setting.DEBUG_LOCAL_PORT + "/";
-	      setting.BASE_PATH = "";
-	      setting.BASE_VIDEO_URL = "";
-	      setting.BASE_SOUND_URL = "";
-	      setting.BASE_IMG_URL = "";
-	    }
-	  }
-	
-	
-	
-	  if (typeof window !== "undefined" && window !== null && setting.IS_FRONT_END_SETTING) {
-	    var noop = function() {};
-	
-	    if (setting.MODE === "DEBUG") {
-	      if (window.console == null) {
-	        window.console = { log: noop };
-	      }
-	    } else if (setting.MODE === "PRODUCTION") {
-	      window.console = { log: noop };
-	    }
-	
-	    if ( window.location.hostname.indexOf(setting.PRODUCTION_HOST) >= 0 ) {
-	      setting.PROTOCOL = "http";
-	      setting.HOST = setting.PRODUCTION_HOST;
-	      setting.PORT = setting.PRODUCTION_PORT;
-	      setting.BASE_URL = "//" + setting.PRODUCTION_HOST + "/";
-	      setting.BASE_PATH = "top/";
-	      setting.BASE_VIDEO_URL = "";
-	      setting.BASE_SOUND_URL = "";
-	      setting.BASE_IMG_URL = ""; 
-	    } else if ( window.location.hostname.indexOf(setting.DEBUG_HOST) >= 0 ){
-	      setting.PROTOCOL = "http";
-	      setting.HOST = setting.DEBUG_HOST;
-	      setting.PORT = setting.DEBUG_PORT;
-	      setting.BASE_URL = "//" + setting.DEBUG_HOST + "/renewal/";
-	      setting.BASE_PATH = "";
-	      setting.BASE_VIDEO_URL = "";
-	      setting.BASE_SOUND_URL = "";
-	      setting.BASE_IMG_URL = "";
-	    } else if ( window.location.hostname.indexOf(setting.DEBUG_LOCAL_HOST) >= 0 ) {
-	      setting.PROTOCOL = "http";
-	      setting.HOST = setting.DEBUG_LOCAL_HOST;
-	      setting.PORT = setting.DEBUG_LOCAL_PORT;
-	      setting.BASE_URL = "//" + setting.DEBUG_LOCAL_HOST + ":" + setting.DEBUG_LOCAL_PORT + "/";
-	      setting.BASE_PATH = "";
-	      setting.BASE_VIDEO_URL = "";
-	      setting.BASE_SOUND_URL = "";
-	      setting.BASE_IMG_URL = "";
-	    }
-	
-	    console.log( "Front End Setting | /system/core/config/setting.js" );
-	  } else {
-	    console.log( "MODE: " + defaults.m.toUpperCase() + "| IS_LOCALHOST: " + defaults.l );
-	    console.log( "HOST: " + setting.HOST + "| PORT: " + setting.PORT );
-	  }
-	
-	
-	
-	  setting.PATH = {
-	    COMMON: setting.BASE_URL + setting.COMMON + "/",
-	    COMMON_IMAGES: setting.BASE_URL + setting.COMMON + "/" + setting.IMAGES + "/",
-	    COMMON_CSS: setting.BASE_URL + setting.COMMON + "/" + setting.CSS + "/",
-	    COMMON_JS: setting.BASE_URL + setting.COMMON + "/" + setting.JS + "/",
-	    COMMON_FONT: setting.BASE_URL + setting.COMMON + "/" + setting.FONT + "/",
-	    COMMON_AUDIO: setting.BASE_URL + setting.COMMON + "/" + setting.AUDIO + "/",
-	    COMMON_VIDEO: setting.BASE_URL + setting.COMMON + "/" + setting.VIDEO + "/",
-	    ABSOLUTE: setting.BASE_URL + setting.BASE_PATH,
-	    ABSOLUTE_IMAGES: setting.BASE_URL + setting.BASE_PATH + setting.IMAGES + "/",
-	    ABSOLUTE_CSS: setting.BASE_URL + setting.BASE_PATH + setting.CSS + "/",
-	    ABSOLUTE_JS: setting.BASE_URL + setting.BASE_PATH + setting.JS + "/",
-	    ABSOLUTE_FONT: setting.BASE_URL + setting.BASE_PATH + setting.FONT + "/",
-	    ABSOLUTE_AUDIO: setting.BASE_URL + setting.BASE_PATH + setting.AUDIO + "/",
-	    ABSOLUTE_VIDEO: setting.BASE_URL + setting.BASE_PATH + setting.VIDEO + "/"
-	  };
-	
-	  if (!(typeof window !== "undefined" && window !== null)) {
-	    // フロントからの呼び出しでなければコマンドライン用のモジュールを読み込む
-	    var path = __webpack_require__(9);
-	
-	    var common = path.join(__dirname, "../../../../") + setting.COMMON + "/";
-	
-	    setting.PATH.COMMON_FILE     = common;
-	    setting.PATH.COMMON_ENGINE   = common + setting.ENGINE + "/";
-	    setting.PATH.COMMON_SASS     = common + setting.STYLE + "/";
-	    setting.PATH.COMMON_ALT_JS   = common + setting.ALT_JS + "/";
-	  }
-	
-	  setting.CONFIG = {
-	    COMMON: {
-	      BASE_WIDTH      : 1000,
-	      BASE_HEIGHT     : 600,
-	      BASE_MAX_WIDTH  : 1600,
-	      BASE_MAX_HEIGHT : 900,
-	      BASE_MIN_WIDTH  : 1000,
-	      BASE_MIN_HEIGHT : 600
-	    },
-	    PAGE: {
-	      INDEX: {
-	        TITLE: "",
-	        META: {
-	          KEYWORDS: "KEYWORDS",
-	          DESCRIPTION: "DESCRIPTION",
-	        },
-	        OGP: {
-	          TITLE: "TITLE",
-	          TYPE: "website",
-	          DESCRIPTION: "DESCRIPTION",
-	          URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
-	          IMAGE: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png"
-	        },
-	        FACEBOOK: {
-	          TITLE: "TITLE",
-	          TYPE: "website",
-	          DESCRIPTION: "DESCRIPTION",
-	          URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
-	          IMAGE: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png"
-	        },
-	        TWITTER: {
-	          CARD: "summary_large_image",
-	          TITLE: "TITLE",
-	          DESCRIPTION: "DESCRIPTION",
-	          URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
-	          IMAGE: {
-	            SRC: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png",
-	            WIDTH: 900,
-	            HEIGHT: 400
-	          },
-	          HASH_TAGS: "",
-	          DOMAIN: setting.HOST
-	        }
-	      }
-	    },
-	    META: {
-	      VIEWPORT: "width=980"
-	    },
-	    MODE: {
-	      REFRESH_INTERVAL: 10
-	    },
-	    IMAGES: {
-	      MAX_NUMBER_OF_IMAGES: 25,
-	      STUBS: [
-	        {
-	          WIDTH: 480,
-	          HEIGHT: 640,
-	          DATA: ""
-	        },
-	        {
-	          WIDTH: 480,
-	          HEIGHT: 640,
-	          DATA: ""
-	        },
-	        {
-	          WIDTH: 640,
-	          HEIGHT: 480,
-	          DATA: ""
-	        }
-	      ]
-	    },
-	    VIEWER: {
-	      VIEW: {
-	        IMAGE: {
-	          BASE_SIZE_RATIO: 0.75,
-	          MAX_ROTATION: 15
-	        }
-	      }
-	    },
-	    CLIENT: {
-	      DEVICE_ORIENTATION: {
-	        THRESHOLD: 1.5 * 9.8
-	      }
-	    },
-	    RESIZE: {
-	      WIDTH: 640,
-	      HEIGHT: 640
-	    }
-	  };
-	
-	  // if (typeof window !== "undefined" && window !== null && setting.IS_FRONT_END_SETTING) {
-	  //   var noop = function() {};
-	
-	  //   if ( window.location.hostname.indexOf(setting.DEBUG_LOCAL_HOST) >= 0 ) {
-	  //     if (window.console == null) {
-	  //       window.console = {
-	  //         log: noop
-	  //       };
-	  //     }
-	  //   } else if ( window.location.hostname.indexOf(setting.DEBUG_HOST) >= 0 ){
-	  //     if (window.console == null) {
-	  //       window.console = {
-	  //         log: noop
-	  //       };
-	  //     }
-	  //   } else {
-	  //     window.console = {
-	  //       log: noop
-	  //     };
-	  //   }
-	
-	  //   console.log( "Front End Setting! | /system/core/config/setting.js" );
-	  // }else{
-	  //   console.log( "Gulp Setting! | /system/core/config/setting.js" );
-	  //   console.log( "MODE: " + defaults.m.toUpperCase() + "| IS_LOCALHOST: " + defaults.l );
-	  //   console.log( "HOST: " + setting.HOST + "| PORT: " + setting.PORT );
-	  // }
-	
-	  return setting;
-	};
-	
-	// module.exports = function( options ){
-	//   if (options == null) {
-	//     options = {};
-	//   };
-	
-	//   var defaults = {
-	//     m: "DEBUG", // mode
-	//     l: true     // is localhost
-	//   };
-	
-	//   for (var key in options) {
-	//     if ( options.hasOwnProperty( key ) ) {
-	//       defaults[key] = options[key];
-	//     }
-	//   }
-	
-	//   defaults.l = (defaults.l == "false") ? false : defaults.l;
-	
-	//   var setting = {};
-	
-	//   setting.MODE = defaults.m.toUpperCase(); // string
-	//   setting.IS_LOCALHOST = defaults.l;       // bool
-	
-	//   setting.IS_FRONT_END_SETTING = true;     // bool
-	
-	//   setting.TARGET = {
-	//     index: ""
-	//   };
-	
-	//   setting.PRODUCTION_HOST = "";
-	//   setting.PRODUCTION_PORT = 80;
-	
-	//   setting.DEBUG_HOST = "";
-	//   setting.DEBUG_PORT = 80;
-	
-	//   setting.DEBUG_LOCAL_HOST = "localhost";
-	//   setting.DEBUG_LOCAL_PORT = 10022;
-	
-	//   setting.SYSTEM      = "system";
-	//   setting.SYSTEM_CORE = "core";
-	//   setting.APPLICATION = "application";
-	
-	//   setting.CORE = "../" + setting.SYSTEM_CORE + "/";
-	//   setting.DIST = "../../" + setting.APPLICATION  + "/public/";
-	  
-	//   setting.COMMON  = "common";
-	//   setting.IMAGES  = "images";
-	//   setting.CSS     = "css";
-	//   setting.JS      = "js";
-	//   setting.FONT    = "fonts";
-	//   setting.AUDIO   = "audio";
-	//   setting.VIDEO   = "video";
-	
-	//   setting.BUILDER          = "gulp";
-	//   setting.ENGINE           = "swig";
-	//   setting.ENGINE_ATTRIBUTE = "swig";
-	//   setting.STYLE            = "sass";
-	//   setting.ALT_JS           = "coffee";
-	
-	
-	//   if (setting.MODE === "PRODUCTION") {
-	//     /*
-	//      * 本番用サーバーの設定
-	//      */
-	//     setting.PROTOCOL = "http";
-	//     setting.HOST = setting.PRODUCTION_HOST;
-	//     setting.PORT = setting.PRODUCTION_PORT;
-	//     setting.BASE_URL = "//" + setting.PRODUCTION_HOST + "/";
-	//     setting.BASE_PATH = "";
-	//     setting.BASE_VIDEO_URL = "";
-	//     setting.BASE_SOUND_URL = "";
-	//     setting.BASE_IMG_URL = "";
-	//   } else {
-	//     if (!setting.IS_LOCALHOST) {
-	//       /*
-	//        * 開発用サーバーの設定
-	//        */
-	//       setting.PROTOCOL = "http";
-	//       setting.HOST = setting.DEBUG_HOST;
-	//       setting.PORT = setting.DEBUG_PORT;
-	//       setting.BASE_URL = "//" + setting.DEBUG_HOST + "/-/hiranomami/";
-	//       setting.BASE_PATH = "";
-	//       setting.BASE_VIDEO_URL = "";
-	//       setting.BASE_SOUND_URL = "";
-	//       setting.BASE_IMG_URL = "";
-	//     } else {
-	//       /*
-	//        * ローカルサーバーの設定
-	//        */
-	//       setting.PROTOCOL = "http";
-	//       setting.HOST = setting.DEBUG_LOCAL_HOST;
-	//       setting.PORT = setting.DEBUG_LOCAL_PORT;
-	//       setting.BASE_URL = "//" + setting.DEBUG_LOCAL_HOST + ":" + setting.DEBUG_LOCAL_PORT + "/";
-	//       setting.BASE_PATH = "";
-	//       setting.BASE_VIDEO_URL = "";
-	//       setting.BASE_SOUND_URL = "";
-	//       setting.BASE_IMG_URL = "";
-	//     }
-	//   }
-	
-	//   setting.PATH = {
-	//     COMMON: setting.BASE_URL + setting.COMMON + "/",
-	//     COMMON_IMAGES: setting.BASE_URL + setting.COMMON + "/" + setting.IMAGES + "/",
-	//     COMMON_CSS: setting.BASE_URL + setting.COMMON + "/" + setting.CSS + "/",
-	//     COMMON_JS: setting.BASE_URL + setting.COMMON + "/" + setting.JS + "/",
-	//     COMMON_FONT: setting.BASE_URL + setting.COMMON + "/" + setting.FONT + "/",
-	//     COMMON_AUDIO: setting.BASE_URL + setting.COMMON + "/" + setting.AUDIO + "/",
-	//     COMMON_VIDEO: setting.BASE_URL + setting.COMMON + "/" + setting.VIDEO + "/",
-	//     ABSOLUTE: setting.BASE_URL + setting.BASE_PATH,
-	//     ABSOLUTE_IMAGES: setting.BASE_URL + setting.BASE_PATH + setting.IMAGES + "/",
-	//     ABSOLUTE_CSS: setting.BASE_URL + setting.BASE_PATH + setting.CSS + "/",
-	//     ABSOLUTE_JS: setting.BASE_URL + setting.BASE_PATH + setting.JS + "/",
-	//     ABSOLUTE_FONT: setting.BASE_URL + setting.BASE_PATH + setting.FONT + "/",
-	//     ABSOLUTE_AUDIO: setting.BASE_URL + setting.BASE_PATH + setting.AUDIO + "/",
-	//     ABSOLUTE_VIDEO: setting.BASE_URL + setting.BASE_PATH + setting.VIDEO + "/"
-	//   };
-	
-	//   if (!(typeof window !== "undefined" && window !== null)) {
-	//     // フロントからの呼び出しでなければコマンドライン用のモジュールを読み込む
-	//     var path = require("path");
-	
-	//     var common = path.join(__dirname, "../../../../") + setting.COMMON + "/";
-	
-	//     setting.PATH.COMMON_FILE     = common;
-	//     setting.PATH.COMMON_ENGINE   = common + setting.ENGINE + "/";
-	//     setting.PATH.COMMON_SASS     = common + setting.STYLE + "/";
-	//     setting.PATH.COMMON_ALT_JS   = common + setting.ALT_JS + "/";
-	//   }
-	
-	//   setting.CONFIG = {
-	//     COMMON: {
-	//       BASE_WIDTH      : 1000,
-	//       BASE_HEIGHT     : 600,
-	//       BASE_MAX_WIDTH  : 1600,
-	//       BASE_MAX_HEIGHT : 900,
-	//       BASE_MIN_WIDTH  : 1000,
-	//       BASE_MIN_HEIGHT : 600
-	//     },
-	//     PAGE: {
-	//       INDEX: {
-	//         TITLE: "",
-	//         META: {
-	//           KEYWORDS: "KEYWORDS",
-	//           DESCRIPTION: "DESCRIPTION",
-	//         },
-	//         OGP: {
-	//           TITLE: "TITLE",
-	//           TYPE: "website",
-	//           DESCRIPTION: "DESCRIPTION",
-	//           URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
-	//           IMAGE: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png"
-	//         },
-	//         FACEBOOK: {
-	//           TITLE: "TITLE",
-	//           TYPE: "website",
-	//           DESCRIPTION: "DESCRIPTION",
-	//           URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
-	//           IMAGE: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png"
-	//         },
-	//         TWITTER: {
-	//           CARD: "summary_large_image",
-	//           TITLE: "TITLE",
-	//           DESCRIPTION: "DESCRIPTION",
-	//           URL: setting.PROTOCOL + ":" + setting.BASE_URL + setting.BASE_PATH,
-	//           IMAGE: {
-	//             SRC: setting.PROTOCOL + ":" + setting.PATH.COMMON_IMAGES + "ogp/index-0.png",
-	//             WIDTH: 900,
-	//             HEIGHT: 400
-	//           },
-	//           HASH_TAGS: "",
-	//           DOMAIN: setting.HOST
-	//         }
-	//       }
-	//     },
-	//     META: {
-	//       VIEWPORT: "width=980"
-	//     },
-	//     MODE: {
-	//       REFRESH_INTERVAL: 10
-	//     },
-	//     IMAGES: {
-	//       MAX_NUMBER_OF_IMAGES: 25,
-	//       STUBS: [
-	//         {
-	//           WIDTH: 480,
-	//           HEIGHT: 640,
-	//           DATA: ""
-	//         },
-	//         {
-	//           WIDTH: 480,
-	//           HEIGHT: 640,
-	//           DATA: ""
-	//         },
-	//         {
-	//           WIDTH: 640,
-	//           HEIGHT: 480,
-	//           DATA: ""
-	//         }
-	//       ]
-	//     },
-	//     VIEWER: {
-	//       VIEW: {
-	//         IMAGE: {
-	//           BASE_SIZE_RATIO: 0.75,
-	//           MAX_ROTATION: 15
-	//         }
-	//       }
-	//     },
-	//     CLIENT: {
-	//       DEVICE_ORIENTATION: {
-	//         THRESHOLD: 1.5 * 9.8
-	//       }
-	//     }
-	//   };
-	
-	//   if (typeof window !== "undefined" && window !== null && setting.IS_FRONT_END_SETTING) {
-	//     var noop = function() {};
-	
-	//     if ( window.location.hostname.indexOf(setting.DEBUG_LOCAL_HOST) >= 0 ) {
-	//       if (window.console == null) {
-	//         window.console = {
-	//           log: noop
-	//         };
-	//       }
-	//     } else if ( window.location.hostname.indexOf(setting.DEBUG_HOST) >= 0 ){
-	//       if (window.console == null) {
-	//         window.console = {
-	//           log: noop
-	//         };
-	//       }
-	//     } else {
-	//       window.console = {
-	//         log: noop
-	//       };
-	//     }
-	
-	//     console.log( "Front End Setting! | /system/core/config/setting.js" );
-	//   }else{
-	//     console.log( "Gulp Setting! | /system/core/config/setting.js" );
-	//     console.log( "MODE: " + defaults.m.toUpperCase() + "| IS_LOCALHOST: " + defaults.l );
-	//     console.log( "HOST: " + setting.HOST + "| PORT: " + setting.PORT );
-	//   }
-	
-	//   return setting;
-	// };
-	/* WEBPACK VAR INJECTION */}.call(exports, "/"))
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	var process = process || {};
-	(function () {
-	  "use strict";
-	
-	// Copyright Joyent, Inc. and other Node contributors.
-	//
-	// Permission is hereby granted, free of charge, to any person obtaining a
-	// copy of this software and associated documentation files (the
-	// "Software"), to deal in the Software without restriction, including
-	// without limitation the rights to use, copy, modify, merge, publish,
-	// distribute, sublicense, and/or sell copies of the Software, and to permit
-	// persons to whom the Software is furnished to do so, subject to the
-	// following conditions:
-	//
-	// The above copyright notice and this permission notice shall be included
-	// in all copies or substantial portions of the Software.
-	//
-	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-	// USE OR OTHER DEALINGS IN THE SOFTWARE.
-	
-	
-	var isWindows = process.platform === 'win32';
-	
-	
-	// resolves . and .. elements in a path array with directory names there
-	// must be no slashes, empty elements, or device names (c:\) in the array
-	// (so also no leading and trailing slashes - it does not distinguish
-	// relative and absolute paths)
-	function normalizeArray(parts, allowAboveRoot) {
-	  // if the path tries to go above the root, `up` ends up > 0
-	  var up = 0;
-	  for (var i = parts.length; i >= 0; i--) {
-	    var last = parts[i];
-	    if (last == '.') {
-	      parts.splice(i, 1);
-	    } else if (last === '..') {
-	      parts.splice(i, 1);
-	      up++;
-	    } else if (up) {
-	      parts.splice(i, 1);
-	      up--;
-	    }
-	  }
-	
-	  // if the path is allowed to go above the root, restore leading ..s
-	  if (allowAboveRoot) {
-	    for (; up--; up) {
-	      parts.unshift('..');
-	    }
-	  }
-	
-	  return parts;
-	}
-	
-	
-	if (isWindows) {
-	
-	  // Regex to split a filename into [*, dir, basename, ext]
-	  // windows version
-	  var splitPathRe = /^(.+(?:[\\\/](?!$)|:)|[\\\/])?((?:.+?)?(\.[^.]*)?)$/;
-	
-	  // Regex to split a windows path into three parts: [*, device, slash,
-	  // tail] windows-only
-	  var splitDeviceRe =
-	      /^([a-zA-Z]:|[\\\/]{2}[^\\\/]+[\\\/][^\\\/]+)?([\\\/])?(.*?)$/;
-	
-	  // path.resolve([from ...], to)
-	  // windows version
-	  exports.resolve = function() {
-	    var resolvedDevice = '',
-	        resolvedTail = '',
-	        resolvedAbsolute = false;
-	
-	    for (var i = arguments.length; i >= -1; i--) {
-	      var path = (i >= 0)
-	          ? arguments[i]
-	          : process.cwd();
-	
-	      // Skip empty and invalid entries
-	      if (typeof path !== 'string' || !path) {
-	        continue;
-	      }
-	
-	      var result = splitDeviceRe.exec(path),
-	          device = result[1] || '',
-	          isUnc = device && device.charAt(1) !== ':',
-	          isAbsolute = !!result[2] || isUnc, // UNC paths are always absolute
-	          tail = result[3];
-	
-	      if (device &&
-	          resolvedDevice &&
-	          device.toLowerCase() !== resolvedDevice.toLowerCase()) {
-	        // This path points to another device so it is not applicable
-	        continue;
-	      }
-	
-	      if (!resolvedDevice) {
-	        resolvedDevice = device;
-	      }
-	      if (!resolvedAbsolute) {
-	        resolvedTail = tail + '\\' + resolvedTail;
-	        resolvedAbsolute = isAbsolute;
-	      }
-	
-	      if (resolvedDevice && resolvedAbsolute) {
-	        break;
-	      }
-	    }
-	
-	    if (!resolvedAbsolute && resolvedDevice) {
-	      // If we still don't have an absolute path,
-	      // prepend the current path for the device found.
-	
-	      // TODO
-	      // Windows stores the current directories for 'other' drives
-	      // as hidden environment variables like =C:=c:\windows (literally)
-	      // var deviceCwd = os.getCwdForDrive(resolvedDevice);
-	      var deviceCwd = '';
-	
-	      // If there is no cwd set for the drive, it is at root
-	      resolvedTail = deviceCwd + '\\' + resolvedTail;
-	      resolvedAbsolute = true;
-	    }
-	
-	    // Replace slashes (in UNC share name) by backslashes
-	    resolvedDevice = resolvedDevice.replace(/\//g, '\\');
-	
-	    // At this point the path should be resolved to a full absolute path,
-	    // but handle relative paths to be safe (might happen when process.cwd()
-	    // fails)
-	
-	    // Normalize the tail path
-	
-	    function f(p) {
-	      return !!p;
-	    }
-	
-	    resolvedTail = normalizeArray(resolvedTail.split(/[\\\/]+/).filter(f),
-	                                  !resolvedAbsolute).join('\\');
-	
-	    return (resolvedDevice + (resolvedAbsolute ? '\\' : '') + resolvedTail) ||
-	           '.';
-	  };
-	
-	  // windows version
-	  exports.normalize = function(path) {
-	    var result = splitDeviceRe.exec(path),
-	        device = result[1] || '',
-	        isUnc = device && device.charAt(1) !== ':',
-	        isAbsolute = !!result[2] || isUnc, // UNC paths are always absolute
-	        tail = result[3],
-	        trailingSlash = /[\\\/]$/.test(tail);
-	
-	    // Normalize the tail path
-	    tail = normalizeArray(tail.split(/[\\\/]+/).filter(function(p) {
-	      return !!p;
-	    }), !isAbsolute).join('\\');
-	
-	    if (!tail && !isAbsolute) {
-	      tail = '.';
-	    }
-	    if (tail && trailingSlash) {
-	      tail += '\\';
-	    }
-	
-	    return device + (isAbsolute ? '\\' : '') + tail;
-	  };
-	
-	  // windows version
-	  exports.join = function() {
-	    function f(p) {
-	      return p && typeof p === 'string';
-	    }
-	
-	    var paths = Array.prototype.slice.call(arguments, 0).filter(f);
-	    var joined = paths.join('\\');
-	
-	    // Make sure that the joined path doesn't start with two slashes
-	    // - it will be mistaken for an unc path by normalize() -
-	    // unless the paths[0] also starts with two slashes
-	    if (/^[\\\/]{2}/.test(joined) && !/^[\\\/]{2}/.test(paths[0])) {
-	      joined = joined.slice(1);
-	    }
-	
-	    return exports.normalize(joined);
-	  };
-	
-	
-	} else /* posix */ {
-	
-	  // Regex to split a filename into [*, dir, basename, ext]
-	  // posix version
-	  var splitPathRe = /^(.+\/(?!$)|\/)?((?:.+?)?(\.[^.]*)?)$/;
-	
-	  // path.resolve([from ...], to)
-	  // posix version
-	  exports.resolve = function() {
-	    var resolvedPath = '',
-	        resolvedAbsolute = false;
-	
-	    for (var i = arguments.length; i >= -1 && !resolvedAbsolute; i--) {
-	      var path = (i >= 0)
-	          ? arguments[i]
-	          : process.cwd();
-	
-	      // Skip empty and invalid entries
-	      if (typeof path !== 'string' || !path) {
-	        continue;
-	      }
-	
-	      resolvedPath = path + '/' + resolvedPath;
-	      resolvedAbsolute = path.charAt(0) === '/';
-	    }
-	
-	    // At this point the path should be resolved to a full absolute path, but
-	    // handle relative paths to be safe (might happen when process.cwd() fails)
-	
-	    // Normalize the path
-	    resolvedPath = normalizeArray(resolvedPath.split('/').filter(function(p) {
-	      return !!p;
-	    }), !resolvedAbsolute).join('/');
-	
-	    return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-	  };
-	
-	  // path.normalize(path)
-	  // posix version
-	  exports.normalize = function(path) {
-	    var isAbsolute = path.charAt(0) === '/',
-	        trailingSlash = path.slice(-1) === '/';
-	
-	    // Normalize the path
-	    path = normalizeArray(path.split('/').filter(function(p) {
-	      return !!p;
-	    }), !isAbsolute).join('/');
-	
-	    if (!path && !isAbsolute) {
-	      path = '.';
-	    }
-	    if (path && trailingSlash) {
-	      path += '/';
-	    }
-	
-	    return (isAbsolute ? '/' : '') + path;
-	  };
-	
-	
-	  // posix version
-	  exports.join = function() {
-	    var paths = Array.prototype.slice.call(arguments, 0);
-	    return exports.normalize(paths.filter(function(p, index) {
-	      return p && typeof p === 'string';
-	    }).join('/'));
-	  };
-	}
-	
-	
-	exports.dirname = function(path) {
-	  var dir = splitPathRe.exec(path)[1] || '';
-	  if (!dir) {
-	    // No dirname
-	    return '.';
-	  } else if (dir.length === 1 ||
-	      (isWindows && dir.length <= 3 && dir.charAt(1) === ':')) {
-	    // It is just a slash or a drive letter with a slash
-	    return dir;
-	  } else {
-	    // It is a full dirname, strip trailing slash
-	    return dir.substring(0, dir.length - 1);
-	  }
-	};
-	
-	
-	exports.basename = function(path, ext) {
-	  var f = splitPathRe.exec(path)[2] || '';
-	  // TODO: make this comparison case-insensitive on windows?
-	  if (ext && f.substr(-1 * ext.length) === ext) {
-	    f = f.substr(0, f.length - ext.length);
-	  }
-	  return f;
-	};
-	
-	
-	exports.extname = function(path) {
-	  return splitPathRe.exec(path)[3] || '';
-	};
-	
-	
-	exports.exists = function(path, callback) {
-	  process.binding('fs').stat(path, function(err, stats) {
-	    if (callback) callback(err ? false : true);
-	  });
-	};
-	
-	
-	exports.existsSync = function(path) {
-	  try {
-	    process.binding('fs').stat(path);
-	    return true;
-	  } catch (e) {
-	    return false;
-	  }
-	};
-	
-	}());
-
 
 /***/ }
 /******/ ]);

@@ -28,13 +28,13 @@ module.exports = function( options ){
   };
 
   setting.PRODUCTION_HOST = "54.65.140.79";
-  setting.PRODUCTION_PORT = 10022;
+  setting.PRODUCTION_PORT = 8001;
 
   setting.DEBUG_HOST = "localhost";
-  setting.DEBUG_PORT = 10022;
+  setting.DEBUG_PORT = 8001;
 
   setting.DEBUG_LOCAL_HOST = "localhost";
-  setting.DEBUG_LOCAL_PORT = 10022;
+  setting.DEBUG_LOCAL_PORT = 8001;
 
   setting.SYSTEM      = "system";
   setting.SYSTEM_CORE = "core";

@@ -49,12 +49,33 @@ do (window=window, document=document, $=jQuery) ->
       # # backgroundScriptReceiver
       backgroundScriptReceiver = {}
 
+      console.dir(chrome.tabCapture);
+      console.dir(chrome.tabs);
+
       chrome.runtime.onConnect.addListener ( port ) ->
         console.log port.name
         if port.name is "contentScriptSender"
           backgroundScriptReceiver = port
+          
           backgroundScriptReceiver.onMessage.addListener ( message ) ->
-            console.log message
+          
+          # chrome.tabCapture.capture
+          #   audio: false
+          #   video: true
+          #   videoConstraints:
+          #     mandatory:
+          #       chromeMediaSource: 'tab'
+          #       maxWidth: 1000
+          #       minWidth: 1000
+          #       maxHeight: 1000
+          #       minHeight: 1000
+          #   ,
+          #   ( stream ) ->
+          #     video = document.createElement "video"
+          #     $("body").prepend(video)
+          #     video.src = window.URL.createObjectURL stream
+          #     video.play();
+
 
       #   # port.onMessage.addListener ( message ) ->
       #     # console.log message

@@ -48,7 +48,7 @@ app.set('controllers', controllers);
 /* ============================================================
     ROUTES
   ============================================================ */
-
+app.set('routes', routes);
 
 
 // // app.use('/', routes);
@@ -88,7 +88,8 @@ app.set('controllers', controllers);
 
 module.exports = app;
 
-routes.setup();
+// controllers.setup();
+// routes.setup();
 
 
 

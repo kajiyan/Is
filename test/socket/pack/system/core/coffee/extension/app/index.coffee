@@ -21,6 +21,7 @@ do (window=window, document=document, $=jQuery) ->
       # divs[i].addEventListener('click', click);
 
 
+
   # chrome.browserAction.onClicked.addListener () ->
   # alert "click"
   

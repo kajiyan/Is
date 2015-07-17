@@ -29,6 +29,11 @@
     "<all_urls>",
     "tabs",
     "tabCapture",
-    "activeTab"
-  ]
+    "activeTab",
+    "http://*/*",
+    "https://*/*" 
+  ],
+  "externally_connectable": {
+    "matches": ["<all_urls>"]
+  }
 }

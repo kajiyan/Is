@@ -69,25 +69,7 @@
 	  var $html;
 	  $html = $("<div>Background Hello World</div>");
 	  $("body").append($html);
-	  window.test = function() {
-	    return chrome.tabCapture.capture({
-	      audio: false,
-	      video: true,
-	      videoConstraints: {
-	        mandatory: {
-	          maxWidth: 1000,
-	          minWidth: 1000,
-	          maxHeight: 1000,
-	          minHeight: 1000
-	        }
-	      }
-	    }, function(stream) {
-	      var video;
-	      video = document.createElement("video");
-	      video.src = window.URL.createObjectURL(stream);
-	      return video.play();
-	    });
-	  };
+	  console.log(SETTING);
 	  window.sn = {};
 	  sn.tf = new TypeFrameWork();
 	  sn.bb = {
@@ -105,6 +87,11 @@
 	      var Connect;
 	      Connect = __webpack_require__(5)(sn, $, _);
 	      return new Connect();
+	    })(),
+	    socket: (function() {
+	      var Socket;
+	      Socket = __webpack_require__(6)(sn, $, _);
+	      return new Socket();
 	    })()
 	  };
 	  return $(function() {
@@ -10920,12 +10907,18 @@
 	    function Stage() {
 	      this._onActivatedHandler = bind(this._onActivatedHandler, this);
 	      this._onUpdatedHandler = bind(this._onUpdatedHandler, this);
+	      this._changeBrowserActionHandler = bind(this._changeBrowserActionHandler, this);
+	      this._changeSelsectTabIdHandler = bind(this._changeSelsectTabIdHandler, this);
+	      this._setTabCaptureStream = bind(this._setTabCaptureStream, this);
 	      console.log("[Model] Stage -> Constructor");
 	      Stage.__super__.constructor.apply(this, arguments);
+	      this._video = document.createElement("video");
+	      this._localMediaStream = null;
 	    }
 	
 	    Stage.prototype.initialize = function() {
 	      console.log("[Model] Stage -> initialize");
+	      this.on("change:selsectTabId", this._changeSelsectTabIdHandler);
 	      return this.on("change:isBrowserAction", this._changeBrowserActionHandler);
 	    };
 	
@@ -10949,7 +10942,58 @@
 	        return console.log(port.name);
 	      });
 	      chrome.tabs.onUpdated.addListener(this._onUpdatedHandler);
-	      return chrome.tabs.onActivated.addListener(this._onActivatedHandler);
+	      chrome.tabs.onActivated.addListener(this._onActivatedHandler);
+	      return chrome.tabs.onReplaced.addListener(this._onReplacedHandler);
+	    };
+	
+	    Stage.prototype._getSelectedTab = function() {
+	      console.log("[Model] Stage -> _getActiveTab");
+	      return $.Deferred((function(_this) {
+	        return function(defer) {
+	          return chrome.tabs.getSelected(function(tab) {
+	            var error;
+	            if (tab != null) {
+	              return defer.resolve(tab);
+	            } else {
+	              error = new Error("[Model] Stage -> _getActiveTab: Not Selected Tab");
+	              return defer.reject(error);
+	            }
+	          });
+	        };
+	      })(this)).promise();
+	    };
+	
+	    Stage.prototype._setTabCaptureStream = function(options) {
+	      var _options;
+	      console.log("[Model] Stage -> _setTabCaptureStream");
+	      _options = _.extend({
+	        maxWidth: 1920,
+	        minWidth: 640,
+	        maxHeight: 1080,
+	        minHeight: 480
+	      }, options);
+	      console.log(_options);
+	      console.log(this._video);
+	      return chrome.tabs.captureVisibleTab(function(dataUrl) {
+	        return console.log(dataUrl);
+	      });
+	    };
+	
+	    Stage.prototype._changeSelsectTabIdHandler = function() {
+	      console.log("[Model] Stage -> _changeSelsectTabIdHandler");
+	      this._video = document.createElement("video");
+	      return $.when(this._getSelectedTab()).then((function(_this) {
+	        return function(tab) {
+	          return _this._setTabCaptureStream({
+	            maxWidth: tab.width,
+	            minWidth: tab.width,
+	            maxHeight: tab.height,
+	            minHeight: tab.height
+	          });
+	        };
+	      })(this)).then((function(_this) {
+	        return function(canplay) {};
+	      })(this));
 	    };
 	
 	    Stage.prototype._changeBrowserActionHandler = function() {
@@ -10970,12 +11014,18 @@
 	    Stage.prototype._onUpdatedHandler = function(tabId, changeInfo, tab) {
 	      console.log("[Model] Stage -> _onUpdated", tabId, changeInfo, tab);
 	      if (this.get("isBrowserAction") && (changeInfo.status === "complete") && (this.get("selsectTabId") === tabId)) {
-	        this.set({
-	          "selsectTabId": null
-	        }, {
-	          "silent": true
-	        });
-	        return this.set("selsectTabId", tabId);
+	        return chrome.tabs.getSelected((function(_this) {
+	          return function(tab) {
+	            if (tabId === tab.id) {
+	              _this.set({
+	                "selsectTabId": null
+	              }, {
+	                "silent": true
+	              });
+	              _this.set("selsectTabId", tabId);
+	            }
+	          };
+	        })(this));
 	      }
 	    };
 	
@@ -12664,8 +12714,7 @@
 	    extend(Connect, superClass);
 	
 	    Connect.prototype.defaults = {
-	      contentScriptSender: {},
-	      isBrowserAction: false
+	      contentScriptSender: {}
 	    };
 	
 	    function Connect() {
@@ -12700,15 +12749,6 @@
 	      return console.log("[Model] Connect -> _setEvent");
 	    };
 	
-	    Connect.prototype._changeBrowserActionHandler = function() {
-	      console.log("[Model] Connect -> _changeBrowserActionHandler");
-	      return chrome.tabs.getSelected((function(_this) {
-	        return function(tab) {
-	          return _this._setTabConnect(_this, tab.id);
-	        };
-	      })(this));
-	    };
-	
 	    Connect.prototype._setTabConnect = function(model, tabId) {
 	      console.log("[Model] Connect -> _setTabConnect", model, tabId);
 	      return this.set("contentScriptSender", chrome.tabs.connect(tabId, {
@@ -12717,6 +12757,60 @@
 	    };
 	
 	    return Connect;
+	
+	  })(Backbone.Model);
+	};
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(Backbone) {var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+	  hasProp = {}.hasOwnProperty;
+	
+	module.exports = function(sn, $, _) {
+	  var Socket;
+	  return Socket = (function(superClass) {
+	    extend(Socket, superClass);
+	
+	    Socket.prototype.defaults = {};
+	
+	    function Socket() {
+	      console.log("[Model] Socket -> Constructor");
+	      Socket.__super__.constructor.apply(this, arguments);
+	      this.socket = io.connect(SETTING.PROTOCOL + ":" + SETTING.BASE_URL + "extension");
+	    }
+	
+	    Socket.prototype.initialize = function() {
+	      return console.log("[Model] Socket -> initialize");
+	    };
+	
+	    Socket.prototype.setup = function() {
+	      console.log("[Model] Socket -> setup");
+	      return $.Deferred((function(_this) {
+	        return function(defer) {
+	          var onDone;
+	          onDone = function() {
+	            return defer.resolve();
+	          };
+	          _this._setEvent();
+	          return onDone();
+	        };
+	      })(this)).promise();
+	    };
+	
+	    Socket.prototype._setEvent = function() {
+	      console.log("[Model] Socket -> _setEvent");
+	      return this.socket.on("connect", this._connectHandler.bind(this));
+	    };
+	
+	    Socket.prototype._connectHandler = function(e) {
+	      return console.log("[Model] Socket -> _connectHandler", e);
+	    };
+	
+	    return Socket;
 	
 	  })(Backbone.Model);
 	};

@@ -3,13 +3,13 @@
 /**
  * Module dependencies.
  */
-
 var config = require('config');
 
 var app = require('../app');
 var debug = require('debug')('socket:server');
 var http = require('http');
-var socketio = require('socket.io');
+var socketIo = require('socket.io');
+
 
 
 
@@ -31,8 +31,8 @@ var server = http.createServer(app);
 /**
  * socket.io server.
  */
-var io = socketio( server );
-app.set( 'socketIO', io );
+var io = socketIo( server );
+app.set( 'socketIo', io );
 
 
 /**
@@ -41,6 +41,10 @@ app.set( 'socketIO', io );
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+
+app.get('controllers').setup();
+app.get('routes').setup();
 
 /**
  * Normalize a port into a number, string, or false.

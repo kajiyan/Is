@@ -5,7 +5,6 @@ module.exports = (sn, $, _) ->
     # ------------------------------------------------------------
     defaults: 
       contentScriptSender: {}
-      isBrowserAction: false
 		
     # ------------------------------------------------------------
     constructor: () ->
@@ -33,9 +32,6 @@ module.exports = (sn, $, _) ->
     initialize: () ->
       console.log "[Model] Connect -> initialize"
 
-      # # ブラウザアクションが始まった時に呼び出される
-      # @on "change:isBrowserAction", @_changeBrowserActionHandler
-
 
     # ------------------------------------------------------------
     setup: () ->
@@ -59,23 +55,6 @@ module.exports = (sn, $, _) ->
 
       # chrome.extension.onConnect.addListener ( port ) ->
         # port.postMessage joke: "Knock knock"
-
-
-    # ------------------------------------------------------------
-    _changeBrowserActionHandler: () ->
-      console.log "[Model] Connect -> _changeBrowserActionHandler"
-
-      # port = chrome.runtime.connect({name: "hogeChannel"});
-      # port.postMessage({msMessage: "myscript.jsからのメッセージ！"});
-      # エクステンション起動時に開いているタブを取得する
-      chrome.tabs.getSelected ( tab ) =>
-        # Tab ID を取得して接続する 
-        @_setTabConnect @, tab.id
-
-        # setInterval =>
-        #   console.log "send"
-        #   @get("contentScriptSender").postMessage({joke: "Knock knock"})
-        # , 1000
 
 
     # ------------------------------------------------------------

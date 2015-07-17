@@ -12,13 +12,17 @@ module.exports = (sn, $, _) ->
       console.log "[Model] Stage -> Constructor"
       super
 
-
+      @_video = document.createElement "video"
+      @_localMediaStream = null
 
 
 
     # ------------------------------------------------------------
     initialize: () ->
       console.log "[Model] Stage -> initialize"
+
+      # 選択されているタブが変更されて時変わった時
+      @on "change:selsectTabId", @_changeSelsectTabIdHandler
 
       # ブラウザアクションが始まった時に呼び出される
       @on "change:isBrowserAction", @_changeBrowserActionHandler
@@ -104,7 +108,8 @@ module.exports = (sn, $, _) ->
 
       # chrome.tabs.onHighlightChanged.addListener @_onSelectionChangedHandler
 
-      # chrome.tabs.onHighlighted.addListener @_onDetachedHandler
+      # キーボード操作でタブが選択などされた時
+      # chrome.tabs.onHighlighted.addListener @_onHighlightedHandler
 
       # chrome.tabs.onDetached.addListener @_onDetachedHandler
 
@@ -112,18 +117,143 @@ module.exports = (sn, $, _) ->
 
       # chrome.tabs.onRemoved.addListener @_onRemovedHandler
 
-      # chrome.tabs.onReplaced.addListener @_onReplacedHandler
+      chrome.tabs.onReplaced.addListener @_onReplacedHandler
 
       # chrome.tabs.onZoomChange.addListener @_onZoomChangeHandler
 
+    # ------------------------------------------------------------
+    # /**
+    #  * @_getSelectedTab
+    #  * @return {Object} jQuery Deferred
+    #  * 
+    #  * 結果がresolve であれば現在選択されているタブの Tab Objectを返す 
+    #  * reject であればエラーメッセージを返す 
+    #  *
+    #  */
+    # ------------------------------------------------------------
+    _getSelectedTab: () ->
+      console.log "[Model] Stage -> _getActiveTab"
+
+      return $.Deferred ( defer ) =>
+        chrome.tabs.getSelected ( tab ) =>
+          if tab?
+            defer.resolve( tab )
+          else
+            error = new Error( "[Model] Stage -> _getActiveTab: Not Selected Tab" )
+            defer.reject( error )
+      .promise()
+
+
+    # ------------------------------------------------------------
+    # /**
+    #  * @_setTabCaptureStream
+    #  */
+    # ------------------------------------------------------------
+    _setTabCaptureStream: ( options ) =>
+      console.log "[Model] Stage -> _setTabCaptureStream"
+
+      _options = _.extend
+        maxWidth: 1920
+        minWidth: 640
+        maxHeight: 1080
+        minHeight: 480
+        ,
+        options
+
+      # if @_localMediaStream?
+        # @_localMediaStream = null
+        # chrome.runtime.reload()
+        # return
+
+      console.log _options
+      console.log @_video
+
+
+      chrome.tabs.captureVisibleTab ( dataUrl ) ->
+        console.log dataUrl
+
+      # return $.Deferred ( defer ) =>
+      #   try
+      #     chrome.tabCapture.capture
+      #       audio: false
+      #       video: true
+      #       videoConstraints:
+      #         mandatory:
+      #           # chromeMediaSource: 'tab'
+      #           maxWidth: _options.maxWidth
+      #           minWidth: _options.minWidth
+      #           maxHeight: _options.maxHeight
+      #           minHeight: _options.minHeight
+      #       ,
+      #       ( stream ) =>
+      #         # console.dir stream
+      #         @_localMediaStream = stream
+      #         # stream.stop()
+      #         # @_video = document.createElement( "video" ) 
+      #         # @_video.src = window.URL.createObjectURL( stream )
+      #         # window.URL.revokeObjectURL( stream )
+      #         # @_video.addEventListener "canplay", ( canplay ) ->
+      #         #   defer.resolve( canplay )
+      #         # @_video.play()
+      #     return
+      #   catch e
+      #     defer.reject( e )
+      # .promise()
+
+
+    # ------------------------------------------------------------
+    # /**
+    #  * @_changeSelsectTabIdHandler
+    #  */
+    # ------------------------------------------------------------
+    _changeSelsectTabIdHandler: () =>
+      console.log "[Model] Stage -> _changeSelsectTabIdHandler"
+
+      @_video = document.createElement( "video" ) 
+
+      $.when(
+        @_getSelectedTab()
+      ).then(
+        ( tab ) =>
+          @_setTabCaptureStream
+            maxWidth: tab.width
+            minWidth: tab.width
+            maxHeight: tab.height
+            minHeight: tab.height
+      ).then(
+        ( canplay ) =>
+          
+      )
+
+      # try
+      #   chrome.tabCapture.capture
+      #     audio: false
+      #     video: true
+      #     videoConstraints:
+      #       mandatory:
+      #         # chromeMediaSource: 'tab'
+      #         maxWidth: 1000
+      #         minWidth: 1000
+      #         maxHeight: 1000
+      #         minHeight: 1000
+      #     ,
+      #     ( stream ) ->
+      #       video = document.createElement "video"
+      #       $("body").append(video)
+      #       video.src = window.URL.createObjectURL stream
+      #       video.play();
+      # catch e
+      #   console.log e
+
+
     # エクステンション起動時に開いているタブを取得する
     # ------------------------------------------------------------
-    _changeBrowserActionHandler: () ->
+    _changeBrowserActionHandler: () =>
       console.log "[Model] Stage -> _changeBrowserActionHandler"
 
       if @get "isBrowserAction"
         chrome.tabs.getSelected ( tab ) =>
-          @set "selsectTabId", tab.id
+          @set( "selsectTabId", tab.id )
 
 
     # ------------------------------------------------------------
@@ -150,11 +280,16 @@ module.exports = (sn, $, _) ->
       # エクステンションを起動した状態で、リロードが行われた場合
       # これまで保持していた selsectTabId を破棄して再度、selsectTabIdを設定する
       if @get( "isBrowserAction" ) and ( changeInfo.status is "complete" ) and ( @get( "selsectTabId" ) is tabId ) 
-        @set(
-          { "selsectTabId": null },
-          { "silent": true }
-        )
-        @set( "selsectTabId", tabId )
+        chrome.tabs.getSelected ( tab ) =>
+          # ロード終了時も同じタブを開いているか
+          if tabId is tab.id
+            @set(
+              { "selsectTabId": null },
+              { "silent": true }
+            )
+            @set( "selsectTabId", tabId )
+            return
+
 
     # ------------------------------------------------------------
     # /**

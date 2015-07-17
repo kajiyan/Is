@@ -72,13 +72,13 @@
 	        joke: "fromContentScript"
 	      });
 	      backgroundScriptReceiver = {};
+	      console.dir(chrome.tabCapture);
+	      console.dir(chrome.tabs);
 	      return chrome.runtime.onConnect.addListener(function(port) {
 	        console.log(port.name);
 	        if (port.name === "contentScriptSender") {
 	          backgroundScriptReceiver = port;
-	          return backgroundScriptReceiver.onMessage.addListener(function(message) {
-	            return console.log(message);
-	          });
+	          return backgroundScriptReceiver.onMessage.addListener(function(message) {});
 	        }
 	      });
 	    });
