@@ -74,10 +74,14 @@ Extension = (function() {
             // Room ID が指定されていない場合の処理
             console.log('[Controller] Extension -> join | Random Join');
 
+            // join できるルームだけ取得してくる
+            // _this._dayModel.getRooms();
 
-            _this._dayModel.addRoom({
-              'roomId': '000000'
-            });
+            // _this._dayModel.addRoom({
+            //   'roomId': '000000'
+            // });
+
+
             // _this._dayModel.getRooms();
 
             // _this._dayModel

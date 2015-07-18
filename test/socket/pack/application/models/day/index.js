@@ -71,6 +71,7 @@ Day = (function() {
           type: String,
           required: true
         },
+        roomType: Number,
         link: String,
         window: {
           width: Number,
@@ -87,11 +88,11 @@ Day = (function() {
             y: Number
           }
         ],
-        room: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Room',
-          required: true
-        },
+        // room: {
+        //   type: mongoose.Schema.Types.ObjectId,
+        //   ref: 'Room',
+        //   required: true
+        // },
         createDate: { type: Date, default: new Date() }
       },
       {
@@ -117,8 +118,33 @@ Day = (function() {
       });
 
 
-    // Room Schema の定義
-    var RoomSchema = new mongoose.Schema(
+    // ManualRoom Schema の定義
+    var ManualRoomSchema = new mongoose.Schema(
+      {
+        roomId: {
+          type: String,
+          required: true,
+          index: {
+            unique: true,
+            sparse: true
+          }
+        },
+        memorys: [{
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Memory'
+        }],
+        lastModified: { type: Date, default: new Date() },
+        isJoin: Boolean
+      },
+      {
+        toJSON: {
+          virtuals: true
+        }
+      }
+    );
+
+    // AutomaticRoom Schema の定義
+    var AutomaticRoomSchema = new mongoose.Schema(
       {
         roomId: {
           type: String,
@@ -156,7 +182,6 @@ Day = (function() {
     //     }
     //   );
 
-
     // Day スキーマの定義
     var DaySchema = new mongoose.Schema({
       dayId: {
@@ -167,31 +192,36 @@ Day = (function() {
           sparse: true
         }
       },
-      rooms: [{
+      manualRooms: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Room'
+        ref: 'ManualRoom'
+      }],
+      automaticRooms: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AutomaticRoom'
       }],
       createDate: { type: Date, default: new Date() }
     });
 
-    // // // Day の有効期限
-    // // DaySchema
-    // //   .virtual( 'expired' )
-    // //   .get(
-    // //     /**    
-    // //      * @return {boolean} Roomが有効化の真偽値を返す
-    // //      */
-    // //     function() {
-    // //       var result = '';
-    // //       result = this.lastModified < helpers.utils.getExpirationDate( config.AVAILABLE_PERIOD );
-    // //       return result;
-    // //     }
-    // //   );
+    // // Day の有効期限
+    // DaySchema
+    //   .virtual( 'expired' )
+    //   .get(
+    //     /**    
+    //      * @return {boolean} Roomが有効化の真偽値を返す
+    //      */
+    //     function() {
+    //       var result = '';
+    //       result = this.lastModified < helpers.utils.getExpirationDate( config.AVAILABLE_PERIOD );
+    //       return result;
+    //     }
+    //   );
 
     this.Model = {
-      Memory: mongoose.model( 'Memory', MemorySchema ),
-      Room: mongoose.model( 'Room', RoomSchema ),
-      Day: mongoose.model( 'Day', DaySchema )
+      'Memory': mongoose.model('Memory', MemorySchema),
+      'ManualRoom': mongoose.model('ManualRoom', ManualRoomSchema),
+      'AutomaticRoom': mongoose.model('AutomaticRoom', AutomaticRoomSchema),
+      'Day': mongoose.model('Day', DaySchema)
     };
   };
 
@@ -247,13 +277,25 @@ Day = (function() {
 
 
 
-  // Day.prototype.test = function() {
-  //   console.log('[Models] Day -> test');
-  // };
-  
   /**
    * ルームがない場合のみに実行される（getRoomと組み合わせて使う）
    */
+  // --------------------------------------------------------------
+  /**
+   * Day Class -> addRoom
+   * @param {Object} _query
+   * @prop {String} dayId - 
+   *   取得するDay Collection のID を指定する
+   *   何も指定されていなければサーバー内の時間を
+   *   ベースに生成されたid　をクエリのキーにする
+   * @prop {String} roomId - 
+   *   追加するRoom Dcumentに設定するroomId を
+   *   数字6桁で構成された文字列で設定する
+   * @return {Object} Q promise を返す
+   *
+   * Day Document を返す 
+   */
+  // --------------------------------------------------------------
   Day.prototype.addRoom = function( _query ) {
     console.log('[Model] Day -> addRoom');
 
@@ -433,9 +475,9 @@ Day = (function() {
             .populate({
               'path': 'rooms',
               'select': {},
-              'match': {
-                'roomId': query.dayId
-              },
+              // 'match': {
+              //   'roomId': query.dayId
+              // },
               'options': {}
             })
             .exec(function(error, doc) {
