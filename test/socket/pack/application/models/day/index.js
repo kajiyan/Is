@@ -17,6 +17,7 @@ Day = (function() {
   var config = require('config');
   var Q = require('q');
   var _ = require('lodash');
+  var validator = require('validator');
   var helpers = {
     utils: require(config.helpers + 'utils')
   };
@@ -239,8 +240,6 @@ Day = (function() {
         defer.resolve( doc );
       });
 
-    // this.Model.Day
-
     return defer.promise;
   };
 
@@ -255,58 +254,125 @@ Day = (function() {
   /**
    * ルームがない場合のみに実行される（getRoomと組み合わせて使う）
    */
-  Day.prototype.addRoom = function( data ) {
-    console.log('[Models] Day -> addRoom');
+  Day.prototype.addRoom = function( _query ) {
+    console.log('[Model] Day -> addRoom');
 
-    var query = _.extend({
-      'dayID': helpers.utils.getDayID(),
-      'roomID': null
-    }, data);
+    try {
+      var query = _.extend({
+        'dayId': helpers.utils.getDayId(),
+        'roomId': null
+      }, _query);
 
-    return (function(_this) {
-      return Q.Promise(function( resolve, reject, notify ) {
-        var room = new _this.Model.Room({
-          'roomID': query['roomID'],
-          'memorys': [],
-          'isJoin': true,
-          'lastModified': new Date()
-        });
+      // クエリをバリデーションする
+      if( validator.isNumeric(query.roomId) && validator.isLength(query.roomId, 6) ){
+        return (function(_this) {
+          return Q.Promise(function(resolve, reject, notify) {
+            // 追加するRoom ドキュメントを作る
+            var room = new _this.Model.Room({
+              'roomId': query.roomId,
+              'memorys': [],
+              'isJoin': true,
+              'lastModified': new Date()
+            });
 
-        room.save(function( error, doc, numberAffected ){
-          console.log( error, doc, numberAffected );
+            // ドキュメントを追加する
+            room.save(function(error, doc, numberAffected){
+              console.log(error, doc, numberAffected);
 
-          if( error ){
-            reject( error );
-            return;
-          }
-
-          _this.Model.Day
-            .findOneAndUpdate(
-              {
-                'dayID': query['dayID']
-              },
-              {
-                '$push': {
-                  'rooms': doc._id
-                }
-              },
-              {
-                'new': true,
-                'upsert': true
-              }
-            )
-            .exec(function( error, doc ){
-              if( error ){
-                reject( error );
+              if (error) {
+                reject(error);
                 return;
               }
 
-              resolve();
+              // ドキュメントの追加が成功したら 
+              // クエリで指定されているdayId を持つDay Collection に 
+              // 追加されたRoom の_id を追加する 
+              _this.Model.Day
+                .findOneAndUpdate(
+                  {
+                    'dayId': query.dayId
+                  },
+                  {
+                    '$push': {
+                      'rooms': doc._id
+                    }
+                  },
+                  {
+                    'new': true,
+                    'upsert': true
+                  }
+                )
+                .exec(function(error, doc) {
+                  if (error) {
+                    reject(error);
+                    return;
+                  }
+
+                  resolve();
+                });
             });
-        });
-      });
-    })(this);
+          });
+        })(this);
+      } else {
+        throw new Error('[Model] Day -> addRoom | Validation Error: Query Value');
+      }
+    } catch(error) {
+      console.log(error);
+    }
   };
+
+  // Day.prototype.addRoom = function( data ) {
+  //   console.log('[Models] Day -> addRoom');
+
+  //   var query = _.extend({
+  //     'dayID': helpers.utils.getDayID(),
+  //     'roomID': null
+  //   }, data);
+
+  //   return (function(_this) {
+  //     return Q.Promise(function( resolve, reject, notify ) {
+  //       var room = new _this.Model.Room({
+  //         'roomID': query['roomID'],
+  //         'memorys': [],
+  //         'isJoin': true,
+  //         'lastModified': new Date()
+  //       });
+
+  //       room.save(function( error, doc, numberAffected ){
+  //         console.log( error, doc, numberAffected );
+
+  //         if( error ){
+  //           reject( error );
+  //           return;
+  //         }
+
+  //         _this.Model.Day
+  //           .findOneAndUpdate(
+  //             {
+  //               'dayID': query['dayID']
+  //             },
+  //             {
+  //               '$push': {
+  //                 'rooms': doc._id
+  //               }
+  //             },
+  //             {
+  //               'new': true,
+  //               'upsert': true
+  //             }
+  //           )
+  //           .exec(function( error, doc ){
+  //             if( error ){
+  //               reject( error );
+  //               return;
+  //             }
+
+  //             resolve();
+  //           });
+  //       });
+  //     });
+  //   })(this);
+  // };
 
 
 
@@ -349,23 +415,56 @@ Day = (function() {
    */
   // --------------------------------------------------------------
   Day.prototype.getRooms = function( _query ) {
-    console.log('[Models] Day -> getRooms');
+    console.log('[Model] Day -> getRooms');
 
     var query = _.extend({
-      'dayId': helpers.utils.getDayID()
+      'dayId': helpers.utils.getDayId()
     }, _query);
 
-    try {
+    return (function(_this) {
+      return Q.Promise(function(resolve, reject, notify) {
+        try {
+          _this.Model.Day
+            .findOne(
+              {
+                'dayId': query.dayId
+              }
+            )
+            .populate({
+              'path': 'rooms',
+              'select': {},
+              'match': {
+                'roomId': query.dayId
+              },
+              'options': {}
+            })
+            .exec(function(error, doc) {
+              console.log( error, doc );
+
+              if( error ){
+                reject( error );
+                return;
+              }
+
+              resolve( doc );
+            });
+        } catch (error) {
+          
+        }
+      });
+    })(this);
+
+    // try {
 
 
-      // if (typeof query[roomId] !== "undefined" && query[roomId] !== null) {
+    //   // if (typeof query[roomId] !== "undefined" && query[roomId] !== null) {
 
-      // } else {
-      //   throw new Error('[Model] Day -> getRooms | Not: Query Data');
-      // }
-    } catch (error) {
-       console.log(error);
-    }
+    //   // } else {
+    //   //   throw new Error('[Model] Day -> getRooms | Not: Query Data');
+    //   // }
+    // } catch (error) {
+    //    console.log(error);
+    // }
   };
 
 
