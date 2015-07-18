@@ -1,14 +1,16 @@
 # I"s - eternal me
 
+* [Roomについて](#room_section)
 * [REST_API](#rest_api)
 * [SOCKET_API](#socket_api)
 
 - - -
-
+<a name="room_section"></a>
 ## Roomについて
 ### 概要
 
-- 起動画面のform（Join Space ID）から送信されたRoomID（数字6桁）を元にRoomを生成する
+- Room にはユーザーが任意に作成するManual Room と自動生成されるAutomatic Roomがある
+- 起動画面のform Join Space IDから送信されたRoomID（数字6桁）を元にSocketサーバーにRoomを生成する
 - formからの送信された値のRoomがすでに存在すればそのRoomに接続する
 - Random Joinから接続するとRoomIDをランダムに生成して接続する
 - ひとつのRoomの最大接続数は6
@@ -16,33 +18,52 @@
 ### RoomIDの取り回し方
 1. 新規起動時
 	- `join`をid無し、またはRandom Joinでemitするとサーバー側で新規RoomIDが割り当てられる
-	- 割り当てられたRoomIDを`localStorage.roomId`に保存する
+	- ~~割り当てられたRoomIDを`localStorage.roomId`に保存する~~
 
-2. 2回め以降の起動時
-	- localStorageに保存したRoomIDをパラメータとして`join`をemit
-	- 当該idが期限切れになっていたら場合は新規RoomIDが返されるのでlocalStorageに保存する
-	- Room（Space）からログアウトするとlocalStorageに保存してあるRoomIDを破棄する
-	- Roomが期限切れになるとRoomIDを破棄する
+2. ~~2回め以降の起動時~~
+	- ~~localStorageに保存したRoomIDをパラメータとして`join`をemit~~
+	- ~~当該idが期限切れになっていたら場合は新規RoomIDが返されるのでlocalStorageに保存する~~
+	- ~~Room（Space）からログアウトするとlocalStorageに保存してあるRoomIDを破棄する~~
+	- ~~Roomが期限切れになるとRoomIDを破棄する~~
 
 
 - Day object
 
 		{
 			"_id": "1234567890abcdfegh"
-			"dayID": ""20150712,
-			"rooms": [
-				(Room ObjectId),
-				(Room ObjectId),
+			"dayId": "20150712",
+			"manualRooms": [
+				(Manual Room ObjectId),
+				(Manual Room ObjectId),
+				...
+			],
+			"AutomaticRooms": [
+				(Automatic Room ObjectId),
+				(Automatic Room ObjectId),
 				...
 			],
 			"createDate": "2015-07-07T12:00:00.024Z"
 		}
 
-- Room object
+- Manual Room object
 
 		{
 			"_id": "1234567890abcdfegh",
-			"roomID": "123456",
+			"roomId": "123456",
+			"memorys": [
+				(Memory ObjectId),
+				(Memory ObjectId),
+				...
+			]
+			"isJoin": true
+			"lastModified": "2015-07-07T12:00:00.024Z",
+		}
+
+- Automatic Room object
+
+		{
+			"_id": "1234567890abcdfegh",
+			"roomId": "123456",
 			"memorys": [
 				(Memory ObjectId),
 				(Memory ObjectId),
@@ -58,8 +79,8 @@
 
 		{
 			"_id": "1234567890abcdfegh",
-			"dayID": "20150712",
-			"roomID": "123456",
+			"dayId": "20150712",
+			"roomId": "123456",
 			"url": "//is-eternal.me/memory/20150712/123456/1234567890abcdfegh"
 			"link": "https://www.google.co.jp/"
 			"window": {
@@ -328,25 +349,74 @@ JPEG画像を base64 エンコードした文字列
 <a name="socket_api"></a>
 # socket.io 系
 
-* [receivePointer](#receivePointer)
-* [receiveIs](#receivePointer)
+* [connect](#connect)
+* [join](#join)
 * [getImage](#getImage)
 
 ### port: 80
 
-下記のルールでアクセス可能とする
+下記のルールでアクセス可能とする  
+エクステンション用 Name Space  
+http://api.is-eternal.me/extension
 
-    http://is-eternal.me/api/sockets
+## Namespace `Extension`
 
-## 各 API イベントリスナー 解説
+<a name="connect"></a>
+### 【connect】
+ユーザーの追加通知
 
-<a name="addUser"></a>
-## 【publicPointer】
-ユーザー追加通知依頼
+#### Overview
+`Client -> API`  
+ユーザーがWebSocketサーバーとの接続が成功した時に通知される  
+Socket接続を開始する
 
+##### Parameters
 
-### ■ リクエストメソッド
-POST
+##### Callback
+
+###### Server
+
+```js
+socketIo.on( 'connection', function( socket ){});
+```
+
+###### Client
+
+```js
+var socket = io.connect( 'http://api.is-eternal.me/extension' );
+```
+
+***
+
+### 【join】
+ユーザーの追加通知
+
+#### Overview
+`Client -> API`  
+
+##### Parameters
+- data
+
+		@param {Object}
+		@prop {number} [roomId] - 接続するRoomID
+
+		{
+			"roomId": "000000"
+		}
+
+##### Callback
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
 
 ### ■ リクエストパラメータ
 #### - image_path (string) (required)
