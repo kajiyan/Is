@@ -60,10 +60,8 @@
 	  sn.tf = new TypeFrameWork();
 	  return $(function() {
 	    sn.tf.setup(function() {
-	      var $html, backgroundScriptReceiver, backgroundScriptSender;
+	      var backgroundScriptReceiver, backgroundScriptSender;
 	      console.log("setup content script");
-	      $html = $("<div>Hello World</div>");
-	      $("body").prepend($html);
 	      backgroundScriptSender = {};
 	      backgroundScriptSender = chrome.extension.connect({
 	        name: "fromContentScript"

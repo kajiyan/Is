@@ -27,12 +27,6 @@ module.exports = (sn, $, _) ->
       # ブラウザアクションが始まった時に呼び出される
       @on "change:isBrowserAction", @_changeBrowserActionHandler
 
-      # @listenTo sn.bb.model.overture, "visibility", -> alert ""
-
-      # @on "change:file", @_changeFileHandler
-      # @on "change:data", @_changeDataHandler
-      # @on "change:id", @_changeIdHandler
-
 
 
 
@@ -160,15 +154,6 @@ module.exports = (sn, $, _) ->
         ,
         options
 
-      # if @_localMediaStream?
-        # @_localMediaStream = null
-        # chrome.runtime.reload()
-        # return
-
-      console.log _options
-      console.log @_video
-
-
       chrome.tabs.captureVisibleTab ( dataUrl ) ->
         console.log dataUrl
 
@@ -246,10 +231,10 @@ module.exports = (sn, $, _) ->
       #   console.log e
 
 
-    # エクステンション起動時に開いているタブを取得する
+    # エクステンションのポップアップの展開状態が変わった時に実行される
     # ------------------------------------------------------------
-    _changeBrowserActionHandler: () =>
-      console.log "[Model] Stage -> _changeBrowserActionHandler"
+    _changeBrowserActionHandler: ( model, isBrowserAction ) =>
+      console.log "[Model] Stage -> _changeBrowserActionHandler", model, isBrowserAction
 
       if @get "isBrowserAction"
         chrome.tabs.getSelected ( tab ) =>

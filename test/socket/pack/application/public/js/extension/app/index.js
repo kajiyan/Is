@@ -46,7 +46,8 @@
 
 	/* WEBPACK VAR INJECTION */(function(jQuery) {(function(window, document, $) {
 	  "use strict";
-	  var bg;
+	  var bg, sn;
+	  sn = {};
 	  bg = chrome.extension.getBackgroundPage();
 	  bg.sn.bb.models.stage.set("isBrowserAction", true);
 	  sn.tf = new TypeFrameWork();

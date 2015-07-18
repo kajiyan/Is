@@ -30,17 +30,13 @@ connect = ( ob ) ->
           else
             unconnectedData = null;
 
-
-# chrome.browserAction.onClicked.addListener () ->
-  # console.log "----------"
-
 do (window=window, document=document, $=jQuery) ->
   "use strict"
 
-  $html = $("<div>Background Hello World</div>")
-  $("body").append($html)
-
   console.log SETTING
+
+  # $html = $("<div>Background Hello World</div>")
+  # $("body").append($html)
   
 
   window.sn = {}

@@ -1,6 +1,6 @@
 var Utils = (function() {
   var events = require('events');
-  // var moment = require('moment');
+  var moment = require('moment');
   var _ = require('lodash');
 
   function Utils() {
@@ -9,25 +9,24 @@ var Utils = (function() {
     this.eve = new events.EventEmitter();
   }
 
-  // // --------------------------------------------------------------
-  // /**
-  //  * getDayID
-  //  * @return {string} 生成したIDを返す
-  //  *
-  //  * 日付をベースにしたIDを生成する
-  //  *
-  //  */
-  // // --------------------------------------------------------------
-  // Utils.prototype.getDayID = function() {
-  //   console.log('[Helpers] -> Utils -> getDayID');
+  // --------------------------------------------------------------
+  /**
+   * getDayId
+   * @return {string} 生成したIDを返す
+   *
+   * 日付をベースにしたIDを生成する
+   */
+  // --------------------------------------------------------------
+  Utils.prototype.getDayId = function() {
+    console.log('[Helpers] -> Utils -> getDayId');
 
-  //   var result = '';
+    var result = '';
 
-  //   var id = moment().format("YYYYMMDD");
-  //   result = id.toString();
+    var id = moment().format("YYYYMMDD");
+    result = id.toString();
 
-  //   return result;
-  // };
+    return result;
+  };
 
   // // --------------------------------------------------------------
   // Utils.prototype.generateID = function() {

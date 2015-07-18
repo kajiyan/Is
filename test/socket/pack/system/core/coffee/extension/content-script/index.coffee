@@ -31,8 +31,8 @@ do (window=window, document=document, $=jQuery) ->
 
       
 
-      $html = $("<div>Hello World</div>")
-      $("body").prepend($html)
+      # $html = $("<div>Hello World</div>")
+      # $("body").prepend($html)
       
       backgroundScriptSender = {}
       backgroundScriptSender = chrome.extension.connect name: "fromContentScript"

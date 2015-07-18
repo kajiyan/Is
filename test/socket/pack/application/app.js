@@ -14,8 +14,9 @@ var swig = require('swig');
 
 var app = express();
 
-var controllers = require( config.controllers );
+var models = require( config.models );
 var routes = require( config.routes );
+var controllers = require( config.controllers );
 
 
 
@@ -37,18 +38,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 /* ============================================================
-    CONTROLLER
- ============================================================ */
-app.set('controllers', controllers);
-
-/* ============================================================
     MODEL
   ============================================================ */
+app.set('models', models);
 
 /* ============================================================
     ROUTES
   ============================================================ */
 app.set('routes', routes);
+
+/* ============================================================
+    CONTROLLER
+ ============================================================ */
+app.set('controllers', controllers);
+
 
 
 // // app.use('/', routes);

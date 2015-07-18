@@ -1,20 +1,13 @@
-
-
-
-# document.addEventListener "DOMContentLoaded", () ->
-#   divs = document.querySelectorAll 'div'
-#   for i in [0...divs.length]
-#     divs[i].addEventListener 'click', click
-
 do (window=window, document=document, $=jQuery) ->
   "use strict"
+
+  sn = {}
 
   # background scriptを取得
   bg = chrome.extension.getBackgroundPage()
 
   bg.sn.bb.models.stage.set "isBrowserAction", true
 
-  # alert "click"
   
     # for i in [0...divs.length]
       # alert i
@@ -24,9 +17,6 @@ do (window=window, document=document, $=jQuery) ->
 
   # chrome.browserAction.onClicked.addListener () ->
   # alert "click"
-  
-
-  # console.log io
 
 
 
@@ -47,6 +37,13 @@ do (window=window, document=document, $=jQuery) ->
   #   Router = require("./router/index")(sn, $, _)
   #   return new Router()
 
+  # window.addEventListener "unload"
+  #   ,
+  #   (e) ->
+  #     bg.sn.bb.models.stage.set "isBrowserAction", false
+  #   ,
+  #   false
+
   $(window).load ->
     console.log SETTING
 
@@ -55,7 +52,6 @@ do (window=window, document=document, $=jQuery) ->
     # --------------------------------------------------------------
     sn.tf.setup ->
       util = require("./helper/util")(sn)
-      # console.log util
 
       # # タブの一覧を取り出す
       # chrome.tabs.query

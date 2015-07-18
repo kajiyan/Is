@@ -66,9 +66,6 @@
 	
 	(function(window, document, $) {
 	  "use strict";
-	  var $html;
-	  $html = $("<div>Background Hello World</div>");
-	  $("body").append($html);
 	  console.log(SETTING);
 	  window.sn = {};
 	  sn.tf = new TypeFrameWork();
@@ -10972,8 +10969,6 @@
 	        maxHeight: 1080,
 	        minHeight: 480
 	      }, options);
-	      console.log(_options);
-	      console.log(this._video);
 	      return chrome.tabs.captureVisibleTab(function(dataUrl) {
 	        return console.log(dataUrl);
 	      });
@@ -10996,8 +10991,8 @@
 	      })(this));
 	    };
 	
-	    Stage.prototype._changeBrowserActionHandler = function() {
-	      console.log("[Model] Stage -> _changeBrowserActionHandler");
+	    Stage.prototype._changeBrowserActionHandler = function(model, isBrowserAction) {
+	      console.log("[Model] Stage -> _changeBrowserActionHandler", model, isBrowserAction);
 	      if (this.get("isBrowserAction")) {
 	        return chrome.tabs.getSelected((function(_this) {
 	          return function(tab) {
@@ -12775,16 +12770,27 @@
 	  return Socket = (function(superClass) {
 	    extend(Socket, superClass);
 	
-	    Socket.prototype.defaults = {};
+	    Socket.prototype.defaults = {
+	      isConnected: false
+	    };
 	
 	    function Socket() {
 	      console.log("[Model] Socket -> Constructor");
 	      Socket.__super__.constructor.apply(this, arguments);
-	      this.socket = io.connect(SETTING.PROTOCOL + ":" + SETTING.BASE_URL + "extension");
+	      this.socket = {};
 	    }
 	
 	    Socket.prototype.initialize = function() {
-	      return console.log("[Model] Socket -> initialize");
+	      var key, model, ref, results;
+	      console.log("[Model] Socket -> initialize");
+	      this.on("change:isConnected", this._changeIsConnectedHandler.bind(this));
+	      ref = sn.bb.models;
+	      results = [];
+	      for (key in ref) {
+	        model = ref[key];
+	        results.push(this.listenTo(model, "change:isPopupOpen", this._changeIsPopupOpenHandler.bind(this)));
+	      }
+	      return results;
 	    };
 	
 	    Socket.prototype.setup = function() {
@@ -12795,7 +12801,7 @@
 	          onDone = function() {
 	            return defer.resolve();
 	          };
-	          _this._setEvent();
+	          _this.connect();
 	          return onDone();
 	        };
 	      })(this)).promise();
@@ -12803,11 +12809,75 @@
 	
 	    Socket.prototype._setEvent = function() {
 	      console.log("[Model] Socket -> _setEvent");
-	      return this.socket.on("connect", this._connectHandler.bind(this));
+	      this.socket.on("connect", this._connectHandler.bind(this));
+	      this.socket.on("error", this._socketErrorHandler.bind(this));
+	      this.socket.on("disconnect", this._disconnectHandler.bind(this));
+	      this.socket.on("reconnect", this._reconnectHandler.bind(this));
+	      this.socket.on("reconnect_attempt", this._reconnectAttemptHandler.bind(this));
+	      this.socket.on("reconnecting", this._reconnectingHandler.bind(this));
+	      this.socket.on("reconnect_error", this._reconnectErrorHandler.bind(this));
+	      return this.socket.on("reconnect_failed", this._reconnectFailedHandler.bind(this));
 	    };
 	
-	    Socket.prototype._connectHandler = function(e) {
-	      return console.log("[Model] Socket -> _connectHandler", e);
+	    Socket.prototype.connect = function() {
+	      console.log("[Model] Socket -> connect");
+	      this.socket = io.connect(SETTING.PROTOCOL + ":" + SETTING.BASE_URL + "extension");
+	      return this._setEvent();
+	    };
+	
+	    Socket.prototype.join = function() {
+	      console.log("[Model] Socket -> join");
+	      return this.socket.emit("join");
+	    };
+	
+	    Socket.prototype._changeIsPopupOpenHandler = function(model, isPopupOpen) {
+	      console.log("[Model] Socket -> _changeIsPopupOpenHandler");
+	      if (isPopupOpen && !this.socket.connected) {
+	        return this.connect();
+	      } else if (!isPopupOpen && this.socket.connected) {
+	        return this.socket.disconnect();
+	      }
+	    };
+	
+	    Socket.prototype._changeIsConnectedHandler = function(model, isConnected) {
+	      console.log("[Model] Socket -> _changeIsConnectedHandler", model, isConnected);
+	      if (isConnected) {
+	        return this.join();
+	      }
+	    };
+	
+	    Socket.prototype._connectHandler = function() {
+	      console.log("[Model] Socket -> _connectHandler");
+	      return this.set("isConnected", true);
+	    };
+	
+	    Socket.prototype._socketErrorHandler = function(error) {
+	      return console.log("[Model] Socket -> _socketErrorHandler", error);
+	    };
+	
+	    Socket.prototype._disconnectHandler = function() {
+	      console.log("[Model] Socket -> _disconnectHandler");
+	      return this.set("isConnected", false);
+	    };
+	
+	    Socket.prototype._reconnectHandler = function(reconnection) {
+	      return console.log("[Model] Socket -> _reconnectHandler", reconnection);
+	    };
+	
+	    Socket.prototype._reconnectAttemptHandler = function() {
+	      return console.log("[Model] Socket -> _reconnectAttemptHandler");
+	    };
+	
+	    Socket.prototype._reconnectingHandler = function(reconnection) {
+	      return console.log("[Model] Socket -> _reconnectingHandler", reconnection);
+	    };
+	
+	    Socket.prototype._reconnectErrorHandler = function(error) {
+	      return console.log("[Model] Socket -> _reconnectErrorHandler", error);
+	    };
+	
+	    Socket.prototype._reconnectFailedHandler = function() {
+	      return console.log("[Model] Socket -> _reconnectErrorHandler");
 	    };
 	
 	    return Socket;
