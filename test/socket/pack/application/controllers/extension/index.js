@@ -156,8 +156,20 @@ Extension = (function() {
                   // join できるAutomaticRoomがない場合の処理
                   console.log('Not Room');
 
-                  _this._dayModel.getNamberOfAutomaticRoom();
-                  // 現在のAutomaticRoom の数を取得して RoomIDを生成する
+                  Q.all([
+                    // 現在のAutomaticRoom の数を取得して RoomIDを生成する
+                    _this._dayModel.getNamberOfAutomaticRoom()
+                  ]).then(
+                    function(data) {
+                      console.log(data);
+                      // ルームIDを生成する
+                      console.log( helpers.utils.getRoomId({baseNumber: 100000}) );
+                      getRoomId();
+                    },
+                    function(data) {
+
+                    }
+                  );
                 }
               },
               function(data) {

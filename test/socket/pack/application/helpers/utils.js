@@ -1,7 +1,9 @@
 var Utils = (function() {
+  var config = require('config');
   var events = require('events');
   var moment = require('moment');
   var _ = require('lodash');
+  var validator = require('validator');
 
   function Utils() {
     // constructor
@@ -26,6 +28,49 @@ var Utils = (function() {
     result = id.toString();
 
     return result;
+  };
+
+  // --------------------------------------------------------------
+  /**
+   * getRoomId
+   * @param {Object} _keyData -
+   * @prop {Number} baseNumber - 
+   *   生成するRoomIDのベースになる数値
+   *   基本的にはRoom のドキュメント数の合計を指定する
+   * @return {string} 生成したRoomIDを返す
+   * @throws {Object} バリデーションに失敗するとエラーメッセージをスローする
+   *
+   * config.roomIdLength に指定された桁数になるように_keyData.baseNumber を補完する
+   */
+  // --------------------------------------------------------------
+  Utils.prototype.getRoomId = function(_keyData) {
+    console.log('[Helpers] -> Utils -> getRoomId');
+
+    var keyData = _.extend({
+      'baseNumber': ''
+    }, _keyData);
+
+    // 文字列型にキャスト
+    keyData.baseNumber = keyData.baseNumber.toString();
+
+    if (validator.isNumeric(keyData.baseNumber) && validator.isLength(keyData.baseNumber, 1)) {
+      var result = '';
+      var completion = '';
+      var baseLen = keyData.baseNumber.length;
+
+      if (baseLen == config.roomIdLength) {
+        result = keyData.baseNumber;
+        return result;
+      } else {
+        for (var i = baseLen; i < config.roomIdLength; i++) {
+          completion += '0';
+        }
+        result = completion + baseLen;
+        return result;
+      }
+    } else {
+      throw new Error('[Helpers] Utils -> getRoomId | There is a problem with the value of the _keyData.');
+    }
   };
 
   // // --------------------------------------------------------------
