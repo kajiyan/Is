@@ -57,14 +57,15 @@ Extension = (function() {
       _this._extensionSocketIo.on('connection', function( socket ){
         console.log('[Controller] Extension -> connection');
 
+        socket.join('test');
+        // 接続が切れるとroom をデクリメントする
+
         socket.on('join', function( _keyData, callback ){
           console.log('[Controller] Extension -> join');
 
           var keyData = _.extend({
             'roomId': null
           }, _keyData);
-
-          console.log(keyData);
 
           if (keyData.roomId !== null) {
             // Room ID が指定されている場合の処理
@@ -79,44 +80,110 @@ Extension = (function() {
             // _this._dayModel.addAutomaticRoom({
             //   'roomId': '000000'
             // });
+            
+            var createAutomaticRoom = function(){
 
-            _this._dayModel.getAutomaticRooms(
-              {
+            };
+
+            Q.all([
+              // join できるAutomaticRoom を取得してくる
+              _this._dayModel.getAutomaticRooms({
                 'query': {
                   'conditions': {
-                    'isJoin': true
+                    'capacity': { '$ne': 0 }
                   },
-                  'projection': 'roomId',
+                  'projection': {
+                    'roomId': 1
+                  },
                   'options': {
                     'sort': {
                       'lastModified': 1
-                    },
-                    'limit': 1
+                    }
                   }
                 }
+              })
+            ]).then(
+              function(data) {
+                console.log(data[0]);
+
+                // join できるAutomaticRoomがある場合の処理
+                if (data[0].length > 0) {
+                  var joinRoom = (function(automaticRooms) {
+                    var index = 0;
+                    var len = automaticRooms.length;
+
+                    return function(){
+                      Q.all([
+                        // join できるRoom のcapacity を減らす
+                        _this._dayModel.updateAutomaticRoom({
+                          'query': {
+                            'conditions': {
+                              '_id': automaticRooms[index]._id
+                            },
+                            'update': {
+                              '$inc': {
+                                'capacity': -1
+                              }
+                            }
+                          }
+                        })
+                      ]).then(
+                        function(data) {
+                          // update に成功したAutomaticRoomへjoin する
+                          if (data[0].ok) {
+                            console.log('join - ' + automaticRooms[index].roomId);
+
+                            socket.join(automaticRooms[index].roomId);
+                            _this._extensionSocketIo.to(automaticRooms[index].roomId).emit('jointed','jointed!');
+                          }
+                        },
+                        function(data) {
+                          // update に失敗したら取得した他のAutomaticRoom への接続を試す
+                          index++;
+                          if (index < len) {
+                            joinRoom();
+                          } else {
+                            // 新たにAutomaticRoom を作ってjoin する
+                          }
+                        }
+                      );
+                    };
+                  })(data[0]);
+
+                  joinRoom();
+
+                } else {
+                  // join できるAutomaticRoomがない場合の処理
+                  console.log('Not Room');
+
+                  _this._dayModel.getNamberOfAutomaticRoom();
+                  // 現在のAutomaticRoom の数を取得して RoomIDを生成する
+                }
+              },
+              function(data) {
+
               }
             );
 
-            // _this._dayModel.getAutomaticRooms({
-            //   'isJoin': true
-            // });
-
-            // join できるルームだけ取得してくる
-            // _this._dayModel.getRooms();
-
-            // _this._dayModel.addAutomaticRoom({
-              // 'roomId': '000001'
-            // });
 
 
-            // _this._dayModel.getRooms();
 
-            // _this._dayModel
 
-            // _this._dayModel.addDay({
-            //  'dayId': '20150717'
-            // });
-            // データベース上にJoin 可能なRoom Collection があるか調べる
+            // _this._dayModel.getAutomaticRooms(
+            //   {
+            //     'query': {
+            //       'conditions': {
+            //         'isJoin': true
+            //       },
+            //       'projection': 'roomId',
+            //       'options': {
+            //         'sort': {
+            //           'lastModified': 1
+            //         },
+            //       }
+            //     }
+            //   }
+            // );
 
           }
 

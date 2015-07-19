@@ -129,12 +129,17 @@ Day = (function() {
             sparse: true
           }
         },
+        capacity: {
+          type: Number,
+          min: 0,
+          max: config.roomCapacity,
+          default: config.roomCapacity
+        },
         memorys: [{
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Memory'
         }],
         lastModified: { type: Date, default: new Date() },
-        isJoin: Boolean
       },
       {
         toJSON: {
@@ -154,12 +159,17 @@ Day = (function() {
             sparse: true
           }
         },
+        capacity: {
+          type: Number,
+          min: 0,
+          max: config.roomCapacity,
+          default: config.roomCapacity
+        },
         memorys: [{
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Memory'
         }],
         lastModified: { type: Date, default: new Date() },
-        isJoin: Boolean
       },
       {
         toJSON: {
@@ -272,6 +282,7 @@ Day = (function() {
   /**
    * ルームがない場合のみに実行される（getRoomと組み合わせて使う）
    */
+
   // --------------------------------------------------------------
   /**
    * Day Class -> addAutomaticRoom
@@ -357,18 +368,61 @@ Day = (function() {
 
   // --------------------------------------------------------------
   /**
+   * Day Class -> getNamberOfAutomaticRoom
+   * @param {Object} [_keyData] -
+   * @prop {Object} query - カウント対象のクエリを指定する
+   * @prop {Object} query.criteria - 集計するフィールドの条件
+   *
+   * promise　の状態がresolve　になるとAutomaticRoom Document の数を返す 
+   */
+  // --------------------------------------------------------------
+  Day.prototype.getNamberOfAutomaticRoom = function(_keyData) {
+    console.log('[Model] Day -> getNamberOfAutomaticRoom');
+
+    var keyData = _.extend({
+      'query': {
+        'criteria': {}
+      }
+    }, _keyData);
+
+    try {
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          _this.Model.AutomaticRoom
+            .count(
+              keyData.query.criteria,
+              function(error, count) {
+                if (error) {
+                  reject(error);
+                  return;
+                }
+                resolve(count);
+              }
+            );
+        });
+      })(this);
+    } catch(error) {
+      console.log(error);
+    }
+  };
+
+  // --------------------------------------------------------------
+  /**
    * Day Class -> getAutomaticRooms
-   * @param {Object} _query
+   * @param {Object} _keyData
+   * @prop {Object} query - mongoose.find に設定するクエリ
+   * @prop {Object} query.conditions - 取得条件
+   * @prop {String} query.projection - 取得するフィールド
+   * @prop {String} query.options - ソートやリミット、オフセットの指定
    * @return {Object} Q promise を返す
    *
-   * Day Document を返す 
+   * promise　の状態がresolve　になるとAutomaticRoom Document を返す 
    */
   // --------------------------------------------------------------
   Day.prototype.getAutomaticRooms = function( _keyData ) {
     console.log('[Model] Day -> getAutomaticRooms');
 
     try {
-
       var keyData = _.extend({
         'query': {
           'conditions': {},
@@ -380,20 +434,61 @@ Day = (function() {
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
           _this.Model.AutomaticRoom
-          .find(
-            keyData.query.conditions,
-            keyData.query.conditions,
-            keyData.query.options
-          )
-          .exec(function(error, doc, numberAffected) {
-            console.log(error, doc, numberAffected);
+            .find(
+              keyData.query.conditions,
+              keyData.query.projection,
+              keyData.query.options
+            )
+            .exec(function(error, doc, numberAffected) {
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(doc);
+            });
+        });
+      })(this);
+    } catch(error) {
+      console.log(error);
+    }
+  };
 
-            if (error) {
-              reject(error);
-              return;
-            }
-            resolve(doc);
-          });
+  // --------------------------------------------------------------
+  /**
+   * Day Class -> updateAutomaticRoom
+   */
+  // --------------------------------------------------------------
+  Day.prototype.updateAutomaticRoom = function( _keyData ) {
+    console.log('[Model] Day -> updateAutomaticRoom');
+
+    try {
+      var keyData = _.extend({
+        'query': {
+          'conditions': {},
+          'update': {},
+          'options': {},
+          'callback': {}
+        }
+      }, _keyData);
+
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          _this.Model.AutomaticRoom
+            .update(
+              keyData.query.conditions,
+              keyData.query.update,
+              keyData.query.options,
+              keyData.query.callback
+            )
+            .exec(function(error, doc, numberAffected) {
+              console.log(error, doc, numberAffected);
+
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(doc);
+            });
         });
       })(this);
     } catch(error) {

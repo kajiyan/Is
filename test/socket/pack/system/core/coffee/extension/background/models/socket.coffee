@@ -71,6 +71,10 @@ module.exports = (sn, $, _) ->
       @socket.on "reconnect_error", @_reconnectErrorHandler.bind(@)
       @socket.on "reconnect_failed", @_reconnectFailedHandler.bind(@)
 
+      @socket.on "jointed", () -> console.log "jointed"
+
+
+
     
     # ------------------------------------------------------------
     connect: ->

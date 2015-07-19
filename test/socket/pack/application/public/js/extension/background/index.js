@@ -12816,7 +12816,10 @@
 	      this.socket.on("reconnect_attempt", this._reconnectAttemptHandler.bind(this));
 	      this.socket.on("reconnecting", this._reconnectingHandler.bind(this));
 	      this.socket.on("reconnect_error", this._reconnectErrorHandler.bind(this));
-	      return this.socket.on("reconnect_failed", this._reconnectFailedHandler.bind(this));
+	      this.socket.on("reconnect_failed", this._reconnectFailedHandler.bind(this));
+	      return this.socket.on("jointed", function() {
+	        return console.log("jointed");
+	      });
 	    };
 	
 	    Socket.prototype.connect = function() {
