@@ -230,14 +230,6 @@ Day = (function() {
 
 
   // --------------------------------------------------------------
-  // Day.prototype.test = function() {
-    // console.log('[Models] Day -> test');
-  // };
-
-
-
-
-  // --------------------------------------------------------------
   /**
    * Day Class -> getDay
    * @param {Object} _query -
@@ -282,7 +274,7 @@ Day = (function() {
    */
   // --------------------------------------------------------------
   /**
-   * Day Class -> addRoom
+   * Day Class -> addAutomaticRoom
    * @param {Object} _query
    * @prop {String} dayId - 
    *   取得するDay Collection のID を指定する
@@ -296,8 +288,8 @@ Day = (function() {
    * Day Document を返す 
    */
   // --------------------------------------------------------------
-  Day.prototype.addRoom = function( _query ) {
-    console.log('[Model] Day -> addRoom');
+  Day.prototype.addAutomaticRoom = function( _query ) {
+    console.log('[Model] Day -> addAutomaticRoom');
 
     try {
       var query = _.extend({
@@ -309,8 +301,8 @@ Day = (function() {
       if( validator.isNumeric(query.roomId) && validator.isLength(query.roomId, 6) ){
         return (function(_this) {
           return Q.Promise(function(resolve, reject, notify) {
-            // 追加するRoom ドキュメントを作る
-            var room = new _this.Model.Room({
+            // 追加するAutomaticRoom ドキュメントを作る
+            var room = new _this.Model.AutomaticRoom({
               'roomId': query.roomId,
               'memorys': [],
               'isJoin': true,
@@ -356,12 +348,60 @@ Day = (function() {
           });
         })(this);
       } else {
-        throw new Error('[Model] Day -> addRoom | Validation Error: Query Value');
+        throw new Error('[Model] Day -> addaddAutomaticRoom | Validation Error: Query Value');
       }
     } catch(error) {
       console.log(error);
     }
   };
+
+  // --------------------------------------------------------------
+  /**
+   * Day Class -> getAutomaticRooms
+   * @param {Object} _query
+   * @return {Object} Q promise を返す
+   *
+   * Day Document を返す 
+   */
+  // --------------------------------------------------------------
+  Day.prototype.getAutomaticRooms = function( _keyData ) {
+    console.log('[Model] Day -> getAutomaticRooms');
+
+    try {
+
+      var keyData = _.extend({
+        'query': {
+          'conditions': {},
+          'projection': '',
+          'options': {}
+        }
+      }, _keyData);
+
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          _this.Model.AutomaticRoom
+          .find(
+            keyData.query.conditions,
+            keyData.query.conditions,
+            keyData.query.options
+          )
+          .exec(function(error, doc, numberAffected) {
+            console.log(error, doc, numberAffected);
+
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(doc);
+          });
+        });
+      })(this);
+    } catch(error) {
+      console.log(error);
+    }
+  };
+
+
 
   // Day.prototype.addRoom = function( data ) {
   //   console.log('[Models] Day -> addRoom');

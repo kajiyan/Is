@@ -74,11 +74,38 @@ Extension = (function() {
             // Room ID が指定されていない場合の処理
             console.log('[Controller] Extension -> join | Random Join');
 
+            // _this._dayModel.addDay();
+
+            // _this._dayModel.addAutomaticRoom({
+            //   'roomId': '000000'
+            // });
+
+            _this._dayModel.getAutomaticRooms(
+              {
+                'query': {
+                  'conditions': {
+                    'isJoin': true
+                  },
+                  'projection': 'roomId',
+                  'options': {
+                    'sort': {
+                      'lastModified': 1
+                    },
+                    'limit': 1
+                  }
+                }
+              }
+            );
+
+            // _this._dayModel.getAutomaticRooms({
+            //   'isJoin': true
+            // });
+
             // join できるルームだけ取得してくる
             // _this._dayModel.getRooms();
 
-            // _this._dayModel.addRoom({
-            //   'roomId': '000000'
+            // _this._dayModel.addAutomaticRoom({
+              // 'roomId': '000001'
             // });
 
 
