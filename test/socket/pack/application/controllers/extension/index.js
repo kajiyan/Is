@@ -81,9 +81,80 @@ Extension = (function() {
             //   'roomId': '000000'
             // });
             
-            var joinAutomaticRoom = (function(){
+            var createRoom = function() {
+              Q.all([
+                // 現在のAutomaticRoom の数を取得しする
+                _this._dayModel.getNamberOfAutomaticRoom()
+              ]).then(
+                function(data) {
+                  // data[0] にAutomaticRoom のDocument 数が返ってくるので
+                  // この数値をベースに新しくAutomaticRoomを作る
+                  return Q.all([
+                    _this._dayModel.addAutomaticRoom({
+                      'roomId': helpers.utils.getRoomId({
+                        'baseNumber': data[0]
+                      })
+                    })
+                  ]);
+                },
+                function(data) { /* reject */ }
+              ).then(
+                function(data) {
+                  // data[0] に追加されたAutomaticRoom が入っている
+                  var rooms = [];
+                  rooms.push(data[0]);
+                  joinRoom(rooms)();
+                },
+                function(data) { /* reject */ }
+              );
+            };
 
-            })();
+
+            var joinRoom = function(rooms) {
+              console.log('joinRoom');
+
+              var index = 0;
+              var roomsLength = rooms.length;
+
+              return function() {
+                Q.all([
+                  // join できるRoom のcapacity を減らす
+                  _this._dayModel.updateAutomaticRoom({
+                    'query': {
+                      'conditions': {
+                        '_id': rooms[index]._id
+                      },
+                      'update': {
+                        '$inc': {
+                          'capacity': -1
+                        }
+                      }
+                    }
+                  })
+                ]).then(
+                  function(data) {
+                    // update に成功したAutomaticRoomへjoin する
+                    if (data[0].ok) {
+                      console.log('join - ' + rooms[index].roomId);
+
+                      socket.join(rooms[index].roomId);
+                      _this._extensionSocketIo.to(rooms[index].roomId).emit('jointed','jointed!');
+                    }
+                  },
+                  function(data) {
+                    // update に失敗したら取得した他のAutomaticRoom への接続を試す
+                    index++;
+                    if (index < roomsLength) {
+                      joinRoom();
+                    } else {
+                      // 新たにAutomaticRoom を作ってjoin する
+                      createRoom();
+                    }
+                  }
+                );
+              };
+            };
+
 
             Q.all([
               // join できるAutomaticRoom を取得してくる
@@ -92,13 +163,9 @@ Extension = (function() {
                   'conditions': {
                     'capacity': { '$ne': 0 }
                   },
-                  'projection': {
-                    'roomId': 1
-                  },
+                  'projection': { 'roomId': 1 },
                   'options': {
-                    'sort': {
-                      'lastModified': 1
-                    }
+                    'sort': { 'lastModified': 1 }
                   }
                 }
               })
@@ -106,128 +173,16 @@ Extension = (function() {
               function(data) {
                 console.log(data[0]);
 
-                // join できるAutomaticRoomがある場合の処理
                 if (data[0].length > 0) {
-                  var joinRoom = (function(automaticRooms) {
-                    var index = 0;
-                    var len = automaticRooms.length;
-
-                    return function(){
-                      Q.all([
-                        // join できるRoom のcapacity を減らす
-                        _this._dayModel.updateAutomaticRoom({
-                          'query': {
-                            'conditions': {
-                              '_id': automaticRooms[index]._id
-                            },
-                            'update': {
-                              '$inc': {
-                                'capacity': -1
-                              }
-                            }
-                          }
-                        })
-                      ]).then(
-                        function(data) {
-                          // update に成功したAutomaticRoomへjoin する
-                          if (data[0].ok) {
-                            console.log('join - ' + automaticRooms[index].roomId);
-
-                            socket.join(automaticRooms[index].roomId);
-                            _this._extensionSocketIo.to(automaticRooms[index].roomId).emit('jointed','jointed!');
-                          }
-                        },
-                        function(data) {
-                          // update に失敗したら取得した他のAutomaticRoom への接続を試す
-                          index++;
-                          if (index < len) {
-                            joinRoom();
-                          } else {
-                            // 新たにAutomaticRoom を作ってjoin する
-                          }
-                        }
-                      );
-                    };
-                  })(data[0]);
-
-                  joinRoom();
-
+                  // join できるAutomaticRoomがある場合の処理
+                  joinRoom(data[0])();
                 } else {
                   // join できるAutomaticRoomがない場合の処理
-                  console.log('Not Automatic Room');
-
-                  Q.all([
-                    // 現在のAutomaticRoom の数を取得して RoomIDを生成する
-                    _this._dayModel.getNamberOfAutomaticRoom()
-                  ]).then(
-                    function(data) {
-                      // data[0] にAutomaticRoom のDocument 数が返ってくるので
-                      // この数値をベースに新しくAutomaticRoomを作る
-                      return Q.all([
-                        _this._dayModel.addAutomaticRoom({
-                          'roomId': helpers.utils.getRoomId({
-                            'baseNumber': data[0]
-                          })
-                        })
-                      ]);
-                    },
-                    function(data) { /* reject */ }
-                  ).then(
-                    function(data){
-                      // data[0] に追加されたAutomaticRoom が入っている
-
-                      // console.log(data[0].roomId);
-                      // socket.join(automaticRooms[index].roomId);
-
-                      //こういう処理
-                      // Q.all([
-                      //   // join できるRoom のcapacity を減らす
-                      //   _this._dayModel.updateAutomaticRoom({
-                      //     'query': {
-                      //       'conditions': {
-                      //         '_id': automaticRooms[index]._id
-                      //       },
-                      //       'update': {
-                      //         '$inc': {
-                      //           'capacity': -1
-                      //         }
-                      //       }
-                      //     }
-                      //   })
-                      // ]).then(
-                      //   function(data) {
-                      //     // update に成功したAutomaticRoomへjoin する
-                      //     if (data[0].ok) {
-                      //       console.log('join - ' + automaticRooms[index].roomId);
-
-                      //       socket.join(automaticRooms[index].roomId);
-                      //       _this._extensionSocketIo.to(automaticRooms[index].roomId).emit('jointed','jointed!');
-                      //     }
-                      //   },
-                      //   function(data) {
-                      //     // update に失敗したら取得した他のAutomaticRoom への接続を試す
-                      //     index++;
-                      //     if (index < len) {
-                      //       joinRoom();
-                      //     } else {
-                      //       // 新たにAutomaticRoom を作ってjoin する
-                      //     }
-                      //   }
-                      // );
-                    },
-                    function(data) { /* reject */ }
-                  );
+                  createRoom();
                 }
               },
-              function(data) {
-
-              }
+              function(data) { /* reject */ }
             );
-
-
-
-
-
           }
 
           // console.log(a);
