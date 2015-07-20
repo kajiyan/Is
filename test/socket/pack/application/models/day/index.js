@@ -312,6 +312,8 @@ Day = (function() {
       if( validator.isNumeric(query.roomId) && validator.isLength(query.roomId, 6) ){
         return (function(_this) {
           return Q.Promise(function(resolve, reject, notify) {
+            var result = {};
+
             // 追加するAutomaticRoom ドキュメントを作る
             var room = new _this.Model.AutomaticRoom({
               'roomId': query.roomId,
@@ -323,11 +325,12 @@ Day = (function() {
             // ドキュメントを追加する
             room.save(function(error, doc, numberAffected){
               console.log(error, doc, numberAffected);
-
               if (error) {
                 reject(error);
                 return;
               }
+
+              result = doc;
 
               // ドキュメントの追加が成功したら 
               // クエリで指定されているdayId を持つDay Collection に 
@@ -339,7 +342,7 @@ Day = (function() {
                   },
                   {
                     '$push': {
-                      'rooms': doc._id
+                      'automaticRooms': doc._id
                     }
                   },
                   {
@@ -348,12 +351,13 @@ Day = (function() {
                   }
                 )
                 .exec(function(error, doc) {
+                  console.log(error, doc);
                   if (error) {
                     reject(error);
                     return;
                   }
 
-                  resolve();
+                  resolve(result);
                 });
             });
           });

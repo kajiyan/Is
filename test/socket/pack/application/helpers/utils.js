@@ -20,7 +20,7 @@ var Utils = (function() {
    */
   // --------------------------------------------------------------
   Utils.prototype.getDayId = function() {
-    console.log('[Helpers] -> Utils -> getDayId');
+    console.log('[Helpers] Utils -> getDayId');
 
     var result = '';
 
@@ -44,7 +44,7 @@ var Utils = (function() {
    */
   // --------------------------------------------------------------
   Utils.prototype.getRoomId = function(_keyData) {
-    console.log('[Helpers] -> Utils -> getRoomId');
+    console.log('[Helpers] Utils -> getRoomId');
 
     var keyData = _.extend({
       'baseNumber': ''

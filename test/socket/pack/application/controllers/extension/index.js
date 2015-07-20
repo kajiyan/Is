@@ -81,9 +81,9 @@ Extension = (function() {
             //   'roomId': '000000'
             // });
             
-            var createAutomaticRoom = function(){
+            var joinAutomaticRoom = (function(){
 
-            };
+            })();
 
             Q.all([
               // join できるAutomaticRoom を取得してくる
@@ -154,21 +154,68 @@ Extension = (function() {
 
                 } else {
                   // join できるAutomaticRoomがない場合の処理
-                  console.log('Not Room');
+                  console.log('Not Automatic Room');
 
                   Q.all([
                     // 現在のAutomaticRoom の数を取得して RoomIDを生成する
                     _this._dayModel.getNamberOfAutomaticRoom()
                   ]).then(
                     function(data) {
-                      console.log(data);
-                      // ルームIDを生成する
-                      console.log( helpers.utils.getRoomId({baseNumber: 100000}) );
-                      getRoomId();
+                      // data[0] にAutomaticRoom のDocument 数が返ってくるので
+                      // この数値をベースに新しくAutomaticRoomを作る
+                      return Q.all([
+                        _this._dayModel.addAutomaticRoom({
+                          'roomId': helpers.utils.getRoomId({
+                            'baseNumber': data[0]
+                          })
+                        })
+                      ]);
                     },
-                    function(data) {
+                    function(data) { /* reject */ }
+                  ).then(
+                    function(data){
+                      // data[0] に追加されたAutomaticRoom が入っている
 
-                    }
+                      // console.log(data[0].roomId);
+                      // socket.join(automaticRooms[index].roomId);
+
+                      //こういう処理
+                      // Q.all([
+                      //   // join できるRoom のcapacity を減らす
+                      //   _this._dayModel.updateAutomaticRoom({
+                      //     'query': {
+                      //       'conditions': {
+                      //         '_id': automaticRooms[index]._id
+                      //       },
+                      //       'update': {
+                      //         '$inc': {
+                      //           'capacity': -1
+                      //         }
+                      //       }
+                      //     }
+                      //   })
+                      // ]).then(
+                      //   function(data) {
+                      //     // update に成功したAutomaticRoomへjoin する
+                      //     if (data[0].ok) {
+                      //       console.log('join - ' + automaticRooms[index].roomId);
+
+                      //       socket.join(automaticRooms[index].roomId);
+                      //       _this._extensionSocketIo.to(automaticRooms[index].roomId).emit('jointed','jointed!');
+                      //     }
+                      //   },
+                      //   function(data) {
+                      //     // update に失敗したら取得した他のAutomaticRoom への接続を試す
+                      //     index++;
+                      //     if (index < len) {
+                      //       joinRoom();
+                      //     } else {
+                      //       // 新たにAutomaticRoom を作ってjoin する
+                      //     }
+                      //   }
+                      // );
+                    },
+                    function(data) { /* reject */ }
                   );
                 }
               },
@@ -180,22 +227,6 @@ Extension = (function() {
 
 
 
-
-            // _this._dayModel.getAutomaticRooms(
-            //   {
-            //     'query': {
-            //       'conditions': {
-            //         'isJoin': true
-            //       },
-            //       'projection': 'roomId',
-            //       'options': {
-            //         'sort': {
-            //           'lastModified': 1
-            //         },
-            //       }
-            //     }
-            //   }
-            // );
 
           }
 
