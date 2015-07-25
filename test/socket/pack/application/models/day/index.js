@@ -309,62 +309,67 @@ Day = (function() {
       }, _query);
 
       // クエリをバリデーションする
-      if( validator.isNumeric(query.roomId) && validator.isLength(query.roomId, 6) ){
-        return (function(_this) {
-          return Q.Promise(function(resolve, reject, notify) {
-            var result = {};
+      
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          if(!validator.isNumeric(query.roomId) && !validator.isLength(query.roomId, 6)) {
+            reject(new Error('[Model] Day -> addaddAutomaticRoom | Validation Error: Query Value.'));
+            return;
+          }
 
-            // 追加するAutomaticRoom ドキュメントを作る
-            var room = new _this.Model.AutomaticRoom({
-              'roomId': query.roomId,
-              'memorys': [],
-              'isJoin': true,
-              'lastModified': new Date()
-            });
+          var result = {};
 
-            // ドキュメントを追加する
-            room.save(function(error, doc, numberAffected){
-              console.log(error, doc, numberAffected);
-              if (error) {
-                reject(error);
-                return;
-              }
-
-              result = doc;
-
-              // ドキュメントの追加が成功したら 
-              // クエリで指定されているdayId を持つDay Collection に 
-              // 追加されたRoom の_id を追加する 
-              _this.Model.Day
-                .findOneAndUpdate(
-                  {
-                    'dayId': query.dayId
-                  },
-                  {
-                    '$push': {
-                      'automaticRooms': doc._id
-                    }
-                  },
-                  {
-                    'new': true,
-                    'upsert': true
-                  }
-                )
-                .exec(function(error, doc) {
-                  console.log(error, doc);
-                  if (error) {
-                    reject(error);
-                    return;
-                  }
-
-                  resolve(result);
-                });
-            });
+          // 追加するAutomaticRoom ドキュメントを作る
+          var room = new _this.Model.AutomaticRoom({
+            'roomId': query.roomId,
+            'memorys': [],
+            'isJoin': true,
+            'lastModified': new Date()
           });
-        })(this);
-      } else {
-        throw new Error('[Model] Day -> addaddAutomaticRoom | Validation Error: Query Value');
-      }
+
+          // ドキュメントを追加する
+          room.save(function(error, doc, numberAffected){
+            console.log(error, doc, numberAffected);
+            if (error) {
+              reject(error);
+              return;
+            }
+
+            result = doc;
+
+            // ドキュメントの追加が成功したら 
+            // クエリで指定されているdayId を持つDay Collection に 
+            // 追加されたRoom の_id を追加する 
+            _this.Model.Day
+              .findOneAndUpdate(
+                {
+                  'dayId': query.dayId
+                },
+                {
+                  '$push': {
+                    'automaticRooms': doc._id
+                  }
+                },
+                {
+                  'new': true,
+                  'upsert': true
+                }
+              )
+              .exec(function(error, doc) {
+                console.log(error, doc);
+                if (error) {
+                  reject(error);
+                  return;
+                }
+
+                resolve(result);
+              });
+          });
+        });
+      })(this);
+      // } else {
+      //   throw new Error('[Model] Day -> addaddAutomaticRoom | Validation Error: Query Value');
+      // }
     } catch(error) {
       console.log(error);
     }
@@ -380,34 +385,73 @@ Day = (function() {
    * promise　の状態がresolve　になるとAutomaticRoom Document の数を返す 
    */
   // --------------------------------------------------------------
-  Day.prototype.getNamberOfAutomaticRoom = function(_keyData) {
+  Day.prototype.getNamberOfAutomaticRoom = function(_query) {
     console.log('[Model] Day -> getNamberOfAutomaticRoom');
 
-    var keyData = _.extend({
-      'query': {
-        'criteria': {}
-      }
-    }, _keyData);
-
     try {
+      var query = _.extend({
+        'dayId': helpers.utils.getDayId(),
+        'conditions': {},
+        'projection': '',
+        'options': {}
+      }, _query);
+
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
-          _this.Model.AutomaticRoom
-            .count(
-              keyData.query.criteria,
-              function(error, count) {
-                if (error) {
-                  reject(error);
-                  return;
+          _this.Model.Day
+            .aggregate([
+              { '$match':
+                {
+                  'dayId': query['dayId']
                 }
-                resolve(count);
+              },
+              { '$project':
+                {
+                  'automaticRooms': 1
+                }
+              },
+              { '$unwind': '$automaticRooms' },
+              { '$group':
+                {
+                  '_id': 'automaticRooms',
+                  'count': { '$sum': 1 }
+                }
               }
-            );
+            ])
+            .exec(function(error, doc, numberAffected) {
+              console.log(error, doc, numberAffected);
+            });
         });
       })(this);
     } catch(error) {
       console.log(error);
     }
+
+    // var keyData = _.extend({
+    //   'query': {
+    //     'criteria': {}
+    //   }
+    // }, _keyData);
+
+    // try {
+    //   return (function(_this) {
+    //     return Q.Promise(function(resolve, reject, notify) {
+    //       _this.Model.AutomaticRoom
+    //         .count(
+    //           keyData.query.criteria,
+    //           function(error, count) {
+    //             if (error) {
+    //               reject(error);
+    //               return;
+    //             }
+    //             resolve(count);
+    //           }
+    //         );
+    //     });
+    //   })(this);
+    // } catch(error) {
+    //   console.log(error);
+    // }
   };
 
   // --------------------------------------------------------------
@@ -423,33 +467,47 @@ Day = (function() {
    * promise　の状態がresolve　になるとAutomaticRoom Document を返す 
    */
   // --------------------------------------------------------------
-  Day.prototype.getAutomaticRooms = function( _keyData ) {
+  Day.prototype.getAutomaticRooms = function( _query ) {
     console.log('[Model] Day -> getAutomaticRooms');
 
     try {
-      var keyData = _.extend({
-        'query': {
-          'conditions': {},
-          'projection': '',
-          'options': {}
-        }
-      }, _keyData);
+       var query = _.extend({
+        'dayId': helpers.utils.getDayId(),
+        'populatePath': 'automaticRooms',
+        'populateSelect': {},
+        'populateMatch': {},
+        'populateOptions': {}
+      }, _query);
 
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
-          _this.Model.AutomaticRoom
-            .find(
-              keyData.query.conditions,
-              keyData.query.projection,
-              keyData.query.options
-            )
+          // クエリをバリデーションする
+          if (!validator.isNumeric(query.dayId) && !validator.isLength(query.dayId, 8)) {
+            reject(new Error('[Model] Day -> getAutomaticRooms | Validation Error: Query Value.'));
+            return;
+          }
+
+          _this.Model.Day
+            .findOne({
+              'dayId': query['dayId']
+            })
+            .populate({
+              'path': query.populatePath,
+              'select': query.populateSelect,
+              'match': query.populateMatch,
+              'options': query.populateOptions
+            })
+            .select({
+              '_id': 0,
+              'automaticRooms': 1
+            })
             .exec(function(error, doc, numberAffected) {
-              // console.log(error, doc, numberAffected);
+              console.log(error, doc.automaticRooms, numberAffected);
               if (error) {
                 reject(error);
                 return;
               }
-              resolve(doc);
+              resolve(doc.automaticRooms);
             });
         });
       })(this);
@@ -734,27 +792,23 @@ Day = (function() {
     }, _query);
 
     query.createDate = new Date();
-
-    console.log(query);
-
+    
     return (function(_this) {
       return Q.Promise( function(resolve, reject, notify) {
-        var day = new _this.Model.Day( query );
+        var day = new _this.Model.Day(query);
 
         day.save( function(error, doc, numberAffected) {
-          console.log(error, doc, numberAffected);
-
-          if( error ){
-            reject( error );
+          // console.log(error, doc, numberAffected);
+          if(error) {
+            reject(error);
             return;
           }
-
+            
           resolve();
         });
       });
     })(this);
   };
-
 
 
   return Day;

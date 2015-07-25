@@ -50,7 +50,6 @@ var Utils = (function() {
       'baseNumber': ''
     }, _keyData);
 
-    // 文字列型にキャスト
     keyData.baseNumber = keyData.baseNumber.toString();
 
     if (validator.isNumeric(keyData.baseNumber) && validator.isLength(keyData.baseNumber, 1)) {
@@ -65,7 +64,7 @@ var Utils = (function() {
         for (var i = baseLen; i < config.roomIdLength; i++) {
           completion += '0';
         }
-        result = completion + baseLen;
+        result = completion + keyData.baseNumber;
         return result;
       }
     } else {

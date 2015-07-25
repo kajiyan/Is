@@ -52,17 +52,18 @@ Models = (function() {
       return Q.Promise(function(resolve, reject, notify) {
         _this.app = module.parent.exports;
       
+        // データベースへの接続成功したら、各モデルのセットアップを行う
+        for ( var key in _this.models ) {
+          var value = _this.models[key];
+          value.setup({
+            'app': _this.app
+          });
+        }
+      
         Q.all([
           _this._connect()
         ]).then(
           function() {
-            // データベースへの接続成功したら、各モデルのセットアップを行う
-            for ( var key in _this.models ) {
-              var value = _this.models[key];
-              value.setup({
-                'app': _this.app
-              });
-            }
             resolve();
           },
           function(error) {

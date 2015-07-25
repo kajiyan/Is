@@ -244,16 +244,10 @@ Extension = (function() {
     // });
   };
 
-  /**
-   * Extension#_databaseConnectedHandler
-   * Models がデータベースへの接続が正常に完了したら呼び出されるイベントハンドラ 
-   * Socket.io の設定を行う
-   */
-  Extension.prototype._databaseConnectedHandler = function() {
-    console.log('[Controller] Extension -> _databaseConnectedHandler');
+  Extension.prototype._setupSocket = function() {
+    console.log('[Controller] Extension -> _setupSocket');
     
     (function(_this) {
-      // socket.io の setup
       _this._extensionSocketIo.on('connection', function( socket ){
         console.log('[Controller] Extension -> connection');
 
@@ -274,8 +268,6 @@ Extension = (function() {
             // Room ID が指定されていない場合の処理
             console.log('[Controller] Extension -> join | Random Join');
 
-            // _this._dayModel.addDay();
-
             // _this._dayModel.addAutomaticRoom({
             //   'roomId': '000000'
             // });
@@ -283,10 +275,14 @@ Extension = (function() {
             var createRoom = function() {
               Q.all([
                 // 現在のAutomaticRoom の数を取得しする
+                // 修正 DayIDでカウントを絞り込む
                 _this._dayModel.getNamberOfAutomaticRoom()
               ]).then(
                 function(data) {
                   console.log(data);
+                  console.log(helpers.utils.getRoomId({
+                    'baseNumber': data[0]
+                  }));
 
                   // data[0] にAutomaticRoom のDocument 数が返ってくるので
                   // この数値をベースに新しくAutomaticRoomを作る
@@ -309,7 +305,6 @@ Extension = (function() {
                 function(data) { /* reject */ }
               );
             };
-
 
             var joinRoom = function(rooms) {
               console.log('joinRoom');
@@ -356,35 +351,42 @@ Extension = (function() {
               };
             };
 
-
             Q.all([
-              // join できるAutomaticRoom を取得してくる
-              // 修正 Day Obujectも絞り込む必要がある
-              _this._dayModel.getAutomaticRooms({
-                'query': {
-                  'conditions': {
-                    'capacity': { '$ne': 0 }
-                  },
-                  'projection': { 'roomId': 1 },
-                  'options': {
-                    'sort': { 'lastModified': 1 }
-                  }
-                }
-              })
+              _this._dayModel.getNamberOfAutomaticRoom()
             ]).then(
               function(data) {
-                console.log('getAutomaticRooms Length: ' + data[0].length);
-
-                if (data[0].length > 0) {
-                  // join できるAutomaticRoomがある場合の処理
-                  joinRoom(data[0])();
-                } else {
-                  // join できるAutomaticRoomがない場合の処理
-                  createRoom();
-                }
+                console.log('resolve', data);
               },
-              function(data) { /* reject */ }
+              function(data) {
+                console.log('reject', data);
+              }
             );
+
+            // Q.all([
+            //   // join できるAutomaticRoom を取得してくる
+            //   _this._dayModel.getAutomaticRooms({
+            //     'populateSelect': {},
+            //     'populateMatch': {
+            //       'capacity': { '$ne': 0 }
+            //     },
+            //     'populateOptions': {
+            //       'sort': { 'lastModified': 1 }
+            //     }
+            //   })
+            // ]).then(
+            //   function(data) {
+            //     console.log('getAutomaticRooms Length: ' + data[0].length);
+                
+            //     if (data[0].length > 0) {
+            //     //   // join できるAutomaticRoomがある場合の処理
+            //     //   // joinRoom(data[0])();
+            //     } else {
+            //     //   // join できるAutomaticRoomがない場合の処理
+            //     //   createRoom();
+            //     }
+            //   },
+            //   function(data) { /* reject */ }
+            // );
           }
 
           // console.log(a);
@@ -393,6 +395,24 @@ Extension = (function() {
         });
       });
     })(this);
+  };
+
+
+  // --------------------------------------------------------------
+  /**
+   * Extension#_databaseConnectedHandler
+   * Models がデータベースへの接続が正常に完了したら呼び出されるイベントハンドラ 
+   * 起動時の日付のDay Document をデータベースに追加し、Socket.io の設定を行う
+   */
+  // --------------------------------------------------------------
+  Extension.prototype._databaseConnectedHandler = function() {
+    console.log('[Controller] Extension -> _databaseConnectedHandler');
+
+    this._dayModel
+      .addDay()
+      .fin(
+        this._setupSocket.bind(this)
+      );
   };
 
   return Extension;
