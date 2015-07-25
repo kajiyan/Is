@@ -268,22 +268,12 @@ Extension = (function() {
             // Room ID が指定されていない場合の処理
             console.log('[Controller] Extension -> join | Random Join');
 
-            // _this._dayModel.addAutomaticRoom({
-            //   'roomId': '000000'
-            // });
-            
             var createRoom = function() {
               Q.all([
-                // 現在のAutomaticRoom の数を取得しする
-                // 修正 DayIDでカウントを絞り込む
+                // 現在のAutomaticRoom の数を取得する
                 _this._dayModel.getNamberOfAutomaticRoom()
               ]).then(
                 function(data) {
-                  console.log(data);
-                  console.log(helpers.utils.getRoomId({
-                    'baseNumber': data[0]
-                  }));
-
                   // data[0] にAutomaticRoom のDocument 数が返ってくるので
                   // この数値をベースに新しくAutomaticRoomを作る
                   return Q.all([
@@ -297,12 +287,15 @@ Extension = (function() {
                 function(data) { /* reject */ }
               ).then(
                 function(data) {
+                  console.log('resolve', data);
                   // data[0] に追加されたAutomaticRoom が入っている
                   var rooms = [];
                   rooms.push(data[0]);
                   joinRoom(rooms)();
                 },
-                function(data) { /* reject */ }
+                function(data) {
+                  console.log('reject', data);
+                }
               );
             };
 
@@ -351,42 +344,42 @@ Extension = (function() {
               };
             };
 
-            Q.all([
-              _this._dayModel.getNamberOfAutomaticRoom()
-            ]).then(
-              function(data) {
-                console.log('resolve', data);
-              },
-              function(data) {
-                console.log('reject', data);
-              }
-            );
-
             // Q.all([
-            //   // join できるAutomaticRoom を取得してくる
-            //   _this._dayModel.getAutomaticRooms({
-            //     'populateSelect': {},
-            //     'populateMatch': {
-            //       'capacity': { '$ne': 0 }
-            //     },
-            //     'populateOptions': {
-            //       'sort': { 'lastModified': 1 }
-            //     }
-            //   })
+            //   _this._dayModel.getNamberOfAutomaticRoom()
             // ]).then(
             //   function(data) {
-            //     console.log('getAutomaticRooms Length: ' + data[0].length);
-                
-            //     if (data[0].length > 0) {
-            //     //   // join できるAutomaticRoomがある場合の処理
-            //     //   // joinRoom(data[0])();
-            //     } else {
-            //     //   // join できるAutomaticRoomがない場合の処理
-            //     //   createRoom();
-            //     }
+            //     console.log('resolve', data);
             //   },
-            //   function(data) { /* reject */ }
+            //   function(data) {
+            //     console.log('reject', data);
+            //   }
             // );
+
+            Q.all([
+              // join できるAutomaticRoom を取得してくる
+              _this._dayModel.getAutomaticRooms({
+                'populateSelect': {},
+                'populateMatch': {
+                  'capacity': { '$ne': 0 }
+                },
+                'populateOptions': {
+                  'sort': { 'lastModified': 1 }
+                }
+              })
+            ]).then(
+              function(data) {
+                console.log('getAutomaticRooms Length: ' + data[0].length);
+                
+                if (data[0].length > 0) {
+                  // join できるAutomaticRoomがある場合の処理
+                  joinRoom(data[0])();
+                } else {
+                  // join できるAutomaticRoomがない場合の処理
+                  createRoom();
+                }
+              },
+              function(data) { /* reject */ }
+            );
           }
 
           // console.log(a);

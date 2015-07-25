@@ -121,13 +121,15 @@ Day = (function() {
     // ManualRoom Schema の定義
     var ManualRoomSchema = new mongoose.Schema(
       {
+        dayId: {
+          type: String,
+          required: true,
+          index: true
+        },
         roomId: {
           type: String,
           required: true,
-          index: {
-            unique: true,
-            sparse: true
-          }
+          index: true
         },
         capacity: {
           type: Number,
@@ -151,13 +153,15 @@ Day = (function() {
     // AutomaticRoom Schema の定義
     var AutomaticRoomSchema = new mongoose.Schema(
       {
+        dayId: {
+          type: String,
+          required: true,
+          index: true
+        },
         roomId: {
           type: String,
           required: true,
-          index: {
-            unique: true,
-            sparse: true
-          }
+          index: true
         },
         capacity: {
           type: Number,
@@ -279,10 +283,6 @@ Day = (function() {
 
 
 
-  /**
-   * ルームがない場合のみに実行される（getRoomと組み合わせて使う）
-   */
-
   // --------------------------------------------------------------
   /**
    * Day Class -> addAutomaticRoom
@@ -321,6 +321,7 @@ Day = (function() {
 
           // 追加するAutomaticRoom ドキュメントを作る
           var room = new _this.Model.AutomaticRoom({
+            'dayId': query.dayId,
             'roomId': query.roomId,
             'memorys': [],
             'isJoin': true,
@@ -377,10 +378,9 @@ Day = (function() {
 
   // --------------------------------------------------------------
   /**
-   * Day Class -> getNamberOfAutomaticRoom
-   * @param {Object} [_keyData] -
-   * @prop {Object} query - カウント対象のクエリを指定する
-   * @prop {Object} query.criteria - 集計するフィールドの条件
+   * Day#getNamberOfAutomaticRoom
+   * @param {Object} [_query] - クエリを指定する
+   * @prop {string} dayId - カウント対象のdayId を指定する
    *
    * promise　の状態がresolve　になるとAutomaticRoom Document の数を返す 
    */
@@ -390,68 +390,35 @@ Day = (function() {
 
     try {
       var query = _.extend({
-        'dayId': helpers.utils.getDayId(),
-        'conditions': {},
-        'projection': '',
-        'options': {}
+        'dayId': helpers.utils.getDayId()
       }, _query);
 
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
-          _this.Model.Day
-            .aggregate([
-              { '$match':
-                {
-                  'dayId': query['dayId']
-                }
-              },
-              { '$project':
-                {
-                  'automaticRooms': 1
-                }
-              },
-              { '$unwind': '$automaticRooms' },
-              { '$group':
-                {
-                  '_id': 'automaticRooms',
-                  'count': { '$sum': 1 }
-                }
-              }
-            ])
+          // クエリをバリデーションする
+          if (!validator.isNumeric(query.dayId) && !validator.isLength(query.dayId, 8)) {
+            reject(new Error('[Model] Day -> getNamberOfAutomaticRoom | Validation Error: Query Value.'));
+            return;
+          }
+
+          _this.Model.AutomaticRoom
+            .count(
+              query
+            )
             .exec(function(error, doc, numberAffected) {
               console.log(error, doc, numberAffected);
+
+              if (error) {
+                reject(error);
+                return;
+              }
+              resolve(doc);
             });
         });
       })(this);
     } catch(error) {
       console.log(error);
     }
-
-    // var keyData = _.extend({
-    //   'query': {
-    //     'criteria': {}
-    //   }
-    // }, _keyData);
-
-    // try {
-    //   return (function(_this) {
-    //     return Q.Promise(function(resolve, reject, notify) {
-    //       _this.Model.AutomaticRoom
-    //         .count(
-    //           keyData.query.criteria,
-    //           function(error, count) {
-    //             if (error) {
-    //               reject(error);
-    //               return;
-    //             }
-    //             resolve(count);
-    //           }
-    //         );
-    //     });
-    //   })(this);
-    // } catch(error) {
-    //   console.log(error);
-    // }
   };
 
   // --------------------------------------------------------------
@@ -502,7 +469,7 @@ Day = (function() {
               'automaticRooms': 1
             })
             .exec(function(error, doc, numberAffected) {
-              console.log(error, doc.automaticRooms, numberAffected);
+              // console.log(error, doc.automaticRooms, numberAffected);
               if (error) {
                 reject(error);
                 return;
