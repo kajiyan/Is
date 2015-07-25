@@ -63,7 +63,7 @@ Routes = (function() {
     }
 
 
-    // catch 404 and forward to error handler
+    // // catch 404 and forward to error handler
     this.app.use( function( req, res, next ) {
       var error = new Error( 'Not Found' );
       error.status = 404;

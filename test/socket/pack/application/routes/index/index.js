@@ -51,6 +51,16 @@ RouteIndex = (function() {
     });
 
 
+    router.get('/test', function(req, res, next) {
+      var keyData = {};
+      
+      console.log(req.headers);
+
+      res.end('end');
+      // res.render('index.swig.html', keyData);
+    });
+
+
     this.app.use( this.rootURL, router );
   };
 

@@ -9,26 +9,18 @@ var Models;
 
 Models = (function() {
   var config = require('config');
+  var events = require('events');
   var mongoose = require('mongoose');
+  var Q = require('q');
+  var _ = require('lodash');
   var utils = require(config.helpers + 'utils');
 
   
   // --------------------------------------------------------------
   function Models() {
     console.log('[Models] constructor');
-
-    // データベースへ接続
-    mongoose.connect('mongodb://localhost/is');
-
-    this.db = mongoose.connection;
-
-    this.db.on('error', function (error) {
-      console.log('[Models] mongoDB connection error', error);
-    });
-
-    this.db.once('open', function () {
-      console.log('[Models] mongoDB connected.');
-    });
+    // events.EventEmitter.call(this);
+    this.eventEmitter = new events.EventEmitter;
 
     try {
       this.models = {
@@ -43,29 +35,80 @@ Models = (function() {
     } catch (e) {
       console.log(e);
     }
-
-    // this.models.day.setup();
   }
 
   // --------------------------------------------------------------
   /**
-   * setup
-   * コンストラクタで登録されたモデルのセットアップを行う
+   * Models#setup
+   * データベースへの接続が完了した後、 
+   * コンストラクタで登録されたモデルのセットアップを行う 
+   * @return {Object} Q.promise
    */
   // --------------------------------------------------------------
   Models.prototype.setup = function() {
     console.log('[Models] Index -> setup');
 
-    this.app = module.parent.exports;
-
-    for ( var key in this.models ) {
-      var value = this.models[key];
-      value.setup({
-        'app': this.app
+    return (function(_this) {
+      return Q.Promise(function(resolve, reject, notify) {
+        _this.app = module.parent.exports;
+      
+        Q.all([
+          _this._connect()
+        ]).then(
+          function() {
+            // データベースへの接続成功したら、各モデルのセットアップを行う
+            for ( var key in _this.models ) {
+              var value = _this.models[key];
+              value.setup({
+                'app': _this.app
+              });
+            }
+            resolve();
+          },
+          function(error) {
+            reject();
+            throw error;
+          }
+        );
       });
-    }
+    })(this);
   };
 
+  // --------------------------------------------------------------
+  /**
+   * Models#_connect
+   * データベースへ接続する
+   * @return {Object} Q.promise
+   */
+  // --------------------------------------------------------------
+  Models.prototype._connect = function() {
+    console.log('[Models] Index -> _connect');
+
+    return (function(_this) {
+      return Q.Promise(function(resolve, reject, notify) {
+        // データベースへ接続
+        mongoose.connect('mongodb://localhost/is');
+
+        this.db = mongoose.connection;
+
+        this.db.once('open', function() {
+          console.log('[Models] mongoDB connected.');
+          _this.eventEmitter.emit('databaseConnected');
+          resolve();
+        });
+
+        this.db.on('error', function(error) {
+          console.log('[Models] mongoDB connection error', error);
+          reject(error);
+        });
+      });
+    })(this);
+  };
+
+  // --------------------------------------------------------------
+  Models.prototype.getEventEmitter = function() {
+    return this.eventEmitter;
+  };
 
   // --------------------------------------------------------------
   /**

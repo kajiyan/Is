@@ -444,6 +444,7 @@ Day = (function() {
               keyData.query.options
             )
             .exec(function(error, doc, numberAffected) {
+              // console.log(error, doc, numberAffected);
               if (error) {
                 reject(error);
                 return;
@@ -724,7 +725,7 @@ Day = (function() {
    *
    * DaySchema で定義したスキーマのコレクションをデータベースに新たに生成する
    */
-   // --------------------------------------------------------------
+  // --------------------------------------------------------------
   Day.prototype.addDay = function( _query ) {
     console.log('[Models] Day -> addDay');
 
