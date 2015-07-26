@@ -88,12 +88,11 @@ Day = (function() {
             y: Number
           }
         ],
-        // room: {
-        //   type: mongoose.Schema.Types.ObjectId,
-        //   ref: 'Room',
-        //   required: true
-        // },
-        createDate: { type: Date, default: new Date() }
+        random: {
+          type: [Number, Number],
+          index: '2d'
+        },
+        createAt: { type: Date, default: new Date() }
       },
       {
         toJSON: {
@@ -137,10 +136,6 @@ Day = (function() {
           max: config.roomCapacity,
           default: config.roomCapacity
         },
-        memorys: [{
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Memory'
-        }],
         lastModified: { type: Date, default: new Date() },
       },
       {
@@ -169,10 +164,6 @@ Day = (function() {
           max: config.roomCapacity,
           default: config.roomCapacity
         },
-        memorys: [{
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Memory'
-        }],
         lastModified: { type: Date, default: new Date() },
       },
       {
@@ -181,20 +172,7 @@ Day = (function() {
         }
       }
     );
-    
-    // // Roomの有効期限
-    // RoomSchema
-    //   .virtual( 'expired' )
-    //   .get(
-    //     /**    
-    //      * @return {boolean} Roomが有効化の真偽値を返す
-    //      */
-    //     function() {
-    //       var result = '';
-    //       result = this.lastModified < helpers.utils.getExpirationDate( config.AVAILABLE_PERIOD );
-    //       return result;
-    //     }
-    //   );
+
 
     // Day スキーマの定義
     var DaySchema = new mongoose.Schema({
@@ -214,22 +192,12 @@ Day = (function() {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'AutomaticRoom'
       }],
-      createDate: { type: Date, default: new Date() }
+      memorys: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Memory'
+      }],
+      createAt: { type: Date, default: new Date() }
     });
-
-    // // Day の有効期限
-    // DaySchema
-    //   .virtual( 'expired' )
-    //   .get(
-    //     /**    
-    //      * @return {boolean} Roomが有効化の真偽値を返す
-    //      */
-    //     function() {
-    //       var result = '';
-    //       result = this.lastModified < helpers.utils.getExpirationDate( config.AVAILABLE_PERIOD );
-    //       return result;
-    //     }
-    //   );
 
     this.Model = {
       'Memory': mongoose.model('Memory', MemorySchema),
@@ -329,8 +297,8 @@ Day = (function() {
           });
 
           // ドキュメントを追加する
-          room.save(function(error, doc, numberAffected){
-            console.log(error, doc, numberAffected);
+          room.save(function(error, doc, numberAffected) {
+            // console.log(error, doc, numberAffected);
             if (error) {
               reject(error);
               return;
@@ -357,7 +325,7 @@ Day = (function() {
                 }
               )
               .exec(function(error, doc) {
-                console.log(error, doc);
+                // console.log(error, doc);
                 if (error) {
                   reject(error);
                   return;
