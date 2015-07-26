@@ -1,7 +1,11 @@
 var Utils = (function() {
   var config = require('config');
+  var fs = require('fs');
+  var path = require('path');
   var events = require('events');
+  var childProcess = require('child_process');
   var moment = require('moment');
+  var Q = require('q');
   var _ = require('lodash');
   var validator = require('validator');
 
@@ -69,6 +73,44 @@ var Utils = (function() {
       }
     } else {
       throw new Error('[Helpers] Utils -> getRoomId | There is a problem with the value of the _keyData.');
+    }
+  };
+
+  // --------------------------------------------------------------
+  /**
+   * utils#mkdir
+   * @param {Object} _keyData - 書き出すディレクトリについて記述する
+   * @prop {strinf} [basePath] - 書き出し先のディレクトリを設定する、初期値はpublic 以下
+   * @prop {strinf} dirName - 書き出すディレクトリ名
+   */
+  // --------------------------------------------------------------
+  Utils.prototype.mkdir = function(_keyData) {
+    console.log('[Helpers] Utils -> mkdir');
+    try {
+      var keyData = _.extend({
+        'basePath': config.PUBLIC,
+        'dirName': null
+      }, _keyData);
+
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          if (validator.isLength(keyData.baseNumber, 1)) {
+            reject(new Error('[Helpers] Utils -> mkdir | Validation Error: Query Value.'));
+            return;
+          }
+
+          fs.mkdir(path.join(keyData.basePath, keyData.dirName), function(error) {
+            if(error){
+              reject(error);
+              return;
+            }
+
+            resolve();
+          });
+        });
+      })(this);
+    } catch(error) {
+      console.log(error);
     }
   };
 

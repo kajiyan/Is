@@ -7,6 +7,7 @@ var Controllers;
 
 Controllers = (function() {
   var config = require('config');
+  var validator = require('validator');
   var _ = require('lodash');
   var helpers = {
     utils: require(config.helpers + 'utils')

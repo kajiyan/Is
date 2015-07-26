@@ -228,17 +228,41 @@ Extension = (function() {
   /**
    * Extension#_databaseConnectedHandler
    * Models がデータベースへの接続が正常に完了したら呼び出されるイベントハンドラ 
-   * 起動時の日付のDay Document をデータベースに追加し、Socket.io の設定を行う
+   * ・起動時の日付のDay Document をデータベースに追加する
+   * ・画像の書き出し先のフォルダを生成する
+   * ・Socket.io の設定を行う
    */
   // --------------------------------------------------------------
   Extension.prototype._databaseConnectedHandler = function() {
     console.log('[Controller] Extension -> _databaseConnectedHandler');
 
-    this._dayModel
-      .addDay()
-      .fin(
-        this._setupSocket.bind(this)
-      );
+    helpers.utils.mkdir({
+      'dirName': 'memorys/' + helpers.utils.getDayId()
+    });
+
+    this._dayModel.addMemory({
+      'link': 'https://www.google.co.jp/',
+      'window': {
+        'width': 1920,
+        'height': 1080
+      },
+      'image': {
+        'fileName': '1234567890abcdfegh.jpeg',
+        'width': 480,
+        'height': 640
+      },
+      'positions': [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 }
+      ],
+      'random': [Math.random(), 0]
+    });
+
+    // this._dayModel
+    //   .addDay()
+    //   .fin(
+    //     this._setupSocket.bind(this)
+    //   );
   };
 
   return Extension;
@@ -246,3 +270,23 @@ Extension = (function() {
 
 
 module.exports = Extension;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

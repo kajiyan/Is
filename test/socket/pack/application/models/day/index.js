@@ -67,11 +67,11 @@ Day = (function() {
           type: String,
           required: true
         },
-        roomId: {
-          type: String,
-          required: true
-        },
-        roomType: Number,
+        // roomId: {
+        //   type: String,
+        //   required: true
+        // },
+        // roomType: Number,
         link: String,
         window: {
           width: Number,
@@ -84,12 +84,14 @@ Day = (function() {
         },
         positions: [
           {
+            _id: false,
             x: Number,
             y: Number
           }
         ],
         random: {
           type: [Number, Number],
+          default: [Math.random(), 0],
           index: '2d'
         },
         createAt: { type: Date, default: new Date() }
@@ -746,8 +748,88 @@ Day = (function() {
   };
 
 
+  // --------------------------------------------------------------
+  // --------------------------------------------------------------
+  Day.prototype.addMemory = function(_query) {
+    console.log('[Models] Day -> addMemory');
+
+    var query = _.extend({
+      'dayId': helpers.utils.getDayId(),
+      'link': '',
+      'window': {
+        'width': 0,
+        'height': 0
+      },
+      'image': {
+        'fileName': '',
+        'width': 0,
+        'height': 0
+      },
+      'positions': []
+      // 'random': [Math.random(), 0]
+    }, _query);
+
+    return (function(_this) {
+      return Q.Promise(function(resolve, reject, notify) {
+        var memory = new _this.Model.Memory(query);
+        console.log(memory);
+        // console.log(query);
+
+
+      });
+    })(this);
+  };
+
+
+
   return Day;
 })();
 
 
 module.exports = Day;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
