@@ -756,6 +756,9 @@ Day = (function() {
 
 
   // --------------------------------------------------------------
+  /**
+   * Day#addMemory
+   */
   // --------------------------------------------------------------
   Day.prototype.addMemory = function(dataUrl, _query) {
     console.log('[Models] Day -> addMemory');
@@ -779,41 +782,34 @@ Day = (function() {
         }
 
         var memory = new _this.Model.Memory(query);
-        console.log(memory);
 
         helpers.utils.parseDataUrl({
           'dataUrl': dataUrl
         })
         .then(
           function(data) {
+            var ext = '.' + data.ext;
+            memory.ext = ext;
+            
             return helpers.utils.writeFile({
               'dirPath': config.MEMORYS_DIR_PATH + helpers.utils.getDayId() + '/',
-              'fileName': validator.toString(memory._id) + '.' + data.ext,
+              'fileName': validator.toString(memory._id) + ext,
               'blob': data.blob
             });
           }
         )
         .then(
           function() {
-            console.log('done!');
+            memory.save( function(error, doc, numberAffected) {
+              if(error) {
+                reject(error);
+                return;
+              }
+
+              resolve();
+            });
           }
         );
-
-        // helpers.utils.writeFile({
-
-        // });
-
-        // console.log(query);
-
-        // memory.save( function(error, doc, numberAffected) {
-        //   console.log(error, doc, numberAffected);
-        //   if(error) {
-        //     reject(error);
-        //     return;
-        //   }
-            
-        //   resolve();
-        // });
       });
     })(this);
   };

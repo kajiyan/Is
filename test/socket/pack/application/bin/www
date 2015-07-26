@@ -65,9 +65,6 @@ server.on('listening', onListening);
 
 
 
-
-
-
 app.get('models').setup();
 app.get('controllers').setup();
 app.get('routes').setup();
