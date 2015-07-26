@@ -137,7 +137,7 @@ var Utils = (function() {
           if (/^data:.+\/(.+);base64,(.*)$/.test(keyData.dataUrl)) {
             resolve({
               ext: RegExp.$1,
-              data: new Buffer(RegExp.$2, 'base64')
+              blob: new Buffer(RegExp.$2, 'base64')
             });
           } else {
             reject(new Error('[Helpers] Utils -> mkdir | Validation Error: Query Value Type is not DataURL.'));
@@ -148,6 +148,60 @@ var Utils = (function() {
       console.log(error);
     }
   };
+
+  // --------------------------------------------------------------
+  /**
+   * utils#writeFile
+   * バイナリデータをファイルに書き出す
+   * @param {Object} _keyData
+   * @prop {strinf} [basePath] - 書き出し先のディレクトリを設定する、初期値はpublic 以下
+   * @prop {strinf} dirName - 書き出し先のディレクトリ名
+   * @prop {strinf} fileName - 書き出すファイル名
+   * @prop {buffer} blob - ファイルに書き出すバイナリデータ
+   * @return {Object} Q promise
+   */
+  // --------------------------------------------------------------
+  Utils.prototype.writeFile = function(_keyData) {
+    console.log('[Helpers] Utils -> writeFile');
+
+    try {
+      var keyData = _.extend({
+        'dirPath': config.PUBLIC,
+        'fileName': null,
+        'blob': null
+      }, _keyData);
+
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          if (!validator.isLength(keyData.fileName, 1) && validator.isNull(keyData.blob)) {
+            reject(new Error('[Helpers] Utils -> writeFile | Validation Error: Query Value.'));
+            return;
+          }
+
+          fs.writeFile(path.join(keyData.dirPath, keyData.fileName), keyData.blob, function(error){
+            if (error) {
+              reject(error);
+              return;
+            }
+
+            resolve();
+          });
+        });
+      })(this);
+    } catch(error) {
+      console.log(error);
+    }
+  };
+
+  // ImageFile.prototype.save = function(roomId, fileName, data) {
+  //   console.log('ImageFile -> save');
+  //   console.log(roomId, fileName, data);
+  //   console.log(path.join(BASE_PATH, roomId.toString(), fileName));
+  //   console.log("---------");
+
+  //   fs.writeFile(path.join(BASE_PATH, roomId.toString(), fileName), data, function(err){
+  //   });
+  // };
 
 
   // // --------------------------------------------------------------

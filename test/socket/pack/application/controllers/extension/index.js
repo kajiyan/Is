@@ -236,25 +236,21 @@ Extension = (function() {
   Extension.prototype._databaseConnectedHandler = function() {
     console.log('[Controller] Extension -> _databaseConnectedHandler');
 
-    // helpers.utils.parseDataUrl({
-    //   'dataUrl': config.base64
-    // });
-
     // (function(_this) {
     //   Q.all([
     //     helpers.utils.mkdir({
-    //       'dirName': 'memorys'
+    //       'dirName': config.MEMORYS_DIR_NAME
     //     })
     //   ])
     //   .fin(function() {
     //     Q.all([
     //       _this._dayModel.addDay(),
     //       helpers.utils.mkdir({
-    //         'dirName': 'memorys/' + helpers.utils.getDayId()
+    //         'dirName': config.MEMORYS_DIR_NAME + '/' + helpers.utils.getDayId()
     //       })
     //     ])
     //     .fin(
-    //       _this._setupSocket.bind(_this)
+    //       // _this._setupSocket.bind(_this)
     //     );
     //   });
     // })(this);
@@ -271,28 +267,23 @@ Extension = (function() {
     //   'dirName': 'memorys/' + helpers.utils.getDayId()
     // });
 
-    // this._dayModel.addMemory({
-    //   'link': 'https://www.google.co.jp/',
-    //   'window': {
-    //     'width': 1920,
-    //     'height': 1080
-    //   },
-    //   'image': {
-    //     'fileName': '1234567890abcdfegh.jpeg',
-    //     'width': 480,
-    //     'height': 640
-    //   },
-    //   'positions': [
-    //     { x: 0, y: 0 },
-    //     { x: 0, y: 0 }
-    //   ]
-    // });
 
-    // this._dayModel
-    //   .addDay()
-    //   .fin(
-    //     this._setupSocket.bind(this)
-    //   );
+
+
+    this._dayModel.addMemory(
+      config.base64,
+      {
+        'link': 'https://www.google.co.jp/',
+        'window': {
+          'width': 1920,
+          'height': 1080
+        },
+        'positions': [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 }
+        ]
+      }
+    );
   };
 
   return Extension;

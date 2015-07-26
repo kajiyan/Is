@@ -67,20 +67,14 @@ Day = (function() {
           type: String,
           required: true
         },
-        // roomId: {
-        //   type: String,
-        //   required: true
-        // },
-        // roomType: Number,
         link: String,
         window: {
           width: Number,
           height: Number
         },
-        image: {
-          fileName: String,
-          width: Number,
-          height: Number
+        ext: {
+          type: String,
+          required: true
         },
         positions: [
           {
@@ -750,39 +744,63 @@ Day = (function() {
 
   // --------------------------------------------------------------
   // --------------------------------------------------------------
-  Day.prototype.addMemory = function(_query) {
+  Day.prototype.addMemory = function(dataUrl, _query) {
     console.log('[Models] Day -> addMemory');
 
     var query = _.extend({
       'dayId': helpers.utils.getDayId(),
-      'link': '',
+      'link': null,
       'window': {
         'width': 0,
         'height': 0
       },
-      'image': {
-        'fileName': '',
-        'width': 0,
-        'height': 0
-      },
+      'ext': null,
       'positions': []
     }, _query);
 
     return (function(_this) {
       return Q.Promise(function(resolve, reject, notify) {
+        if (!validator.isLength(dataUrl, 1)) {
+          reject(new Error('[Model] Day -> getAutomaticRooms | Validation Error: Query Value.'));
+          return;
+        }
+
         var memory = new _this.Model.Memory(query);
         console.log(memory);
+
+        helpers.utils.parseDataUrl({
+          'dataUrl': dataUrl
+        })
+        .then(
+          function(data) {
+            return helpers.utils.writeFile({
+              'dirPath': config.MEMORYS_DIR_PATH + helpers.utils.getDayId() + '/',
+              'fileName': validator.toString(memory._id) + '.' + data.ext,
+              'blob': data.blob
+            });
+          }
+        )
+        .then(
+          function() {
+            console.log('done!');
+          }
+        );
+
+        // helpers.utils.writeFile({
+
+        // });
+
         // console.log(query);
 
-        memory.save( function(error, doc, numberAffected) {
-          console.log(error, doc, numberAffected);
-          if(error) {
-            reject(error);
-            return;
-          }
+        // memory.save( function(error, doc, numberAffected) {
+        //   console.log(error, doc, numberAffected);
+        //   if(error) {
+        //     reject(error);
+        //     return;
+        //   }
             
-          resolve();
-        });
+        //   resolve();
+        // });
       });
     })(this);
   };
