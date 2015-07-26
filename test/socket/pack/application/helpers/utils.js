@@ -82,6 +82,7 @@ var Utils = (function() {
    * @param {Object} _keyData - 書き出すディレクトリについて記述する
    * @prop {strinf} [basePath] - 書き出し先のディレクトリを設定する、初期値はpublic 以下
    * @prop {strinf} dirName - 書き出すディレクトリ名
+   * @return {Object} Q promise
    */
   // --------------------------------------------------------------
   Utils.prototype.mkdir = function(_keyData) {
@@ -113,6 +114,41 @@ var Utils = (function() {
       console.log(error);
     }
   };
+
+  // --------------------------------------------------------------
+  /**
+   * utils#parseDataURL
+   * 引数に渡された画像のDataURL から拡張子とバイナリデータを取り出す 
+   * @param {Object} _keyData
+   * @prop {string} dataUrl - 画像のDataURL
+   * @return {Object} Q promise
+   */
+  // --------------------------------------------------------------
+  Utils.prototype.parseDataUrl = function(_keyData) {
+    console.log('[Helpers] Utils -> parseDataUrl');
+
+    try {
+      var keyData = _.extend({
+        'dataUrl': null,
+      }, _keyData);
+
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          if (/^data:.+\/(.+);base64,(.*)$/.test(keyData.dataUrl)) {
+            resolve({
+              ext: RegExp.$1,
+              data: new Buffer(RegExp.$2, 'base64')
+            });
+          } else {
+            reject(new Error('[Helpers] Utils -> mkdir | Validation Error: Query Value Type is not DataURL.'));
+          }
+        });
+      })(this);
+    } catch(error) {
+      console.log(error);
+    }
+  };
+
 
   // // --------------------------------------------------------------
   // Utils.prototype.generateID = function() {

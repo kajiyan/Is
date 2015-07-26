@@ -113,7 +113,7 @@ Day = (function() {
           port = ':' + config['port'];
         }
 
-        result = '//' + config.host + port + '/memory/' + this.dayID + '/' + this.roomID + '/' + this.id;
+        result = '//' + config.host + port + '/memorys/' + this._id;
 
         return result;
       });
@@ -766,7 +766,6 @@ Day = (function() {
         'height': 0
       },
       'positions': []
-      // 'random': [Math.random(), 0]
     }, _query);
 
     return (function(_this) {
@@ -775,7 +774,15 @@ Day = (function() {
         console.log(memory);
         // console.log(query);
 
-
+        memory.save( function(error, doc, numberAffected) {
+          console.log(error, doc, numberAffected);
+          if(error) {
+            reject(error);
+            return;
+          }
+            
+          resolve();
+        });
       });
     })(this);
   };

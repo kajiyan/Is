@@ -236,27 +236,57 @@ Extension = (function() {
   Extension.prototype._databaseConnectedHandler = function() {
     console.log('[Controller] Extension -> _databaseConnectedHandler');
 
-    helpers.utils.mkdir({
-      'dirName': 'memorys/' + helpers.utils.getDayId()
-    });
+    // helpers.utils.parseDataUrl({
+    //   'dataUrl': config.base64
+    // });
 
-    this._dayModel.addMemory({
-      'link': 'https://www.google.co.jp/',
-      'window': {
-        'width': 1920,
-        'height': 1080
-      },
-      'image': {
-        'fileName': '1234567890abcdfegh.jpeg',
-        'width': 480,
-        'height': 640
-      },
-      'positions': [
-        { x: 0, y: 0 },
-        { x: 0, y: 0 }
-      ],
-      'random': [Math.random(), 0]
-    });
+    // (function(_this) {
+    //   Q.all([
+    //     helpers.utils.mkdir({
+    //       'dirName': 'memorys'
+    //     })
+    //   ])
+    //   .fin(function() {
+    //     Q.all([
+    //       _this._dayModel.addDay(),
+    //       helpers.utils.mkdir({
+    //         'dirName': 'memorys/' + helpers.utils.getDayId()
+    //       })
+    //     ])
+    //     .fin(
+    //       _this._setupSocket.bind(_this)
+    //     );
+    //   });
+    // })(this);
+
+
+
+    // Q.all([
+    //   this._dayModel.addDay(),
+    // ]).fin(
+    //   this._setupSocket.bind(this)
+    // );
+
+    // helpers.utils.mkdir({
+    //   'dirName': 'memorys/' + helpers.utils.getDayId()
+    // });
+
+    // this._dayModel.addMemory({
+    //   'link': 'https://www.google.co.jp/',
+    //   'window': {
+    //     'width': 1920,
+    //     'height': 1080
+    //   },
+    //   'image': {
+    //     'fileName': '1234567890abcdfegh.jpeg',
+    //     'width': 480,
+    //     'height': 640
+    //   },
+    //   'positions': [
+    //     { x: 0, y: 0 },
+    //     { x: 0, y: 0 }
+    //   ]
+    // });
 
     // this._dayModel
     //   .addDay()
