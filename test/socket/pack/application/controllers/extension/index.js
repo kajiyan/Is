@@ -257,19 +257,6 @@ Extension = (function() {
 
 
 
-    // Q.all([
-    //   this._dayModel.addDay(),
-    // ]).fin(
-    //   this._setupSocket.bind(this)
-    // );
-
-    // helpers.utils.mkdir({
-    //   'dirName': 'memorys/' + helpers.utils.getDayId()
-    // });
-
-
-
-
     this._dayModel.addMemory(
       config.base64,
       {

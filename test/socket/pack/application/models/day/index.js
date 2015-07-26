@@ -781,6 +781,7 @@ Day = (function() {
           return;
         }
 
+        var result = {};
         var memory = new _this.Model.Memory(query);
 
         helpers.utils.parseDataUrl({
@@ -806,7 +807,30 @@ Day = (function() {
                 return;
               }
 
-              resolve();
+              result = doc;
+
+              // ドキュメントの追加が成功したら 
+              // クエリで指定されているdayId を持つDay Collection に 
+              // 追加されたMemory の_id を追加する 
+              _this.Model.Day
+                .findOneAndUpdate({
+                  'dayId': query.dayId
+                }, {
+                  '$push': {
+                    'memorys': doc._id
+                  }
+                }, {
+                  'new': true,
+                  'upsert': true
+                })
+                .exec(function(error, doc) {
+                  if (error) {
+                    reject(error);
+                    return;
+                  }
+
+                  resolve(result);
+                });
             });
           }
         );
