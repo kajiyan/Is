@@ -1,3 +1,4 @@
 test/socket/pack/system/gulp/bower_components
 npm-debug.log
 test/extension/screenshot
+test/socket/pack/application/public/memorys
