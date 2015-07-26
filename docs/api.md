@@ -37,25 +37,26 @@
 				(Manual Room ObjectId),
 				...
 			],
-			"AutomaticRooms": [
+			"automaticRooms": [
 				(Automatic Room ObjectId),
 				(Automatic Room ObjectId),
 				...
 			],
-			"createDate": "2015-07-07T12:00:00.024Z"
+			"memorys": [
+				(Memory ObjectId),
+				(Memory ObjectId),
+				...
+			]
+			"createAt": "2015-07-07T12:00:00.024Z"
 		}
 
 - Manual Room object
 
 		{
 			"_id": "1234567890abcdfegh",
+			"dayId": "20150713", 
 			"roomId": "123456",
-			"memorys": [
-				(Memory ObjectId),
-				(Memory ObjectId),
-				...
-			]
-			"isJoin": true
+			"capacity": 6,
 			"lastModified": "2015-07-07T12:00:00.024Z",
 		}
 
@@ -63,13 +64,9 @@
 
 		{
 			"_id": "1234567890abcdfegh",
+			"dayId": "20150713", 
 			"roomId": "123456",
-			"memorys": [
-				(Memory ObjectId),
-				(Memory ObjectId),
-				...
-			]
-			"isJoin": true
+			"capacity": 6,
 			"lastModified": "2015-07-07T12:00:00.024Z",
 		}
 
@@ -80,30 +77,27 @@
 		{
 			"_id": "1234567890abcdfegh",
 			"dayId": "20150712",
-			"roomId": "123456",
-			"url": "//is-eternal.me/memory/20150712/123456/1234567890abcdfegh"
-			"link": "https://www.google.co.jp/"
+			"url": "//is-eternal.me/memorys/20150712/1234567890abcdfegh", (virtual)
+			"link": "https://www.google.co.jp/",
 			"window": {
-				"width": 1920
+				"width": 1920,
 				"height": 1080
 			},
-			"image": {
-				"filename": "1234567890abcdfegh.jpeg",
-				"width": 480,
-				"height": 640,
-			},
+			"ext": ".jpeg",
+			"imgSrc": "//is-eternal.me/memorys/20150712/1234567890abcdfegh.jpeg", (virtual)
 			"positions": [
-		        { x: 0, y: 0 },
-		        { x: 0, y: 0 },
+		      	{ x: 0, y: 0 },
+		      	{ x: 0, y: 0 },
 		        ...
 		    ],
-			"room": (Room ObjectId),
-			"createDate": "2015-07-07T12:00:00.024Z"
+			"random": [0.1, 0],
+			"createAt": "2015-07-07T12:00:00.024Z"
 		}
 
 	- data[0]._id (int): 登録されている軌跡のID
-	- data[0].dayID (string): 登録時のDayID
-	- data[0].roomID (string): 登録時に入室していたRoomID
+	- data[0].dayId (string): 登録時のDayID
+	- data[0].roomId (string): 登録時に入室していたRoomID
+	- data[0].roomType (number): 0 = "Manual" or 1 = "Automatic"
 	- data[0].url (string): 個別のリンク  
 	- data[0].link (string): 登録時に閲覧していたサイトのURL  
 	- date[0].positions.window: 登録時のブラウザWindowサイズ  
@@ -398,7 +392,7 @@ var socket = io.connect( 'http://api.is-eternal.me/extension' );
 - data
 
 		@param {Object}
-		@prop {number} [roomId] - 接続するRoomID
+		@prop {String} [roomId] - 接続するRoomID
 
 		{
 			"roomId": "000000"
