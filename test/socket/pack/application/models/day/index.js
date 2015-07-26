@@ -98,17 +98,30 @@ Day = (function() {
     );
     
     MemorySchema
-      .virtual( 'url' )
-      .get( function() {
+      .virtual('url')
+      .get(function() {
         var result = '';
         var port = '';
          
-        if(config['port'] !== null){
+        if (config['port'] !== null) {
           port = ':' + config['port'];
         }
 
-        result = '//' + config.host + port + '/memorys/' + this._id;
+        result = '//' + config.host + port + '/memorys/' + this.dayId + '/' + this._id;
+        return result;
+      });
 
+    MemorySchema
+      .virtual('imgSrc')
+      .get(function() {
+        var result = '';
+        var port = '';
+         
+        if (config['port'] !== null) {
+          port = ':' + config['port'];
+        }
+
+        result = '//' + config.host + port + '/memorys/' + this.dayId + '/' + this._id + this.ext;
         return result;
       });
 
