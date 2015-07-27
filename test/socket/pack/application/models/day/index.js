@@ -838,6 +838,50 @@ Day = (function() {
     })(this);
   };
 
+  // --------------------------------------------------------------
+  /**
+   * Day#getRandomMemory
+   * @param {Object} _query -
+   * @prop {Object} query.conditions - 取得条件
+   * @prop {String} query.projection - 取得するフィールド
+   * @prop {String} query.options - ソートやリミット、オフセットの指定
+   * @return {Object} Q promise を返す
+   *
+   * Memory Document をランダムに取得する
+   */
+  // --------------------------------------------------------------
+  Day.prototype.getRandomMemory = function(_query) {
+    console.log('[Models] Day -> getRandomMemory');
+
+    var query = _.extend({
+      'conditions': {
+        'random': {
+          '$near': [Math.random(), 0]
+        }
+      },
+      'projection': {},
+      'options': {}
+    }, _query);
+
+    return (function(_this) {
+      return Q.Promise(function(resolve, reject, notify) {
+        _this.Model.Memory
+          .find(
+            query.conditions,
+            query.projection,
+            query.options
+          )
+          .exec(function(error, doc, numberAffected) {
+            console.log(error, doc, numberAffected);
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(doc);
+          });
+      });
+    })(this);
+  };
 
 
   return Day;

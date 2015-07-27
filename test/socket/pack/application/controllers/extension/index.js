@@ -257,20 +257,27 @@ Extension = (function() {
 
 
 
-    this._dayModel.addMemory(
-      config.base64,
-      {
-        'link': 'https://www.google.co.jp/',
-        'window': {
-          'width': 1920,
-          'height': 1080
-        },
-        'positions': [
-          { x: 0, y: 0 },
-          { x: 0, y: 0 }
-        ]
+    // this._dayModel.addMemory(
+    //   config.base64,
+    //   {
+    //     'link': 'https://www.google.co.jp/',
+    //     'window': {
+    //       'width': 1920,
+    //       'height': 1080
+    //     },
+    //     'positions': [
+    //       { x: 0, y: 0 },
+    //       { x: 0, y: 0 }
+    //     ]
+    //   }
+    // );
+
+    this._dayModel.getRandomMemory({
+      'options': {
+        'limit': 1
       }
-    );
+    });
+
   };
 
   return Extension;
