@@ -12,8 +12,6 @@
 $baseWidth: 680px;
 $baseInnerWidth: $baseWidth - $grid-gutter-width;
 
-// $path-absolute-img: "/images/";
-
 // @font-face{ 
 //   font-family: 'NotoSansCJKjp';
 //   src: url('#{$path-common}fonts/NotoSansCJKjp-Light-J1.eot');
@@ -41,42 +39,12 @@ $baseInnerWidth: $baseWidth - $grid-gutter-width;
 /* =============================================================================
     Layout
    ========================================================================== */
-.l-roboto-condensed {
-  font-family: "Roboto Condensed", sans-serif;
-}
-
-.l-roboto-normal {
-  font-family: "Roboto", sans-serif;
-  font-weight: 400;
-}
-
-.l-roboto-bold {
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
-}
-
-
 .l-container-24 {
   width: 100%;
   max-width: $baseWidth;
   padding: 0 ($grid-gutter-width / 2);
   margin: 0 auto;
 }
-
-
-// .l-noto { font-family: "NotoSansCJKjp"; }
-
-// .l-noto-light { font-family: "NotoSansCJKjp-Light"; }
-
-// .l-noto {
-//   font-family: $font-family-body;
-//   font-weight: normal;
-// }
-
-// .l-noto-thin {
-//   font-family: $font-family-body;
-//   font-weight: 100;
-// }
 
 .l-clearfix {
   @include clearfix;
@@ -193,7 +161,6 @@ $baseInnerWidth: $baseWidth - $grid-gutter-width;
 
 
 html {
-  // min-width: $baseWidth;
   width: 100%;
   height: 100%;
 }
@@ -219,336 +186,32 @@ a:focus {
   outline: none;
 }
 
-.android {
-  * {
-    background-image: url("../../images/spacer.gif");
-    max-height: 999999px;
-  }
-}
-
-.ebaf {
-  &.client {
-    width: 100%;
-    height: 100%;
-    .client-body {
-      background-color: #d2dcdc;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-      .wrapper {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        top: 0;
-        left: 0;
-      }
-        .image-select {
-          background-color: #d2dcdc;
-          width: 100%;
-          height: 100%;
-          position: absolute;
-          top: 0;
-          left: 0;
-          z-index: 20;
-        }
-          .image-select-inner {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            top: 0;
-            left: 0;
-          }
-            .image-select-header {
-              $image-select-img-holder-width: image-width("#{$path-absolute-img}logo-0.png") * 0.8;
-
-              width: 100%;
-              position: absolute;
-              bottom: 0;
-              left: 0;
-              z-index: 1;
-              .image-select-h1 {
-                text-align: right;
-              }
-                .image-select-img-holder {
-                  background-color: #ffffff;
-                  display: inline-block;
-                  width: percentage($image-select-img-holder-width / $smallBaseInnerWidth);
-                  max-width: $image-select-img-holder-width;
-                  margin: percentage(10px/ $smallBaseInnerWidth);
-                }
-                  .image-select-img {
-                    vertical-align: top;
-                  }
-            }
-            
-                
-                  
-              .image-select-input {
-                display: block;
-                width: 100%;
-                height: 100%;
-                position: absolute;
-                top: 0;
-                left: 0;
-                z-index: 2;
-                @include opacity(0.0);
-                outline: none;
-              }
-
-    $image-holder-label-img-width: image-width("#{$path-absolute-img}throw-0.png");
-    $image-holder-load-img-width: (image-width("#{$path-absolute-img}loading-0.gif") / 2);
-
-    .image-holder {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-    }
-      .image-holder-wrapper {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-      }
-        .image-holder-inner {
-          display: table;
-          width: 100%;
-          height: 100%;
-        }
-          .image-holder-content {
-            vertical-align: middle;
-            display: table-cell;
-          }
-            .image-holder-load {
-              text-align: center;
-            }
-              .image-holder-load-img {
-                width: percentage($image-holder-load-img-width / $smallBaseInnerWidth);
-                max-width: $image-holder-load-img-width;
-                vertical-align: top;
-              }
-
-            .image-holder-label {
-              text-align: center;
-            }
-              .image-holder-label-img {
-                width: percentage($image-holder-label-img-width / $smallBaseInnerWidth);
-                max-width: $image-holder-label-img-width;
-                vertical-align: top;
-                @include animation-name("imageThrowPop");
-                @include animation-duration(3s);
-                @include animation-timing-function("linear");
-                @include animation-delay(0s);
-                // @include animation-fill-mode("infinite");
-                @include animation-iteration-count("infinite");
-              }
-  }
-
-  .back {
-    $back-img-src-0-width: image-width("#{$path-absolute-img}light-0.png");
-    $back-img-src-1-width: image-width("#{$path-absolute-img}flower-0.png");
-    $back-img-src-2-width: image-width("#{$path-absolute-img}light-back-0.png");
-
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    .back-inner {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      top: 0;
-      left: 0;
-    }
-      .back-img-holder {
-        &.back-img-src-0 {
-          width: percentage($back-img-src-0-width / $smallBaseInnerWidth);
-          max-width: $back-img-src-0-width;
-          position: absolute;
-          top: 0;
-          left: 0;
-          z-index: 2;
-          .back-img {
-            margin: 0 0 0 percentage( 68px / $back-img-src-0-width );
-          }
-        }
-        &.back-img-src-1 {
-          width: percentage($back-img-src-1-width / $smallBaseInnerWidth);
-          max-width: $back-img-src-1-width;
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          z-index: 2;
-          .back-img {
-            margin: 0 0 percentage( 30px / $back-img-src-1-width ) percentage( 20px / $back-img-src-1-width );
-          }
-        }
-        &.back-img-src-2 {
-          width: percentage($back-img-src-2-width / $smallBaseInnerWidth);
-          max-width: $back-img-src-2-width;
-          position: absolute;
-          top: 0;
-          left: 0;
-          z-index: 1;
-          @include opacity(0.0);
-          .back-img {
-            margin: percentage( 130px / $back-img-src-2-width ) 0 0 percentage( 20px / $back-img-src-2-width );
-            // @include opacity(0.0);
-          }
-        }
-      }
-        .back-img {
-          display: block;
-        }
-  }
+// .android {
+//   * {
+//     background-image: url("../../images/spacer.gif");
+//     max-height: 999999px;
+//   }
+// }
 
 
 
-  .update {
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 21;
-      .update-inner {
-        margin: percentage(10px/ $smallBaseInnerWidth);
-      }
-      .update-body {
-        $font-size: 14px;
-        color: #000000;
-        // color: #ffffff;
-        // -webkit-text-fill-color: #ffffff;
-        //    -moz-text-fill-color: #ffffff;
-        //     -ms-text-fill-color: #ffffff;
-        //      -o-text-fill-color: #ffffff;
-        //         text-fill-color: #ffffff;
-        // -webkit-text-stroke-width: 1px;
-        //    -moz-text-stroke-width: 1px;
-        //     -ms-text-stroke-width: 1px;
-        //      -o-text-stroke-width: 1px;
-        //         text-stroke-width: 1px;
-        // -webkit-text-stroke-color: #000000;
-        //    -moz-text-stroke-color: #000000;
-        //     -ms-text-stroke-color: #000000;
-        //      -o-text-stroke-color: #000000;
-        //         text-stroke-color: #000000;
-        background-color: #ffffff;
-        @include remod(font-size, $font-size);
-        line-height: 1.5;
-        // @include text-shadow(
-        //   0px -1px #000000,
-        //   1px 0px #000000,
-        //   0px 1px #000000,
-        //   -1px 1px #000000
-        // );
-    // -webkit-animation: "image-throw-pop" 30s linear 0s infinite;
-      // animation: "image-throw-pop" 30s linear 0s infinite;
-      // @include animation-name("imageThrowPop");
-      // @include animation-duration(3s);
-      // @include animation-timing-function("linear");
-      // @include animation-delay(0s);
-      // // @include animation-fill-mode("infinite");
-      // @include animation-iteration-count("infinite");
-    }
-  }
 
 
 
-}
 
 
 
-.you-root {
-  width: 100%;
-  min-width: $baseWidth;
-}
-
-.you-body {
-  color: #222222;
-  background-color: #fefefe;
-  width: 100%;
-  min-width: $baseWidth;
-
-  @include transition-property(all);
-  @include transition-duration(0.4s);
-  @include transition-timing-function(ease);
-  
-  // // min-width: $baseWidth;
-  // @include mq-middle {
-  //   width: 100%;
-  // }
-  // @include mq-small {
-  //   width: 100%;
-  // }
-}
 
 
 
-@include keyframes(imageThrowPop) {
-  0% {
-    @include transform(none);
-  }
-  3% {
-    @include transform(translateX(10px) rotateZ(5deg));
-  }
-  6% {
-    @include transform(translateX(-40px) rotateZ(-20deg));
-  }
-  9% {
-    @include transform(translateX(5px) rotateZ(2.5deg));
-  }
-  12% {
-    @include transform(none);
-  }
-  100% {
-    @include transform(none);
-  }
-}
 
 
 
-@-webkit-keyframes image-throw-pop {
-  0% {
-    -webkit-transform: none; }
 
-  3% {
-    -webkit-transform: translateX(10px) rotateZ(5deg); }
 
-  6% {
-    -webkit-transform: translateX(-40px) rotateZ(-20deg); }
 
-  9% {
-    -webkit-transform: translateX(5px) rotateZ(2.5deg); }
 
-  12% {
-    -webkit-transform: none; }
 
-  100% {
-    -webkit-transform: none; }
-}
 
-@keyframes image-throw-pop {
-  0% {
-    transform: none; }
 
-  3% {
-    transform: translateX(10px) rotateZ(5deg); }
 
-  6% {
-    transform: translateX(-40px) rotateZ(-20deg); }
-
-  9% {
-    transform: translateX(5px) rotateZ(2.5deg); }
-
-  12% {
-    transform: none; }
-
-  100% {
-    transform: none; }
-}

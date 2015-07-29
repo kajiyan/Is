@@ -1,18 +1,40 @@
 <!doctype html>
-<html>
+<html class="is">
   <head>
-    <title>Set Page Color Popup</title>
-    <style>
-    </style>
+    <title>I&quot;s</title>
+    
+    <link rel="stylesheet" media="all" type="text/css" href="public/css/style.css?v=1.0.0">
 
-    <!-- 
-    <script src="public/js/lib/socket.io.js"></script>
-    -->
     <script src="public/common/js/common.js"></script>
     <script src="public/js/extension/app/index.js"></script>
   </head>
-  <body>
-    <div id="place">place</div>
-    <div id="js__console">console</div>
+  
+  <body class="is-body">
+    <div class="check-in">
+      <section class="check-in-section">
+        <h1>I&quot;s</h1>
+
+        <form id="js-check-in-form--room_manual" class="check-in-form check-in-form--room_manual">
+          <label class="check-in-label" for="check-in-input--room_id">Check in at Manual Room</label>
+          <input id="check-in-input--room_id" class="check-in-input" type="text" maxlength="6" placeholder="Check in at Manual Room">
+          <button class="check-in-button" type="submit">Check in</button>
+        </form><!-- /.check-in-form room_manual -->
+        
+        <form id="js-check-in-form--room_automatic" class="check-in-form check-in-form--room_automatic">
+          <label class="check-in-label" for="check-in-input--room_id">Check in at Automatic Room</label>
+          <button class="check-in-button" type="submit">Check in</button>
+        </form><!-- /.check-in-form room_automatic -->
+      </section><!-- /.check-in-section -->
+    </div><!-- /.check-in -->
+
+    <div class="room">
+      <div class="options">
+      </div><!-- /.options -->
+
+      <div class="check-out">
+        <button class="check-out-button">Check out</button>
+      </div><!-- /.check-out -->
+    </div><!-- /.room -->
+
   </body>
 </html>

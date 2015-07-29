@@ -52,12 +52,15 @@ do (window=window, document=document, $=jQuery) ->
     collections: null
     views: null
 
+
   # ============================================================
   # BackBone MODEL
   sn.bb.models =
     stage: do ->
       Stage = require("./models/stage")(sn, $, _)
-      return new Stage()
+      stage = new Stage
+        "debug": true
+      return stage
     connect: do ->
       Connect = require("./models/connect")(sn, $, _)
       return new Connect()

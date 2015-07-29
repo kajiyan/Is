@@ -13,13 +13,71 @@ do (window=window, document=document, $=jQuery) ->
 
   # ============================================================
   # TypeFrameWork
+  # ============================================================
   sn.tf = new TypeFrameWork()
+
+  # ============================================================
+  # Library
+  # ============================================================
+  jQBridget = require "jquery-bridget"
+  require "pepjs/dist/pep.min"
+
+  # ============================================================
+  # BackBone
+  # ============================================================
+  sn.bb =
+    models: null
+    collections: null
+    views: null
+
+  # ============================================================
+  # BackBone - MODEL
+  sn.bb.models =
+    stage: do ->
+      Stage = require("./models/stage")(sn, $, _)
+      return new Stage()
+    connect: do ->
+      Connect = require("./models/connect")(sn, $, _)
+      return new Connect()
+
+  # ============================================================
+  # BackBone - COLLECTION
+
+
+  # ============================================================
+  # BackBone - VIEW
+  sn.bb.views =
+    "stage": do ->
+      Stage = require("./views/stage")(sn, $, _)
+      return new Stage
+        "model": sn.bb.models.stage
 
 
   $ ->
     # --------------------------------------------------------------
     sn.tf.setup ->
-      console.log "setup content script"
+      console.log "- SETUP CONTENT SCRIPT -"
+
+      $.when(
+        for key, model of sn.bb.models
+          model.setup?()
+      ).then( =>
+        $.when(
+          sn.bb.views.stage.setup()
+        )
+      ).then( =>
+        console.log "- SETUP CONTENT SCRIPT -"
+      )
+
+      # events = [
+      #   'click',
+      #   'pointermove'
+      # ]
+
+      # events.forEach (eventName) ->
+      #   console.log eventName
+      #   document.body.addEventListener eventName, (e) ->
+      #     console.log(e.clientX + ' : ' + e.clientY);
 
       # # popupとの連携
       # chrome.runtime.onMessage.addListener ( msg, sender, sendResponse ) ->
@@ -33,32 +91,23 @@ do (window=window, document=document, $=jQuery) ->
 
       # $html = $("<div>Hello World</div>")
       # $("body").prepend($html)
-      
-      backgroundScriptSender = {}
-      backgroundScriptSender = chrome.extension.connect name: "fromContentScript"
-      backgroundScriptSender.postMessage joke: "fromContentScript"
 
-      # setTimeout ->
-      #   console.log "timeout"
-      #   port = chrome.runtime.connect "name": "contentScriptSender"
-      #   console.log port
-      #   port.onMessage.addListener ( msg ) ->
-      #     console.log msg
-      # , 10000
+      # backgroundScriptReceiver
+      # backgroundScriptReceiver = {}
 
-      # # backgroundScriptReceiver
-      backgroundScriptReceiver = {}
-
-      console.dir(chrome.tabCapture);
-      console.dir(chrome.tabs);
-
-      chrome.runtime.onConnect.addListener ( port ) ->
-        console.log port.name
-        if port.name is "contentScriptSender"
-          backgroundScriptReceiver = port
+      # chrome.runtime.onConnect.addListener (port) ->
+      #   console.log "port.name", port.name
+      #   if port.name is "contentScriptSender"
+      #     backgroundScriptReceiver = port
           
-          backgroundScriptReceiver.onMessage.addListener ( message ) ->
+      #     backgroundScriptReceiver.onMessage.addListener ( message ) ->
           
+      # backgroundScriptSender = {}
+      # backgroundScriptSender = chrome.extension.connect name: "fromContentScript"
+      # backgroundScriptSender.postMessage joke: "fromContentScript"
+
+
+
           # chrome.tabCapture.capture
           #   audio: false
           #   video: true

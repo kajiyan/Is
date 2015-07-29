@@ -39,6 +39,7 @@
     "jquery-color": "~2.1.2",
     "jquery-colorbox": "~1.6.0",
     "greensock": "~1.16.1",
-    "pixi": "~2.2.8"
+    "pixi": "~2.2.8",
+    "pepjs": "~0.3.0"
   }
 }

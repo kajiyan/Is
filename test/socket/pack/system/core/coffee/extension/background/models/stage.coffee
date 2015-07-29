@@ -1,20 +1,33 @@
 # ============================================================
-# Stage
+# Background - Stage
 module.exports = (sn, $, _) ->
 	class Stage extends Backbone.Model
     # ------------------------------------------------------------
-    defaults: 
-      selsectTabId: null
-      isBrowserAction: false
-		
+    # /** 
+    #  * Stage#defaults
+    #  * このクラスのインスタンスを作るときに引数にdefaults に指定されている 
+    #  * オブジェクトのキーと同じものを指定すると、その値で上書きされる。 
+    #  * @type {Object}
+    #  * @prop {boolean} debug - デバッグモードであるかの真偽値
+    #  * @prop {number} selsectedTabId - 選択されているタブのID
+    #  * @prop {boolean} isBrowserAction - ブラウザアクションが発生したかを示す真偽値
+    #  */
     # ------------------------------------------------------------
+    defaults: 
+      "debug": false
+      "selsectedTabId": null
+      "isBrowserAction": false
+
+
+    # --------------------------------------------------------------
+    # /**
+    #  * Stage#constructor
+    #  * @constructor
+    #  */
+    # --------------------------------------------------------------
     constructor: () ->
       console.log "[Model] Stage -> Constructor"
       super
-
-      @_video = document.createElement "video"
-      @_localMediaStream = null
-
 
 
     # ------------------------------------------------------------
@@ -22,11 +35,14 @@ module.exports = (sn, $, _) ->
       console.log "[Model] Stage -> initialize"
 
       # 選択されているタブが変更されて時変わった時
-      @on "change:selsectTabId", @_changeSelsectTabIdHandler
+      @on "change:selsectedTabId", @_changeselSectedTabIdHandler
 
       # ブラウザアクションが始まった時に呼び出される
       @on "change:isBrowserAction", @_changeBrowserActionHandler
 
+      # デバッグモードが有効であれば設定を変更する
+      # if @get("debug")
+      #   @set("isBrowserAction", true)
 
 
 
@@ -39,33 +55,6 @@ module.exports = (sn, $, _) ->
           defer.resolve()
 
         @_setEvent()
-
-        # setInterval =>
-        #   console.log "test"
-          
-        #   try
-        #     chrome.tabCapture.capture
-        #       audio: false
-        #       video: true
-        #       videoConstraints:
-        #         mandatory:
-        #           chromeMediaSource: 'tab'
-        #           maxWidth: 1000
-        #           minWidth: 1000
-        #           maxHeight: 1000
-        #           minHeight: 1000
-        #       ,
-        #       ( stream ) ->
-        #         video = document.createElement "video"
-        #         $("body").append(video)
-        #         video.src = window.URL.createObjectURL stream
-        #         video.play();
-        #   catch e
-        #     console.log e
-          
-
-        # , 1000
-        
 
         # @listenTo @, "change:isScroll", @_changeScrollHandler
 
@@ -84,8 +73,9 @@ module.exports = (sn, $, _) ->
       console.log "[Model] Stage -> _setEvent"
 
       # Content Scriptや Browser Action からのデータを受け取る
-      chrome.runtime.onConnect.addListener ( port ) ->
-        console.log port.name
+      # chrome.runtime.onConnect.addListener ( port ) ->
+        # console.log port.name
+
 
       # # 新規にタブが開かれた時
       # chrome.tabs.onCreated.addListener @_onCreatedHandler
@@ -100,7 +90,7 @@ module.exports = (sn, $, _) ->
 
       chrome.tabs.onActivated.addListener @_onActivatedHandler
 
-      # chrome.tabs.onHighlightChanged.addListener @_onSelectionChangedHandler
+      # chrome.tabs.onHighlightChanged.addListener @_onHighlightChangedHandler
 
       # キーボード操作でタブが選択などされた時
       # chrome.tabs.onHighlighted.addListener @_onHighlightedHandler
@@ -111,7 +101,7 @@ module.exports = (sn, $, _) ->
 
       # chrome.tabs.onRemoved.addListener @_onRemovedHandler
 
-      chrome.tabs.onReplaced.addListener @_onReplacedHandler
+      # chrome.tabs.onReplaced.addListener @_onReplacedHandler
 
       # chrome.tabs.onZoomChange.addListener @_onZoomChangeHandler
 
@@ -128,87 +118,38 @@ module.exports = (sn, $, _) ->
     _getSelectedTab: () ->
       console.log "[Model] Stage -> _getActiveTab"
 
-      return $.Deferred ( defer ) =>
-        chrome.tabs.getSelected ( tab ) =>
+      return $.Deferred (defer) =>
+        chrome.tabs.getSelected (tab) =>
           if tab?
-            defer.resolve( tab )
+            defer.resolve(tab)
           else
-            error = new Error( "[Model] Stage -> _getActiveTab: Not Selected Tab" )
-            defer.reject( error )
+            error = new Error("[Model] Stage -> _getActiveTab: Not Selected Tab")
+            defer.reject(error)
       .promise()
 
 
     # ------------------------------------------------------------
     # /**
-    #  * @_setTabCaptureStream
+    #  * @_changeselSectedTabIdHandler
     #  */
     # ------------------------------------------------------------
-    _setTabCaptureStream: ( options ) =>
-      console.log "[Model] Stage -> _setTabCaptureStream"
+    _changeselSectedTabIdHandler: () =>
+      console.log "[Model] Stage -> _changeselSectedTabIdHandler"
 
-      _options = _.extend
-        maxWidth: 1920
-        minWidth: 640
-        maxHeight: 1080
-        minHeight: 480
-        ,
-        options
+      # @_video = document.createElement( "video" ) 
 
-      chrome.tabs.captureVisibleTab ( dataUrl ) ->
-        console.log dataUrl
-
-      # return $.Deferred ( defer ) =>
-      #   try
-      #     chrome.tabCapture.capture
-      #       audio: false
-      #       video: true
-      #       videoConstraints:
-      #         mandatory:
-      #           # chromeMediaSource: 'tab'
-      #           maxWidth: _options.maxWidth
-      #           minWidth: _options.minWidth
-      #           maxHeight: _options.maxHeight
-      #           minHeight: _options.minHeight
-      #       ,
-      #       ( stream ) =>
-      #         # console.dir stream
-      #         @_localMediaStream = stream
-      #         # stream.stop()
-      #         # @_video = document.createElement( "video" ) 
-      #         # @_video.src = window.URL.createObjectURL( stream )
-      #         # window.URL.revokeObjectURL( stream )
-      #         # @_video.addEventListener "canplay", ( canplay ) ->
-      #         #   defer.resolve( canplay )
-      #         # @_video.play()
-      #     return
-      #   catch e
-      #     defer.reject( e )
-      # .promise()
-
-
-    # ------------------------------------------------------------
-    # /**
-    #  * @_changeSelsectTabIdHandler
-    #  */
-    # ------------------------------------------------------------
-    _changeSelsectTabIdHandler: () =>
-      console.log "[Model] Stage -> _changeSelsectTabIdHandler"
-
-      @_video = document.createElement( "video" ) 
-
-      $.when(
-        @_getSelectedTab()
-      ).then(
-        ( tab ) =>
-          @_setTabCaptureStream
-            maxWidth: tab.width
-            minWidth: tab.width
-            maxHeight: tab.height
-            minHeight: tab.height
-      ).then(
-        ( canplay ) =>
-          
-      )
+      # $.when(
+      #   @_getSelectedTab()
+      # ).then(
+      #   ( tab ) =>
+      #     @_setTabCaptureStream
+      #       maxWidth: tab.width
+      #       minWidth: tab.width
+      #       maxHeight: tab.height
+      #       minHeight: tab.height
+      # ).then(
+      #   ( canplay ) => 
+      # )
 
       # try
       #   chrome.tabCapture.capture
@@ -233,12 +174,12 @@ module.exports = (sn, $, _) ->
 
     # エクステンションのポップアップの展開状態が変わった時に実行される
     # ------------------------------------------------------------
-    _changeBrowserActionHandler: ( model, isBrowserAction ) =>
+    _changeBrowserActionHandler: (model, isBrowserAction) =>
       console.log "[Model] Stage -> _changeBrowserActionHandler", model, isBrowserAction
 
-      if @get "isBrowserAction"
-        chrome.tabs.getSelected ( tab ) =>
-          @set( "selsectTabId", tab.id )
+      if isBrowserAction
+        chrome.tabs.getSelected (tab) =>
+          @set("selsectedTabId", tab.id)
 
 
     # ------------------------------------------------------------
@@ -260,148 +201,140 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onUpdatedHandler: ( tabId, changeInfo, tab ) =>
-      console.log "[Model] Stage -> _onUpdated", tabId, changeInfo, tab
+      console.log "[Model] Stage -> _onUpdated", tabId, changeInfo, tab      
 
       # エクステンションを起動した状態で、リロードが行われた場合
-      # これまで保持していた selsectTabId を破棄して再度、selsectTabIdを設定する
-      if @get( "isBrowserAction" ) and ( changeInfo.status is "complete" ) and ( @get( "selsectTabId" ) is tabId ) 
+      # これまで保持していた selsectedTabId を破棄して再度、selsectedTabIdを設定する
+      if @get("isBrowserAction") and (changeInfo.status is "complete") and (@get("selsectedTabId") is tabId) 
         chrome.tabs.getSelected ( tab ) =>
           # ロード終了時も同じタブを開いているか
           if tabId is tab.id
             @set(
-              { "selsectTabId": null },
+              { "selsectedTabId": null },
               { "silent": true }
             )
-            @set( "selsectTabId", tabId )
+            @set("selsectedTabId", tabId)
             return
 
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onMovedHandler
+    #  * Stage#_onMovedHandler
     #  * @param {number} tabId - タブID
     #  * @param {Object} moveInfo
     #  */
     # ------------------------------------------------------------
-    _onMovedHandler: ( tabId, moveInfo ) ->
-      console.log "[Model] Stage -> _onMoved", tabId, moveInfo
+    # _onMovedHandler: ( tabId, moveInfo ) ->
+    #   console.log "[Model] Stage -> _onMoved", tabId, moveInfo
+
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onSelectionChangedHandler
+    #  * Stage#_onSelectionChangedHandler
     #  * @param {number} tabId - タブID
     #  * @param {Object} selectInfo - { windowId: (number) }
     #  */
     # ------------------------------------------------------------
-    _onSelectionChangedHandler: ( tabId, selectInfo ) ->
-      console.log "[Model] Stage -> _onSelectionChanged", tabId, selectInfo
+    # _onSelectionChangedHandler: ( tabId, selectInfo ) ->
+    #   console.log "[Model] Stage -> _onSelectionChanged", tabId, selectInfo
+
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onActiveChangedHandler 
+    #  * Stage#_onActiveChangedHandler 
     #  * @param {number} tabId - タブID
     #  * @param {Object} selectInfo - { windowId: (number) }
     #  */
     # ------------------------------------------------------------
-    _onActiveChangedHandler: ( tabId, selectInfo ) ->
-      console.log "[Model] Stage -> _onActiveChangedHandler", tabId, selectInfo
+    # _onActiveChangedHandler: ( tabId, selectInfo ) ->
+    #   console.log "[Model] Stage -> _onActiveChangedHandler", tabId, selectInfo
+
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onActivatedHandler 
+    #  * Stage#_onActivatedHandler 
     #  * @param {Object} activeInfo
     #  */
     # ------------------------------------------------------------
-    _onActivatedHandler: ( activeInfo ) =>
+    _onActivatedHandler: (activeInfo) =>
       console.log "[Model] Stage -> _onActivatedHandler", activeInfo
 
       if @get "isBrowserAction"
-        @set "selsectTabId", activeInfo.tabId
+        @set "selsectedTabId", activeInfo.tabId
 
-
-      # chrome.tabCapture.capture
-      #   audio: false
-      #   video: true
-      #   videoConstraints:
-      #     mandatory:
-      #       chromeMediaSource: 'tab'
-      #       maxWidth: 1000
-      #       minWidth: 1000
-      #       maxHeight: 1000
-      #       minHeight: 1000
-      #   ,
-      #   ( stream ) ->
-      #     video = document.createElement "video"
-      #     $("body").append(video)
-      #     video.src = window.URL.createObjectURL stream
-      #     video.play();
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onHighlightChangedHandler 
+    #  * Stage#_onHighlightChangedHandler 
     #  * @param {Object} selectInfo
     #  */
     # ------------------------------------------------------------
-    _onHighlightChangedHandler: ( selectInfo ) ->
-      console.log "[Model] Stage -> _onHighlightChangedHandler", selectInfo      
+    # _onHighlightChangedHandler: (selectInfo) ->
+    #   console.log "[Model] Stage -> _onHighlightChangedHandler", selectInfo      
+
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onHighlighted
+    #  * Stage#_onHighlighted
     #  * @param {Object} selectInfo
     #  */
     # ------------------------------------------------------------
-    _onHighlightedHandler: ( highlightInfo ) ->
-      console.log "[Model] Stage -> _onHighlightedHandler", highlightInfo 
+    # _onHighlightedHandler: (highlightInfo) ->
+    #   console.log "[Model] Stage -> _onHighlightedHandler", highlightInfo 
+
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onDetachedHandler
+    #  * Stage#_onDetachedHandler
     #  * @param {number} tabId - タブID
     #  * @param {Object} detachInfo
     #  */
     # ------------------------------------------------------------
-    _onDetachedHandler: ( tabId, detachInfo ) ->
-      console.log "[Model] Stage -> _onDetachedHandler", tabId, detachInfo
+    # _onDetachedHandler: (tabId, detachInfo) ->
+    #   console.log "[Model] Stage -> _onDetachedHandler", tabId, detachInfo
+
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onReplacedHandler
+    #  * Stage#_onAttachedHandler
     #  * @param {number} tabId - タブID
     #  * @param {Object} attachInfo
     #  */
     # ------------------------------------------------------------
-    _onAttachedHandler: ( tabId, attachInfo ) ->
-      console.log "[Model] Stage -> _onAttachedHandler", tabId, attachInfo
+    # _onAttachedHandler: (tabId, attachInfo) ->
+    #   console.log "[Model] Stage -> _onAttachedHandler", tabId, attachInfo
+
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onReplacedHandler
+    #  * Stage#_onRemovedHandler
     #  * @param {number} tabId - タブID
     #  * @param {Object} removeInfo
     #  */
     # ------------------------------------------------------------
-    _onRemovedHandler: ( tabId, removeInfo ) ->
-      console.log "[Model] Stage -> _onRemovedHandler", tabId, removeInfo
+    # _onRemovedHandler: (tabId, removeInfo) ->
+    #   console.log "[Model] Stage -> _onRemovedHandler", tabId, removeInfo
+
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onReplacedHandler
+    #  * Stage#_onReplacedHandler
     #  * @param {number} addedTabId
     #  * @param {number} removedTabId
     #  */
     # ------------------------------------------------------------
-    _onReplacedHandler: ( addedTabId, removedTabId ) ->
-      console.log "[Model] Stage -> _onReplacedHandler", addedTabId, removedTabId
+    # _onReplacedHandler: (addedTabId, removedTabId) ->
+    #   console.log "[Model] Stage -> _onReplacedHandler", addedTabId, removedTabId
+
 
     # ------------------------------------------------------------
     # /**
-    #  * @_onZoomChangeHandler
+    #  * Stage#_onZoomChangeHandler
     #  * @param {Object} zoomChangeInfo
     #  */
     # ------------------------------------------------------------
-    _onZoomChangeHandler: ( zoomChangeInfo ) ->
-      console.log "[Model] Stage -> _onZoomChangeHandler", zoomChangeInfo    
+    # _onZoomChangeHandler: (zoomChangeInfo) ->
+    #   console.log "[Model] Stage -> _onZoomChangeHandler", zoomChangeInfo    
 
 
 

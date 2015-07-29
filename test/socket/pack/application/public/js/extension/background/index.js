@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "//localhost:10022/";
+/******/ 	__webpack_require__.p = "//localhost:8001/";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -76,9 +76,12 @@
 	  };
 	  sn.bb.models = {
 	    stage: (function() {
-	      var Stage;
+	      var Stage, stage;
 	      Stage = __webpack_require__(3)(sn, $, _);
-	      return new Stage();
+	      stage = new Stage({
+	        "debug": true
+	      });
+	      return stage;
 	    })(),
 	    connect: (function() {
 	      var Connect;
@@ -10897,25 +10900,23 @@
 	    extend(Stage, superClass);
 	
 	    Stage.prototype.defaults = {
-	      selsectTabId: null,
-	      isBrowserAction: false
+	      "debug": false,
+	      "selsectedTabId": null,
+	      "isBrowserAction": false
 	    };
 	
 	    function Stage() {
 	      this._onActivatedHandler = bind(this._onActivatedHandler, this);
 	      this._onUpdatedHandler = bind(this._onUpdatedHandler, this);
 	      this._changeBrowserActionHandler = bind(this._changeBrowserActionHandler, this);
-	      this._changeSelsectTabIdHandler = bind(this._changeSelsectTabIdHandler, this);
-	      this._setTabCaptureStream = bind(this._setTabCaptureStream, this);
+	      this._changeselSectedTabIdHandler = bind(this._changeselSectedTabIdHandler, this);
 	      console.log("[Model] Stage -> Constructor");
 	      Stage.__super__.constructor.apply(this, arguments);
-	      this._video = document.createElement("video");
-	      this._localMediaStream = null;
 	    }
 	
 	    Stage.prototype.initialize = function() {
 	      console.log("[Model] Stage -> initialize");
-	      this.on("change:selsectTabId", this._changeSelsectTabIdHandler);
+	      this.on("change:selsectedTabId", this._changeselSectedTabIdHandler);
 	      return this.on("change:isBrowserAction", this._changeBrowserActionHandler);
 	    };
 	
@@ -10935,12 +10936,8 @@
 	
 	    Stage.prototype._setEvent = function() {
 	      console.log("[Model] Stage -> _setEvent");
-	      chrome.runtime.onConnect.addListener(function(port) {
-	        return console.log(port.name);
-	      });
 	      chrome.tabs.onUpdated.addListener(this._onUpdatedHandler);
-	      chrome.tabs.onActivated.addListener(this._onActivatedHandler);
-	      return chrome.tabs.onReplaced.addListener(this._onReplacedHandler);
+	      return chrome.tabs.onActivated.addListener(this._onActivatedHandler);
 	    };
 	
 	    Stage.prototype._getSelectedTab = function() {
@@ -10960,43 +10957,16 @@
 	      })(this)).promise();
 	    };
 	
-	    Stage.prototype._setTabCaptureStream = function(options) {
-	      var _options;
-	      console.log("[Model] Stage -> _setTabCaptureStream");
-	      _options = _.extend({
-	        maxWidth: 1920,
-	        minWidth: 640,
-	        maxHeight: 1080,
-	        minHeight: 480
-	      }, options);
-	      return chrome.tabs.captureVisibleTab(function(dataUrl) {
-	        return console.log(dataUrl);
-	      });
-	    };
-	
-	    Stage.prototype._changeSelsectTabIdHandler = function() {
-	      console.log("[Model] Stage -> _changeSelsectTabIdHandler");
-	      this._video = document.createElement("video");
-	      return $.when(this._getSelectedTab()).then((function(_this) {
-	        return function(tab) {
-	          return _this._setTabCaptureStream({
-	            maxWidth: tab.width,
-	            minWidth: tab.width,
-	            maxHeight: tab.height,
-	            minHeight: tab.height
-	          });
-	        };
-	      })(this)).then((function(_this) {
-	        return function(canplay) {};
-	      })(this));
+	    Stage.prototype._changeselSectedTabIdHandler = function() {
+	      return console.log("[Model] Stage -> _changeselSectedTabIdHandler");
 	    };
 	
 	    Stage.prototype._changeBrowserActionHandler = function(model, isBrowserAction) {
 	      console.log("[Model] Stage -> _changeBrowserActionHandler", model, isBrowserAction);
-	      if (this.get("isBrowserAction")) {
+	      if (isBrowserAction) {
 	        return chrome.tabs.getSelected((function(_this) {
 	          return function(tab) {
-	            return _this.set("selsectTabId", tab.id);
+	            return _this.set("selsectedTabId", tab.id);
 	          };
 	        })(this));
 	      }
@@ -11008,67 +10978,27 @@
 	
 	    Stage.prototype._onUpdatedHandler = function(tabId, changeInfo, tab) {
 	      console.log("[Model] Stage -> _onUpdated", tabId, changeInfo, tab);
-	      if (this.get("isBrowserAction") && (changeInfo.status === "complete") && (this.get("selsectTabId") === tabId)) {
+	      if (this.get("isBrowserAction") && (changeInfo.status === "complete") && (this.get("selsectedTabId") === tabId)) {
 	        return chrome.tabs.getSelected((function(_this) {
 	          return function(tab) {
 	            if (tabId === tab.id) {
 	              _this.set({
-	                "selsectTabId": null
+	                "selsectedTabId": null
 	              }, {
 	                "silent": true
 	              });
-	              _this.set("selsectTabId", tabId);
+	              _this.set("selsectedTabId", tabId);
 	            }
 	          };
 	        })(this));
 	      }
 	    };
 	
-	    Stage.prototype._onMovedHandler = function(tabId, moveInfo) {
-	      return console.log("[Model] Stage -> _onMoved", tabId, moveInfo);
-	    };
-	
-	    Stage.prototype._onSelectionChangedHandler = function(tabId, selectInfo) {
-	      return console.log("[Model] Stage -> _onSelectionChanged", tabId, selectInfo);
-	    };
-	
-	    Stage.prototype._onActiveChangedHandler = function(tabId, selectInfo) {
-	      return console.log("[Model] Stage -> _onActiveChangedHandler", tabId, selectInfo);
-	    };
-	
 	    Stage.prototype._onActivatedHandler = function(activeInfo) {
 	      console.log("[Model] Stage -> _onActivatedHandler", activeInfo);
 	      if (this.get("isBrowserAction")) {
-	        return this.set("selsectTabId", activeInfo.tabId);
+	        return this.set("selsectedTabId", activeInfo.tabId);
 	      }
-	    };
-	
-	    Stage.prototype._onHighlightChangedHandler = function(selectInfo) {
-	      return console.log("[Model] Stage -> _onHighlightChangedHandler", selectInfo);
-	    };
-	
-	    Stage.prototype._onHighlightedHandler = function(highlightInfo) {
-	      return console.log("[Model] Stage -> _onHighlightedHandler", highlightInfo);
-	    };
-	
-	    Stage.prototype._onDetachedHandler = function(tabId, detachInfo) {
-	      return console.log("[Model] Stage -> _onDetachedHandler", tabId, detachInfo);
-	    };
-	
-	    Stage.prototype._onAttachedHandler = function(tabId, attachInfo) {
-	      return console.log("[Model] Stage -> _onAttachedHandler", tabId, attachInfo);
-	    };
-	
-	    Stage.prototype._onRemovedHandler = function(tabId, removeInfo) {
-	      return console.log("[Model] Stage -> _onRemovedHandler", tabId, removeInfo);
-	    };
-	
-	    Stage.prototype._onReplacedHandler = function(addedTabId, removedTabId) {
-	      return console.log("[Model] Stage -> _onReplacedHandler", addedTabId, removedTabId);
-	    };
-	
-	    Stage.prototype._onZoomChangeHandler = function(zoomChangeInfo) {
-	      return console.log("[Model] Stage -> _onZoomChangeHandler", zoomChangeInfo);
 	    };
 	
 	    Stage.prototype._popupInHandler = function() {};
@@ -12709,12 +12639,13 @@
 	    extend(Connect, superClass);
 	
 	    Connect.prototype.defaults = {
-	      contentScriptSender: {}
+	      "selsectedTabId": null
 	    };
 	
 	    function Connect() {
 	      console.log("[Model] Connect -> Constructor");
 	      Connect.__super__.constructor.apply(this, arguments);
+	      this.contentScriptPort;
 	    }
 	
 	    Connect.prototype.initialize = function() {
@@ -12725,30 +12656,37 @@
 	      console.log("[Model] Connect -> setup");
 	      return $.Deferred((function(_this) {
 	        return function(defer) {
-	          var key, model, onDone, ref;
+	          var onDone;
 	          onDone = function() {
 	            return defer.resolve();
 	          };
-	          _this._setEvent();
-	          ref = sn.bb.models;
-	          for (key in ref) {
-	            model = ref[key];
-	            _this.listenTo(model, "change:selsectTabId", _this._setTabConnect);
-	          }
+	          _this._setEvents();
 	          return onDone();
 	        };
 	      })(this)).promise();
 	    };
 	
-	    Connect.prototype._setEvent = function() {
-	      return console.log("[Model] Connect -> _setEvent");
+	    Connect.prototype._setEvents = function() {
+	      console.log("[Model] Connect -> _setEvents");
+	      return this.listenTo(sn.bb.models.stage, "change:selsectedTabId", this._changeSelsectedTabIdHandler);
 	    };
 	
-	    Connect.prototype._setTabConnect = function(model, tabId) {
-	      console.log("[Model] Connect -> _setTabConnect", model, tabId);
-	      return this.set("contentScriptSender", chrome.tabs.connect(tabId, {
-	        "name": "contentScriptSender"
-	      }));
+	    Connect.prototype._changeSelsectedTabIdHandler = function(stageModel, tabId) {
+	      console.log("[Model] Connect -> _changeSelsectedTabIdHandler", stageModel, tabId);
+	      this.contentScriptPort = chrome.tabs.connect(tabId, {
+	        "name": "fromBackground"
+	      });
+	      this.contentScriptPort.postMessage({
+	        joke: {
+	          "host": "background"
+	        }
+	      });
+	      return this.contentScriptPort.onMessage.addListener(function(message) {
+	        console.log(message);
+	        if (message.name === "updatePointerPosition") {
+	          return console.log(message.pointerPosition);
+	        }
+	      });
 	    };
 	
 	    return Connect;
