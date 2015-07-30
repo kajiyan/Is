@@ -3,30 +3,37 @@ do (window=window, document=document, $=jQuery) ->
 
   sn = {}
 
-  # background scriptを取得
-  bg = chrome.extension.getBackgroundPage()
+  # ============================================================
+  # background script
+  # ============================================================
+  try
+    window.bg = chrome.extension.getBackgroundPage()
+  catch error
+    console.log error
 
-  bg.sn.bb.models.stage.set "isBrowserAction", true
+    bg = {}
+    bg.appRun = () ->
+      console.log "%c[index] APP RUN", "color: #d9597b"
+
+    bg.appStop = () ->
+      console.log "%c[index] APP STOP", "color: #d9597b"
+
+    window.bg = bg
 
   
-    # for i in [0...divs.length]
-      # alert i
-      # divs[i].addEventListener('click', click);
-
-
+  # bg.sn.bb.models.stage.set "isBrowserAction", true
 
   # chrome.browserAction.onClicked.addListener () ->
   # alert "click"
 
-
-
   # ============================================================
   # TypeFrameWork
+  # ============================================================
   sn.tf = new TypeFrameWork()
 
   # ============================================================
   # Library
-
+  # ============================================================
 
   # ============================================================
   # Detect / Normalize event names
@@ -44,41 +51,47 @@ do (window=window, document=document, $=jQuery) ->
   #   ,
   #   false
 
-  $(window).load ->
+  $ ->
     console.log SETTING
 
-    $console = $("#js__console")
+    # ============================================================
+    # BackBone
+    # ============================================================
+    sn.bb =
+      models: null
+      collections: null
+      views: null
+
+    # ============================================================
+    # BackBone MODEL
+
+    # ============================================================
+    # BackBone COLLECTION
+
+    # ============================================================
+    # BackBone - VIEW
+    sn.bb.views =
+      "stage": do ->
+        Stage = require("./views/stage")(sn, $, _)
+        return new Stage()
 
     # --------------------------------------------------------------
     sn.tf.setup ->
-      util = require("./helper/util")(sn)
+      # util = require("./helper/util")(sn)
 
-      # # タブの一覧を取り出す
-      # chrome.tabs.query
-      #   active: true
-      #   # active: false
-      #   # lastFocusedWindow: false
-      #   # currentWindow: false
-      #   ,
-      #   ( tabs ) ->
-      #     console.log tabs
-
-      #     for tab, index in tabs
-      #       $console.text(index)
-      #       # console.log a,b
-
-      #     $console.text(tabs[0].id)
-
-      #     chrome.tabs.sendMessage tabs[0].id
-      #       ,
-      #       text: "popup"
-      #       ,
-      #       ( response ) ->
-      #         $console.text(response)
-      #         url = tabs[0].url
-      #         $('#place').text(response.title + ' ' + url)
-
-      # $('#place').text('test')
+      $.when(
+        for key, model of sn.bb.models
+          model.setup?()
+      ).then( =>
+        $.when(
+          for key, view of sn.bb.views
+            view.setup?()
+        )
+      ).then( =>
+        $.when(
+          console.log "%cPopup Setup Complete", "color: #d9597b"
+        )
+      )
 
 
     # --------------------------------------------------------------
@@ -122,12 +135,9 @@ do (window=window, document=document, $=jQuery) ->
     
     # --------------------------------------------------------------
     sn.tf.windowScroll (top) ->
-      # sn.stage.windowScroll top
 
     # --------------------------------------------------------------
     sn.tf.windowResized (width, height) ->
-      # common.stage.windowResized()
-      # sn.stage.windowResized width, height
    
     # --------------------------------------------------------------
     sn.tf.fullScreenChange (full) ->

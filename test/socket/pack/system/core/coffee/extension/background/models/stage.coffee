@@ -15,6 +15,7 @@ module.exports = (sn, $, _) ->
     # ------------------------------------------------------------
     defaults: 
       "debug": false
+      "isRun": false
       "selsectedTabId": null
       "isBrowserAction": false
 
@@ -34,8 +35,10 @@ module.exports = (sn, $, _) ->
     initialize: () ->
       console.log "[Model] Stage -> initialize"
 
+      @listenTo @, "change:isRun", @_changeisRunHandler
+
       # 選択されているタブが変更されて時変わった時
-      @on "change:selsectedTabId", @_changeselSectedTabIdHandler
+      # @on "change:selsectedTabId", @_changeSectedTabIdHandler
 
       # ブラウザアクションが始まった時に呼び出される
       @on "change:isBrowserAction", @_changeBrowserActionHandler
@@ -51,10 +54,26 @@ module.exports = (sn, $, _) ->
     setup: () ->
       return $.Deferred (defer) =>
         onDone = =>
-          console.log "[Model] Stage -> setup"
+          console.log "%c[Model] Stage -> setup", "color: #999999"
           defer.resolve()
 
         @_setEvent()
+
+        # chrome.runtime.sendMessage greeting: "hello", (response) -> console.log response
+
+        # chrome.tabs.query
+        #   active: true
+        #   ,
+        #   currentWindow: true
+        #   ,
+        #   (tabs) ->
+        #     console.log(tabs)
+        #     chrome.tabs.sendMessage tabs[0].id,
+        #       greeting: "hello"
+        #       ,
+        #       (response) ->
+        #         console.log response
+
 
         # @listenTo @, "change:isScroll", @_changeScrollHandler
 
@@ -105,6 +124,20 @@ module.exports = (sn, $, _) ->
 
       # chrome.tabs.onZoomChange.addListener @_onZoomChangeHandler
 
+
+    # ------------------------------------------------------------
+    # /**
+    #  * Stage#_changeisRunHandler
+    #  */
+    # ------------------------------------------------------------
+    _changeisRunHandler: (stageModel, isRun) ->
+      console.log "%c[Model] Stage -> _changeisRunHandler", "color: #999999", stageModel, isRun
+
+      if isRun
+        chrome.tabs.getSelected (tab) =>
+          @set("selsectedTabId", tab.id)
+
+
     # ------------------------------------------------------------
     # /**
     #  * @_getSelectedTab
@@ -130,11 +163,11 @@ module.exports = (sn, $, _) ->
 
     # ------------------------------------------------------------
     # /**
-    #  * @_changeselSectedTabIdHandler
+    #  * @_changeSectedTabIdHandler
     #  */
     # ------------------------------------------------------------
-    _changeselSectedTabIdHandler: () =>
-      console.log "[Model] Stage -> _changeselSectedTabIdHandler"
+    _changeSectedTabIdHandler: () =>
+      console.log "[Model] Stage -> _changeSectedTabIdHandler"
 
       # @_video = document.createElement( "video" ) 
 
@@ -180,6 +213,22 @@ module.exports = (sn, $, _) ->
       if isBrowserAction
         chrome.tabs.getSelected (tab) =>
           @set("selsectedTabId", tab.id)
+      # else
+        # chrome.tabs.query
+        #   active: true
+        #   ,
+        #   currentWindow: true
+        #   ,
+        #   (tabs) ->
+        #     console.log(tabs)
+        #     chrome.tabs.sendMessage tabs[0].id,
+        #       greeting: "hello"
+        #       ,
+        #       (response) ->
+        #         console.log response
+        # console.log "call"
+
+        # chrome.runtime.sendMessage({greeting: "hello"}, (response) -> console.log "response")
 
 
     # ------------------------------------------------------------
@@ -200,13 +249,13 @@ module.exports = (sn, $, _) ->
     #  * @param {Object} tab - https://developer.chrome.com/extensions/tabs#type-Tab
     #  */
     # ------------------------------------------------------------
-    _onUpdatedHandler: ( tabId, changeInfo, tab ) =>
-      console.log "[Model] Stage -> _onUpdated", tabId, changeInfo, tab      
+    _onUpdatedHandler: (tabId, changeInfo, tab) =>
+      console.log "[Model] Stage -> _onUpdated", tabId, changeInfo, tab
 
       # エクステンションを起動した状態で、リロードが行われた場合
       # これまで保持していた selsectedTabId を破棄して再度、selsectedTabIdを設定する
-      if @get("isBrowserAction") and (changeInfo.status is "complete") and (@get("selsectedTabId") is tabId) 
-        chrome.tabs.getSelected ( tab ) =>
+      if changeInfo.status is "complete"
+        chrome.tabs.getSelected (tab) =>
           # ロード終了時も同じタブを開いているか
           if tabId is tab.id
             @set(
@@ -214,7 +263,20 @@ module.exports = (sn, $, _) ->
               { "silent": true }
             )
             @set("selsectedTabId", tabId)
-            return
+
+
+      # # エクステンションを起動した状態で、リロードが行われた場合
+      # # これまで保持していた selsectedTabId を破棄して再度、selsectedTabIdを設定する
+      # if @get("isBrowserAction") and (changeInfo.status is "complete") and (@get("selsectedTabId") is tabId) 
+      #   chrome.tabs.getSelected (tab) =>
+      #     # ロード終了時も同じタブを開いているか
+      #     if tabId is tab.id
+      #       @set(
+      #         { "selsectedTabId": null },
+      #         { "silent": true }
+      #       )
+      #       @set("selsectedTabId", tabId)
+      #       return
 
 
     # ------------------------------------------------------------
@@ -257,10 +319,12 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     _onActivatedHandler: (activeInfo) =>
-      console.log "[Model] Stage -> _onActivatedHandler", activeInfo
+      console.log "%c[Model] Stage -> _onActivatedHandler", "color: #999999", activeInfo
 
-      if @get "isBrowserAction"
-        @set "selsectedTabId", activeInfo.tabId
+      @set "selsectedTabId", activeInfo.tabId
+
+      # if @get "isBrowserAction"
+      #   @set "selsectedTabId", activeInfo.tabId
 
 
     # ------------------------------------------------------------

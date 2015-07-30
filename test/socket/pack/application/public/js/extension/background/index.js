@@ -44,30 +44,11 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(jQuery, _) {var connect;
-	
-	connect = function(ob) {
-	  console.log("[stage] connect", ob);
-	  return chrome.tabs.query({
-	    active: true,
-	    currentWindow: true
-	  }, function(tabs) {
-	    console.log(tabs);
-	    return chrome.tabs.sendMessage(tabs[0].id, ob, function(response) {
-	      var unconnectedData;
-	      if (response != null) {
-	        return unconnectedData = ob;
-	      } else {
-	        return unconnectedData = null;
-	      }
-	    });
-	  });
-	};
-	
-	(function(window, document, $) {
+	/* WEBPACK VAR INJECTION */(function(jQuery, _) {(function(window, document, $) {
 	  "use strict";
+	  var sn;
 	  console.log(SETTING);
-	  window.sn = {};
+	  sn = {};
 	  sn.tf = new TypeFrameWork();
 	  sn.bb = {
 	    models: null,
@@ -93,6 +74,14 @@
 	      Socket = __webpack_require__(6)(sn, $, _);
 	      return new Socket();
 	    })()
+	  };
+	  window.appRun = function() {
+	    console.log("%cAPP RUN", "color: #999999");
+	    return sn.bb.models.stage.set("isRun", true);
+	  };
+	  window.appStop = function() {
+	    console.log("%cAPP STOP", "color: #999999");
+	    return sn.bb.models.stage.set("isRun", false);
 	  };
 	  return $(function() {
 	    sn.tf.setup(function() {
@@ -10901,6 +10890,7 @@
 	
 	    Stage.prototype.defaults = {
 	      "debug": false,
+	      "isRun": false,
 	      "selsectedTabId": null,
 	      "isBrowserAction": false
 	    };
@@ -10909,14 +10899,14 @@
 	      this._onActivatedHandler = bind(this._onActivatedHandler, this);
 	      this._onUpdatedHandler = bind(this._onUpdatedHandler, this);
 	      this._changeBrowserActionHandler = bind(this._changeBrowserActionHandler, this);
-	      this._changeselSectedTabIdHandler = bind(this._changeselSectedTabIdHandler, this);
+	      this._changeSectedTabIdHandler = bind(this._changeSectedTabIdHandler, this);
 	      console.log("[Model] Stage -> Constructor");
 	      Stage.__super__.constructor.apply(this, arguments);
 	    }
 	
 	    Stage.prototype.initialize = function() {
 	      console.log("[Model] Stage -> initialize");
-	      this.on("change:selsectedTabId", this._changeselSectedTabIdHandler);
+	      this.listenTo(this, "change:isRun", this._changeisRunHandler);
 	      return this.on("change:isBrowserAction", this._changeBrowserActionHandler);
 	    };
 	
@@ -10925,7 +10915,7 @@
 	        return function(defer) {
 	          var onDone;
 	          onDone = function() {
-	            console.log("[Model] Stage -> setup");
+	            console.log("%c[Model] Stage -> setup", "color: #999999");
 	            return defer.resolve();
 	          };
 	          _this._setEvent();
@@ -10938,6 +10928,17 @@
 	      console.log("[Model] Stage -> _setEvent");
 	      chrome.tabs.onUpdated.addListener(this._onUpdatedHandler);
 	      return chrome.tabs.onActivated.addListener(this._onActivatedHandler);
+	    };
+	
+	    Stage.prototype._changeisRunHandler = function(stageModel, isRun) {
+	      console.log("%c[Model] Stage -> _changeisRunHandler", "color: #999999", stageModel, isRun);
+	      if (isRun) {
+	        return chrome.tabs.getSelected((function(_this) {
+	          return function(tab) {
+	            return _this.set("selsectedTabId", tab.id);
+	          };
+	        })(this));
+	      }
 	    };
 	
 	    Stage.prototype._getSelectedTab = function() {
@@ -10957,8 +10958,8 @@
 	      })(this)).promise();
 	    };
 	
-	    Stage.prototype._changeselSectedTabIdHandler = function() {
-	      return console.log("[Model] Stage -> _changeselSectedTabIdHandler");
+	    Stage.prototype._changeSectedTabIdHandler = function() {
+	      return console.log("[Model] Stage -> _changeSectedTabIdHandler");
 	    };
 	
 	    Stage.prototype._changeBrowserActionHandler = function(model, isBrowserAction) {
@@ -10978,7 +10979,7 @@
 	
 	    Stage.prototype._onUpdatedHandler = function(tabId, changeInfo, tab) {
 	      console.log("[Model] Stage -> _onUpdated", tabId, changeInfo, tab);
-	      if (this.get("isBrowserAction") && (changeInfo.status === "complete") && (this.get("selsectedTabId") === tabId)) {
+	      if (changeInfo.status === "complete") {
 	        return chrome.tabs.getSelected((function(_this) {
 	          return function(tab) {
 	            if (tabId === tab.id) {
@@ -10987,7 +10988,7 @@
 	              }, {
 	                "silent": true
 	              });
-	              _this.set("selsectedTabId", tabId);
+	              return _this.set("selsectedTabId", tabId);
 	            }
 	          };
 	        })(this));
@@ -10995,10 +10996,8 @@
 	    };
 	
 	    Stage.prototype._onActivatedHandler = function(activeInfo) {
-	      console.log("[Model] Stage -> _onActivatedHandler", activeInfo);
-	      if (this.get("isBrowserAction")) {
-	        return this.set("selsectedTabId", activeInfo.tabId);
-	      }
+	      console.log("%c[Model] Stage -> _onActivatedHandler", "color: #999999", activeInfo);
+	      return this.set("selsectedTabId", activeInfo.tabId);
 	    };
 	
 	    Stage.prototype._popupInHandler = function() {};
@@ -12639,7 +12638,7 @@
 	    extend(Connect, superClass);
 	
 	    Connect.prototype.defaults = {
-	      "selsectedTabId": null
+	      "isRun": false
 	    };
 	
 	    function Connect() {
@@ -12668,25 +12667,41 @@
 	
 	    Connect.prototype._setEvents = function() {
 	      console.log("[Model] Connect -> _setEvents");
+	      chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+	        return console.log(request, sender, sendResponse);
+	      });
+	      this.listenTo(sn.bb.models.stage, "change:isRun", this._changeIsRunHandler);
 	      return this.listenTo(sn.bb.models.stage, "change:selsectedTabId", this._changeSelsectedTabIdHandler);
 	    };
 	
+	    Connect.prototype._changeIsRunHandler = function(stageModel, isRun) {
+	      console.log("%c[Model] Connect -> _changeIsRunHandler", "color: #999999", stageModel, isRun);
+	      return this.set("isRun", isRun);
+	    };
+	
 	    Connect.prototype._changeSelsectedTabIdHandler = function(stageModel, tabId) {
-	      console.log("[Model] Connect -> _changeSelsectedTabIdHandler", stageModel, tabId);
+	      var isRun;
+	      console.log("%c[Model] Connect -> _changeSelsectedTabIdHandler", "color: #999999", stageModel, tabId, new Date());
+	      isRun = this.get("isRun");
 	      this.contentScriptPort = chrome.tabs.connect(tabId, {
-	        "name": "fromBackground"
+	        "name": "background"
 	      });
 	      this.contentScriptPort.postMessage({
-	        joke: {
-	          "host": "background"
-	        }
+	        "isRun": isRun
 	      });
-	      return this.contentScriptPort.onMessage.addListener(function(message) {
-	        console.log(message);
-	        if (message.name === "updatePointerPosition") {
-	          return console.log(message.pointerPosition);
-	        }
-	      });
+	      if (isRun) {
+	        return this.contentScriptPort.onMessage.addListener((function(_this) {
+	          return function(message) {
+	            if (message.name === "updatePointerPosition") {
+	              return console.log(message.pointerPosition);
+	            }
+	          };
+	        })(this));
+	      } else {
+	        return this.contentScriptPort.postMessage({
+	          "status": "disconnect"
+	        });
+	      }
 	    };
 	
 	    return Connect;

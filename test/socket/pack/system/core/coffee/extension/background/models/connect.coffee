@@ -12,7 +12,8 @@ module.exports = (sn, $, _) ->
     #  */
     # ------------------------------------------------------------
     defaults: 
-      "selsectedTabId": null
+      "isRun": false
+      # "selsectedTabId": null
 
 
     # --------------------------------------------------------------
@@ -39,6 +40,7 @@ module.exports = (sn, $, _) ->
     # --------------------------------------------------------------
     initialize: () ->
       console.log "[Model] Connect -> initialize"
+
 
       # @listenTo @, "change:contentScriptReceiver", @_changeContentScriptReceiverHandler
       # @listenTo @, "change:selsectedTabId", @_changeSelsectedTabIdHandler
@@ -67,13 +69,27 @@ module.exports = (sn, $, _) ->
     _setEvents: () ->
       console.log "[Model] Connect -> _setEvents"
 
-      @listenTo sn.bb.models.stage, "change:selsectedTabId", @_changeSelsectedTabIdHandler
+      chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
+        console.log request, sender, sendResponse
 
       # chrome.runtime.onConnect.addListener (port) =>
-      #   console.log "[Model] Connect -> _setEvents | onConnect", port
+        # console.log "%c[Model] Connect -> _setEvents | onConnect", "color: #999999", port
+
+      @listenTo sn.bb.models.stage, "change:isRun", @_changeIsRunHandler
+      @listenTo sn.bb.models.stage, "change:selsectedTabId", @_changeSelsectedTabIdHandler
+
+      # @listenTo sn.bb.models.stage, "change:isBrowserAction", @_changeIsBrowserActionHandler
 
         # contentScript からの接続
         # if port.name is "fromBackground"
+
+
+    # --------------------------------------------------------------
+    _changeIsRunHandler: (stageModel, isRun) ->
+      console.log "%c[Model] Connect -> _changeIsRunHandler", "color: #999999", stageModel, isRun
+
+      @set "isRun", isRun
+
 
 
     # --------------------------------------------------------------
@@ -86,23 +102,34 @@ module.exports = (sn, $, _) ->
     #  */
     # --------------------------------------------------------------
     _changeSelsectedTabIdHandler: (stageModel, tabId) ->
-      console.log "[Model] Connect -> _changeSelsectedTabIdHandler", stageModel, tabId
-      
+      console.log "%c[Model] Connect -> _changeSelsectedTabIdHandler", "color: #999999", stageModel, tabId, new Date()
+
+      isRun = @get "isRun"
+
       # tab のcontent script に接続する
-      @contentScriptPort = chrome.tabs.connect(tabId, "name": "fromBackground")
+      # appが起動していなくても接続する必要が有る
+      @contentScriptPort = chrome.tabs.connect tabId, "name": "background"
 
       # メッセージの送信
-      @contentScriptPort.postMessage joke: "host": "background"
+      @contentScriptPort.postMessage "isRun": isRun
 
-      # メッセージの受信
-      @contentScriptPort.onMessage.addListener (message) ->
-        console.log message
+      # エクステンションが起動中であるか
+      if isRun
+        # メッセージの受信
+        @contentScriptPort.onMessage.addListener (message) =>
+          # console.log message
 
-        # content script からポインターの座標が変更された時に通知される
-        if message.name is "updatePointerPosition"
-          console.log message.pointerPosition
+          # content script からポインターの座標が変更された時に通知される
+          if message.name is "updatePointerPosition"
+            console.log message.pointerPosition
+      else
+        @contentScriptPort.postMessage
+          "status": "disconnect"
 
 
+    # _changeIsBrowserActionHandler: (stageModel, isBrowserAction) ->
+    #   if not isBrowserAction
+    #     @contentScriptPort.postMessage "exit"
 
 
 

@@ -1,45 +1,9 @@
-# chrome.app.runtime.onLaunched.addListener () ->
-#   chrome.app.window.create "../debug/index.html",
-#     bounds: 
-#       width: 700
-#       height: 600
-
-# console.log io.connect "http://#{@_setting.HOST}:#{@_setting.PORT}/client"
-
-
-connect = ( ob ) ->
-  console.log "[stage] connect", ob
-
-  chrome.tabs.query
-    active: true
-    currentWindow: true
-    ,
-    ( tabs ) ->
-      console.log tabs
-
-      # 送信先のタブ
-      # 送信するメッセージ
-      # レスポンス
-      chrome.tabs.sendMessage tabs[0].id
-        ,
-        ob
-        ,
-        ( response ) ->
-          if response?
-            unconnectedData = ob;
-          else
-            unconnectedData = null;
-
 do (window=window, document=document, $=jQuery) ->
   "use strict"
 
   console.log SETTING
 
-  # $html = $("<div>Background Hello World</div>")
-  # $("body").append($html)
-  
-
-  window.sn = {}
+  sn = {}
 
   # ============================================================
   # TypeFrameWork
@@ -75,6 +39,16 @@ do (window=window, document=document, $=jQuery) ->
 
   # ============================================================
   # BackBone VIEW  
+
+
+  window.appRun = () ->
+    console.log "%cAPP RUN", "color: #999999"
+    sn.bb.models.stage.set "isRun", true
+
+
+  window.appStop = () ->
+    console.log "%cAPP STOP", "color: #999999"
+    sn.bb.models.stage.set "isRun", false
 
 
   $ ->
@@ -175,7 +149,7 @@ do (window=window, document=document, $=jQuery) ->
    
     # --------------------------------------------------------------
     sn.tf.keyPressed (key) ->
-   
+
     # --------------------------------------------------------------
     sn.tf.keyReleased (key) ->
    

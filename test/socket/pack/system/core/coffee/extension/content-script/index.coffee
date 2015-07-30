@@ -1,10 +1,10 @@
 # popupとの連携
-chrome.runtime.onMessage.addListener ( msg, sender, sendResponse ) ->
-  console.log(msg, sender, sendResponse)
+# chrome.runtime.onMessage.addListener ( msg, sender, sendResponse ) ->
+#   console.log(msg, sender, sendResponse)
   
-  ret = $('title').text()
-  dev = $('title').text()
-  sendResponse { title: ret }
+#   ret = $('title').text()
+#   dev = $('title').text()
+#   sendResponse { title: ret }
 
 do (window=window, document=document, $=jQuery) ->
   "use strict"
@@ -56,8 +56,6 @@ do (window=window, document=document, $=jQuery) ->
   $ ->
     # --------------------------------------------------------------
     sn.tf.setup ->
-      console.log "- SETUP CONTENT SCRIPT -"
-
       $.when(
         for key, model of sn.bb.models
           model.setup?()

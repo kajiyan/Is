@@ -1172,6 +1172,8 @@ html {
 
 body {
   font-family: Verdana, Roboto, "Droid Sans", "小塚ゴシック Pro R", "Kozuka Gothic Pro R", "游ゴシック", YuGothic, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", "メイリオ", Meiryo, sans-serif;
+  width: 480px;
+  padding: 20px;
 }
 
 a {

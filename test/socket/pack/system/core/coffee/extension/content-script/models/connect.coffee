@@ -13,7 +13,7 @@ module.exports = (sn, $, _) ->
     # ------------------------------------------------------------
     defaults: {}
       # "backgroundReceiver": {}
-      # "backgroundSender": chrome.extension.connect "name": "fromContentScript"
+      # "backgroundSender": chrome.extension.connect "name": "contentScript"
 
 
     # --------------------------------------------------------------
@@ -23,7 +23,7 @@ module.exports = (sn, $, _) ->
     #  */
     # --------------------------------------------------------------
     constructor: () ->
-      console.log "[Model] Connect -> Constructor"
+      console.log "%c[Model] Connect -> Constructor", "color: #619db9"
       super
 
       # /**
@@ -34,7 +34,7 @@ module.exports = (sn, $, _) ->
 
     # ------------------------------------------------------------
     initialize: () ->
-      console.log "[Model] Connect -> initialize"
+      console.log "%c[Model] Connect -> initialize", "color: #619db9"
 
       # @listenTo @, "change:backgroundReceiver", @_changeBackgroundReceiverHandler
 
@@ -43,15 +43,23 @@ module.exports = (sn, $, _) ->
     setup: () ->
       return $.Deferred (defer) =>
         onDone = =>
-          console.log "[Model] Connect -> setup"
+          console.log "%c[Model] Connect -> setup", "color: #619db9"
           defer.resolve()
 
-        # chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-        #   console.log(response.farewell);
-        # });
+        # @backgroundSender = chrome.extension.connect "name": "contentScript"
+
+        chrome.runtime.sendMessage greeting: "hello", (response) ->
+          console.log(response)
+
+        # chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
+        #   console.log request, sender, sendResponse
+
 
         # イベントリスナーを登録する
         @_setEvents()
+
+        # chrome.runtime.onMessage.addListener (request, sender, sendResponse) ->
+        #   console.log request, sender, sendResponse
 
         # @get("backgroundScriptSender").postMessage joke: "fromContentScript"
 
@@ -65,18 +73,18 @@ module.exports = (sn, $, _) ->
     #  */
     # --------------------------------------------------------------
     _setEvents: () ->
-      console.log "[Model] Connect -> _setEvents"
+      console.log "[Model] Connect -> _setEvents", new Date()
 
       chrome.runtime.onConnect.addListener (port) =>
-        console.log "[Model] Connect -> _setEvents | onConnect", port.name
+        console.log "[Model] Connect -> _setEvents | onConnect", port
 
         # background からの接続
-        if port.name is "fromBackground"
+        if port.name is "background"
           @backgroundPort = port
           @_updateBackgroundPort(@backgroundPort)
-          @backgroundPort.postMessage "host": "contentScript"
+          # @backgroundPort.postMessage "host": "contentScript"
 
-          @listenTo sn.bb.models.stage, "change:pointerPosition", @_changePointerPositionHandler
+          # @listenTo sn.bb.models.stage, "change:pointerPosition", @_changePointerPositionHandler
 
 
     # --------------------------------------------------------------
@@ -88,9 +96,19 @@ module.exports = (sn, $, _) ->
     _updateBackgroundPort: (backgroundPort) ->
       console.log "[Model] Connect -> _updateBackgroundPort"
       
-      backgroundPort.onMessage.addListener (message) ->
+      backgroundPort.onMessage.addListener (message) =>
         console.log message
 
+        # エクステンションが起動中
+        if (message.isRun?) and (message.isRun)
+          @listenTo sn.bb.models.stage, "change:pointerPosition", @_changePointerPositionHandler
+
+        # エクステンションが停止中
+        if (message.isRun?) and (not message.isRun)
+          @stopListening sn.bb.models.stage, "change:pointerPosition", () -> alert "stop"
+
+        # else
+        #  イベント解除
 
     # --------------------------------------------------------------
     # /**

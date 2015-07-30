@@ -1,18 +1,18 @@
 # ============================================================
-# Connect
+# Stage
 module.exports = (sn, $, _) ->
-	class Connect extends Backbone.Model
+	class Stage extends Backbone.Model
     # ------------------------------------------------------------
     defaults: {}
 		
     # ------------------------------------------------------------
     constructor: () ->
-      console.log "[Model] Connect -> Constructor"
+      console.log "%c[Model] Stage -> Constructor", "color: #619db9"
       super
 
     # ------------------------------------------------------------
     initialize: () ->
-      console.log "[Model] Connect -> initialize"
+      console.log "%c[Model] Stage -> initialize", "color: #619db9"
 
       # @listenTo sn.bb.models.stage, "change:pointerPosition", -> console.log "change:pointerPosition"
 
@@ -27,7 +27,7 @@ module.exports = (sn, $, _) ->
     setup: () ->
       return $.Deferred (defer) =>
         onDone = =>
-          console.log "[Model] Connect -> setup"
+          console.log "%c[Model] Stage -> setup", "color: #619db9"
           defer.resolve()
 
         @_setEvent()
@@ -41,11 +41,11 @@ module.exports = (sn, $, _) ->
 
     # ------------------------------------------------------------
     _setEvent: () ->
-      console.log "[Model] Connect -> _setEvent"
+      console.log "%c[Model] Stage -> _setEvent", "color: #619db9"
 
       # @listenTo sn.bb.models.stage, "change:pointerPosition", -> console.log "change:pointerPosition"
 
-      
+
 
 
 

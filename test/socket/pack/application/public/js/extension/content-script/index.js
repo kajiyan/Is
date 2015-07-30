@@ -44,17 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function($, jQuery, _) {chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-	  var dev, ret;
-	  console.log(msg, sender, sendResponse);
-	  ret = $('title').text();
-	  dev = $('title').text();
-	  return sendResponse({
-	    title: ret
-	  });
-	});
-	
-	(function(window, document, $) {
+	/* WEBPACK VAR INJECTION */(function(jQuery, _) {(function(window, document, $) {
 	  "use strict";
 	  var jQBridget;
 	  window.sn = {};
@@ -90,7 +80,6 @@
 	  return $(function() {
 	    sn.tf.setup(function() {
 	      var key, model;
-	      console.log("- SETUP CONTENT SCRIPT -");
 	      return $.when((function() {
 	        var ref, results;
 	        ref = sn.bb.models;
@@ -129,7 +118,7 @@
 	  });
 	})(window, document, jQuery);
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(1), __webpack_require__(2)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(2)))
 
 /***/ },
 /* 1 */
@@ -11048,27 +11037,27 @@
 	  hasProp = {}.hasOwnProperty;
 	
 	module.exports = function(sn, $, _) {
-	  var Connect;
-	  return Connect = (function(superClass) {
-	    extend(Connect, superClass);
+	  var Stage;
+	  return Stage = (function(superClass) {
+	    extend(Stage, superClass);
 	
-	    Connect.prototype.defaults = {};
+	    Stage.prototype.defaults = {};
 	
-	    function Connect() {
-	      console.log("[Model] Connect -> Constructor");
-	      Connect.__super__.constructor.apply(this, arguments);
+	    function Stage() {
+	      console.log("%c[Model] Stage -> Constructor", "color: #619db9");
+	      Stage.__super__.constructor.apply(this, arguments);
 	    }
 	
-	    Connect.prototype.initialize = function() {
-	      return console.log("[Model] Connect -> initialize");
+	    Stage.prototype.initialize = function() {
+	      return console.log("%c[Model] Stage -> initialize", "color: #619db9");
 	    };
 	
-	    Connect.prototype.setup = function() {
+	    Stage.prototype.setup = function() {
 	      return $.Deferred((function(_this) {
 	        return function(defer) {
 	          var onDone;
 	          onDone = function() {
-	            console.log("[Model] Connect -> setup");
+	            console.log("%c[Model] Stage -> setup", "color: #619db9");
 	            return defer.resolve();
 	          };
 	          _this._setEvent();
@@ -11077,11 +11066,11 @@
 	      })(this)).promise();
 	    };
 	
-	    Connect.prototype._setEvent = function() {
-	      return console.log("[Model] Connect -> _setEvent");
+	    Stage.prototype._setEvent = function() {
+	      return console.log("%c[Model] Stage -> _setEvent", "color: #619db9");
 	    };
 	
-	    return Connect;
+	    return Stage;
 	
 	  })(Backbone.Model);
 	};
@@ -12717,13 +12706,13 @@
 	    Connect.prototype.defaults = {};
 	
 	    function Connect() {
-	      console.log("[Model] Connect -> Constructor");
+	      console.log("%c[Model] Connect -> Constructor", "color: #619db9");
 	      Connect.__super__.constructor.apply(this, arguments);
 	      this.backgroundPort;
 	    }
 	
 	    Connect.prototype.initialize = function() {
-	      return console.log("[Model] Connect -> initialize");
+	      return console.log("%c[Model] Connect -> initialize", "color: #619db9");
 	    };
 	
 	    Connect.prototype.setup = function() {
@@ -12731,9 +12720,14 @@
 	        return function(defer) {
 	          var onDone;
 	          onDone = function() {
-	            console.log("[Model] Connect -> setup");
+	            console.log("%c[Model] Connect -> setup", "color: #619db9");
 	            return defer.resolve();
 	          };
+	          chrome.runtime.sendMessage({
+	            greeting: "hello"
+	          }, function(response) {
+	            return console.log(response);
+	          });
 	          _this._setEvents();
 	          return onDone();
 	        };
@@ -12741,17 +12735,13 @@
 	    };
 	
 	    Connect.prototype._setEvents = function() {
-	      console.log("[Model] Connect -> _setEvents");
+	      console.log("[Model] Connect -> _setEvents", new Date());
 	      return chrome.runtime.onConnect.addListener((function(_this) {
 	        return function(port) {
-	          console.log("[Model] Connect -> _setEvents | onConnect", port.name);
-	          if (port.name === "fromBackground") {
+	          console.log("[Model] Connect -> _setEvents | onConnect", port);
+	          if (port.name === "background") {
 	            _this.backgroundPort = port;
-	            _this._updateBackgroundPort(_this.backgroundPort);
-	            _this.backgroundPort.postMessage({
-	              "host": "contentScript"
-	            });
-	            return _this.listenTo(sn.bb.models.stage, "change:pointerPosition", _this._changePointerPositionHandler);
+	            return _this._updateBackgroundPort(_this.backgroundPort);
 	          }
 	        };
 	      })(this));
@@ -12759,9 +12749,19 @@
 	
 	    Connect.prototype._updateBackgroundPort = function(backgroundPort) {
 	      console.log("[Model] Connect -> _updateBackgroundPort");
-	      return backgroundPort.onMessage.addListener(function(message) {
-	        return console.log(message);
-	      });
+	      return backgroundPort.onMessage.addListener((function(_this) {
+	        return function(message) {
+	          console.log(message);
+	          if ((message.isRun != null) && message.isRun) {
+	            _this.listenTo(sn.bb.models.stage, "change:pointerPosition", _this._changePointerPositionHandler);
+	          }
+	          if ((message.isRun != null) && (!message.isRun)) {
+	            return _this.stopListening(sn.bb.models.stage, "change:pointerPosition", function() {
+	              return alert("stop");
+	            });
+	          }
+	        };
+	      })(this));
 	    };
 	
 	    Connect.prototype._changePointerPositionHandler = function(stageModel, pointerPosition) {
