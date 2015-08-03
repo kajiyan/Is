@@ -3,7 +3,10 @@
 module.exports = (sn, $, _) ->
 	class Stage extends Backbone.Model
     # ------------------------------------------------------------
-    defaults: {}
+    defaults: 
+      pointerPosition:
+        x: null
+        y: null
 		
     # ------------------------------------------------------------
     constructor: () ->
@@ -25,9 +28,9 @@ module.exports = (sn, $, _) ->
 
     # ------------------------------------------------------------
     setup: () ->
+      console.log "%c[Model] Stage -> setup", "color: #619db9"
       return $.Deferred (defer) =>
         onDone = =>
-          console.log "%c[Model] Stage -> setup", "color: #619db9"
           defer.resolve()
 
         @_setEvent()
@@ -43,7 +46,7 @@ module.exports = (sn, $, _) ->
     _setEvent: () ->
       console.log "%c[Model] Stage -> _setEvent", "color: #619db9"
 
-      # @listenTo sn.bb.models.stage, "change:pointerPosition", -> console.log "change:pointerPosition"
+      # @listenTo @, "change:pointerPosition", -> console.log "change:pointerPosition"
 
 
 

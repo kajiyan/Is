@@ -99,7 +99,7 @@ module.exports = (sn, $, _) ->
       # # 新規にタブが開かれた時
       # chrome.tabs.onCreated.addListener @_onCreatedHandler
       
-      chrome.tabs.onUpdated.addListener @_onUpdatedHandler
+      # chrome.tabs.onUpdated.addListener @_onUpdatedHandler
       # # タブの順番を入れ替えた時
       # chrome.tabs.onMoved.addListener @_onMovedHandler
       # # タブが切り替えられた時
@@ -249,20 +249,20 @@ module.exports = (sn, $, _) ->
     #  * @param {Object} tab - https://developer.chrome.com/extensions/tabs#type-Tab
     #  */
     # ------------------------------------------------------------
-    _onUpdatedHandler: (tabId, changeInfo, tab) =>
-      console.log "[Model] Stage -> _onUpdated", tabId, changeInfo, tab
+    # _onUpdatedHandler: (tabId, changeInfo, tab) =>
+    #   console.log "[Model] Stage -> _onUpdated", tabId, changeInfo, tab
 
-      # エクステンションを起動した状態で、リロードが行われた場合
-      # これまで保持していた selsectedTabId を破棄して再度、selsectedTabIdを設定する
-      if changeInfo.status is "complete"
-        chrome.tabs.getSelected (tab) =>
-          # ロード終了時も同じタブを開いているか
-          if tabId is tab.id
-            @set(
-              { "selsectedTabId": null },
-              { "silent": true }
-            )
-            @set("selsectedTabId", tabId)
+    #   # エクステンションを起動した状態で、リロードが行われた場合
+    #   # これまで保持していた selsectedTabId を破棄して再度、selsectedTabIdを設定する
+    #   if changeInfo.status is "complete"
+    #     chrome.tabs.getSelected (tab) =>
+    #       # ロード終了時も同じタブを開いているか
+    #       if tabId is tab.id
+    #         @set(
+    #           { "selsectedTabId": null },
+    #           { "silent": true }
+    #         )
+    #         @set("selsectedTabId", tabId)
 
 
       # # エクステンションを起動した状態で、リロードが行われた場合

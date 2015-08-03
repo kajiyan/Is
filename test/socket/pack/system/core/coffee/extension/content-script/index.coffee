@@ -20,6 +20,8 @@ do (window=window, document=document, $=jQuery) ->
   # Library
   # ============================================================
   jQBridget = require "jquery-bridget"
+  
+  require "backbone.marionette/lib/backbone.marionette.min"
   require "pepjs/dist/pep.min"
 
   # ============================================================
@@ -56,6 +58,55 @@ do (window=window, document=document, $=jQuery) ->
   $ ->
     # --------------------------------------------------------------
     sn.tf.setup ->
+      # ベースになるShadow DOMを作る
+
+      Extension = new Backbone.Marionette.Application()
+
+      Extension.module 'ContentModule', (ContentModule, App, Backbone, Marionette, $, _) ->
+        ContentModule.Controller = Backbone.Marionette.Controller.extend
+          initialize: () ->
+            console.log "[ContentModule] Controller | initialize"
+
+        # Lover Model
+        LoverModel = Backbone.Model.extend({
+          defaults: {}
+        })
+
+        # Lover Collection
+        LoverCollection = Backbone.Collection.extend({
+          model: LoverModel
+        })
+
+        # Lover View
+        LoverView = Backbone.Marionette.ItemView.extend({
+          tagName: 'div'
+          className: 'people'
+          template: '<p class="test">test !</p>'
+        })
+
+        # Lover Collection View
+        LoverCollectionView = Backbone.Marionette.CollectionView.extend({
+          tagName: 'div'
+          className: 'lovers'
+          childView: LoverView
+        })
+
+        ContentModule.addInitializer () ->
+          ContentModule.controller = new ContentModule.Controller()
+
+          loverCollection = new LoverCollection([{}, {}])
+
+          loverCollectionView = new LoverCollectionView({
+            collection: loverCollection
+          })
+
+          loverCollectionView.render()
+          console.log loverCollectionView.el
+
+
+
+      Extension.start()
+
       $.when(
         for key, model of sn.bb.models
           model.setup?()

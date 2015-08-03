@@ -67,23 +67,23 @@ Extension = (function() {
     console.log('[Controller] Extension -> _setupSocket');
     
     (function(_this) {
-      _this._extensionSocketIo.on('connection', function( socket ) {
+      _this._extensionSocketIo.on('connection', function(socket) {
         console.log('[Controller] Extension -> connection');
 
-        var joinRoomId = ''; // 所属するRoom Id
+        var joinRoomDocId = ''; // 所属するRoom Document のID
+        var joinRoomId = ''; // 所属するRoom ID
 
         // --------------------------------------------------------------
         // 接続が切れるとroom をデクリメントする
         socket.on('disconnect', function() {
-          console.log('[Controller] Extension -> disconnect');
-          console.log(joinRoomId);
+          console.log('[Controller] Extension -> disconnect', joinRoomDocId);
 
           // disconnect が発生したらそれまでユーザーが所属していたRoom の
           // capacity をインクリメントする
           _this._dayModel.updateAutomaticRoom({
             'query': {
               'conditions': {
-                '_id': joinRoomId
+                '_id': joinRoomDocId
               },
               'update': {
                 '$inc': {
@@ -92,7 +92,6 @@ Extension = (function() {
               }
             }
           });
-
         });
 
         // --------------------------------------------------------------
@@ -167,11 +166,19 @@ Extension = (function() {
                   function(data) {
                     // update に成功したAutomaticRoomへjoin する
                     if (data[0].ok) {
-                      console.log('join - ' + rooms[index].roomId);
+                      // disconnect の際に使うMongo ID
+                      joinRoomDocId = rooms[index]._id;
+                      joinRoomId = rooms[index].roomId;
 
-                      socket.join(rooms[index].roomId);
-                      joinRoomId = rooms[index]._id;
-                      _this._extensionSocketIo.to(rooms[index].roomId).emit('jointed','jointed!');
+                      console.log('join - ' + joinRoomId);
+                      socket.join(joinRoomId);
+
+                      // 同じRoom に所属するユーザーのSocket ID の配列を送信
+                      _this._extensionSocketIo
+                        .to(joinRoomId)
+                        .emit('checkIn', {
+                          'users': _.keys(_this._extensionSocketIo.adapter.rooms[joinRoomId])}
+                        );
                     }
                   },
                   function(data) {
@@ -219,6 +226,22 @@ Extension = (function() {
           // これが呼ばれるとclient 側のemit 第3引数が呼び出される
           // callbecl('hello');
         });
+
+        // --------------------------------------------------------------
+        socket.on('pointerMove', function(pointerPosition) {
+          // console.log(pointerPosition);
+          // ポインターの座標を送信者以外に送る
+          // _this._extensionSocketIo
+          socket
+            .broadcast
+            .to(joinRoomId)
+            .emit('updatePointer', {
+              'socketId': socket.id,
+              'x': pointerPosition.x,
+              'y': pointerPosition.y
+            });
+        });
+
       });
     })(this);
   };
@@ -236,26 +259,30 @@ Extension = (function() {
   Extension.prototype._databaseConnectedHandler = function() {
     console.log('[Controller] Extension -> _databaseConnectedHandler');
 
+    (function(_this) {
+      Q.all([
+        helpers.utils.mkdir({
+          'dirName': config.MEMORYS_DIR_NAME
+        })
+      ])
+      .fin(function() {
+        Q.all([
+          _this._dayModel.addDay(),
+          helpers.utils.mkdir({
+            'dirName': config.MEMORYS_DIR_NAME + '/' + helpers.utils.getDayId()
+          })
+        ])
+        .fin(
+          _this._setupSocket(_this)
+        );
+      });
+    })(this);
+    
+    // テスト用
     // (function(_this) {
-    //   Q.all([
-    //     helpers.utils.mkdir({
-    //       'dirName': config.MEMORYS_DIR_NAME
-    //     })
-    //   ])
-    //   .fin(function() {
-    //     Q.all([
-    //       _this._dayModel.addDay(),
-    //       helpers.utils.mkdir({
-    //         'dirName': config.MEMORYS_DIR_NAME + '/' + helpers.utils.getDayId()
-    //       })
-    //     ])
-    //     .fin(
-    //       // _this._setupSocket.bind(_this)
-    //     );
-    //   });
+    //   console.log('call');
+    //   _this._setupSocket(_this);
     // })(this);
-
-
 
     // this._dayModel.addMemory(
     //   config.base64,
@@ -272,11 +299,11 @@ Extension = (function() {
     //   }
     // );
 
-    this._dayModel.getRandomMemory({
-      'options': {
-        'limit': 1
-      }
-    });
+    // this._dayModel.getRandomMemory({
+    //   'options': {
+    //     'limit': 1
+    //   }
+    // });
 
   };
 

@@ -60,6 +60,8 @@ module.exports = (sn, $, _) ->
     _setEvent: () ->
       console.log "[Model] Socket -> _setEvent"
 
+      @listenTo sn.bb.models.connect, "pointerMove", @_sendPointerMove
+
       # WebSocket が接続された時
       @socket.on "connect", @_connectHandler.bind(@)
       @socket.on "error", @_socketErrorHandler.bind(@)
@@ -71,8 +73,10 @@ module.exports = (sn, $, _) ->
       @socket.on "reconnect_error", @_reconnectErrorHandler.bind(@)
       @socket.on "reconnect_failed", @_reconnectFailedHandler.bind(@)
 
-      @socket.on "jointed", () -> console.log "jointed"
+      # 同じRoom に所属するユーザーのSocket ID の配列を受信する
+      @socket.on "checkIn", @_receiveCheckInHandler.bind(@)
 
+      @socket.on "updatePointer", (data) -> console.log data
 
 
     
@@ -81,6 +85,7 @@ module.exports = (sn, $, _) ->
       console.log "[Model] Socket -> connect"
 
       @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
+      
       @_setEvent()
 
 
@@ -90,6 +95,12 @@ module.exports = (sn, $, _) ->
 
       # @socket.emit "join", { roomId: "000000" }, (e) -> console.log e
       @socket.emit "join"
+
+    # ------------------------------------------------------------
+    _sendPointerMove: (pointerPosition) ->
+      console.log "[Model] Socket -> pointerMove", pointerPosition
+
+      @socket.emit "pointerMove", pointerPosition
 
     # ------------------------------------------------------------
     # /**
@@ -122,7 +133,7 @@ module.exports = (sn, $, _) ->
       if isConnected
         # 接続がされている時
         @join()
-      # else
+      # # else
 
 
     # ------------------------------------------------------------
@@ -133,6 +144,9 @@ module.exports = (sn, $, _) ->
     # ------------------------------------------------------------
     _connectHandler: () ->
       console.log "[Model] Socket -> _connectHandler"
+
+      console.log(@socket.id);
+
       # 接続状態を変更
       @set "isConnected", true
       # @socket.disconnect();
@@ -203,6 +217,29 @@ module.exports = (sn, $, _) ->
     # ------------------------------------------------------------
     _reconnectFailedHandler: () ->
       console.log "[Model] Socket -> _reconnectErrorHandler"
+
+    # ------------------------------------------------------------
+    # /**
+    #  * _receiveCheckInHandler
+    #  * @param {Object} data
+    #  * @param {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
+    #  */
+    # ------------------------------------------------------------
+    _receiveCheckInHandler: (data) ->
+      console.log "[Model] Socket -> _receiveCheckInHandler", data
+
+      # checkIn イベントを発火する
+      # [model] connect がlisten
+      @trigger "checkIn", data
+
+
+
+
+
+
+
+
+
 
 
 

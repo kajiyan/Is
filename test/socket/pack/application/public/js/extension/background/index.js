@@ -10897,7 +10897,6 @@
 	
 	    function Stage() {
 	      this._onActivatedHandler = bind(this._onActivatedHandler, this);
-	      this._onUpdatedHandler = bind(this._onUpdatedHandler, this);
 	      this._changeBrowserActionHandler = bind(this._changeBrowserActionHandler, this);
 	      this._changeSectedTabIdHandler = bind(this._changeSectedTabIdHandler, this);
 	      console.log("[Model] Stage -> Constructor");
@@ -10926,7 +10925,6 @@
 	
 	    Stage.prototype._setEvent = function() {
 	      console.log("[Model] Stage -> _setEvent");
-	      chrome.tabs.onUpdated.addListener(this._onUpdatedHandler);
 	      return chrome.tabs.onActivated.addListener(this._onActivatedHandler);
 	    };
 	
@@ -10975,24 +10973,6 @@
 	
 	    Stage.prototype._onCreatedHandler = function(tab) {
 	      return console.log("[Model] Stage -> _onCreated", tab);
-	    };
-	
-	    Stage.prototype._onUpdatedHandler = function(tabId, changeInfo, tab) {
-	      console.log("[Model] Stage -> _onUpdated", tabId, changeInfo, tab);
-	      if (changeInfo.status === "complete") {
-	        return chrome.tabs.getSelected((function(_this) {
-	          return function(tab) {
-	            if (tabId === tab.id) {
-	              _this.set({
-	                "selsectedTabId": null
-	              }, {
-	                "silent": true
-	              });
-	              return _this.set("selsectedTabId", tabId);
-	            }
-	          };
-	        })(this));
-	      }
 	    };
 	
 	    Stage.prototype._onActivatedHandler = function(activeInfo) {
@@ -12637,14 +12617,11 @@
 	  return Connect = (function(superClass) {
 	    extend(Connect, superClass);
 	
-	    Connect.prototype.defaults = {
-	      "isRun": false
-	    };
+	    Connect.prototype.defaults = {};
 	
 	    function Connect() {
 	      console.log("[Model] Connect -> Constructor");
 	      Connect.__super__.constructor.apply(this, arguments);
-	      this.contentScriptPort;
 	    }
 	
 	    Connect.prototype.initialize = function() {
@@ -12666,41 +12643,78 @@
 	    };
 	
 	    Connect.prototype._setEvents = function() {
-	      console.log("[Model] Connect -> _setEvents");
-	      chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-	        return console.log(request, sender, sendResponse);
-	      });
+	      console.log("%c[Model] Connect -> _setEvents", "color: #999999");
 	      this.listenTo(sn.bb.models.stage, "change:isRun", this._changeIsRunHandler);
-	      return this.listenTo(sn.bb.models.stage, "change:selsectedTabId", this._changeSelsectedTabIdHandler);
+	      this.listenTo(sn.bb.models.stage, "change:selsectedTabId", this._changeSelsectedTabIdHandler);
+	      return chrome.runtime.onMessage.addListener((function(_this) {
+	        return function(request, sender, sendResponse) {
+	          var contentScriptPort, isRun;
+	          console.log("%cReceive Message", "color: #999999", request, sender, sendResponse);
+	          isRun = sn.bb.models.stage.get("isRun");
+	          if (isRun) {
+	            contentScriptPort = chrome.tabs.connect(sender.tab.id, {
+	              name: "background"
+	            });
+	            _this._setContentScriptPort(contentScriptPort);
+	          }
+	          if ((request.from != null) && request.from === "contentScriptSetup") {
+	            return sendResponse({
+	              to: "contentScript",
+	              from: "background",
+	              body: {
+	                isRun: isRun
+	              }
+	            });
+	          }
+	        };
+	      })(this));
 	    };
 	
 	    Connect.prototype._changeIsRunHandler = function(stageModel, isRun) {
 	      console.log("%c[Model] Connect -> _changeIsRunHandler", "color: #999999", stageModel, isRun);
-	      return this.set("isRun", isRun);
+	      return chrome.tabs.query({
+	        active: true,
+	        currentWindow: true
+	      }, (function(_this) {
+	        return function(tabs) {
+	          console.log(tabs[0].id);
+	          return chrome.tabs.sendMessage(tabs[0].id, {
+	            to: "contentScript",
+	            from: "background",
+	            type: "changeIsRun",
+	            body: {
+	              isRun: isRun
+	            }
+	          }, function(response) {
+	            return console.log(response);
+	          });
+	        };
+	      })(this));
+	    };
+	
+	    Connect.prototype._setContentScriptPort = function(port) {
+	      console.log("%c[Model] Connect -> _setContentScriptPort", "color: #999999");
+	      return port.onMessage.addListener((function(_this) {
+	        return function(message) {
+	          console.log(message);
+	          if ((message.from != null) && message.from === "contentScript") {
+	            if ((message.body != null) && (message.body.x != null) && (message.body.y != null)) {
+	              return _this.trigger("pointerMove", message.body);
+	            }
+	          }
+	        };
+	      })(this));
 	    };
 	
 	    Connect.prototype._changeSelsectedTabIdHandler = function(stageModel, tabId) {
-	      var isRun;
+	      var contentScriptPort, isRun;
 	      console.log("%c[Model] Connect -> _changeSelsectedTabIdHandler", "color: #999999", stageModel, tabId, new Date());
-	      isRun = this.get("isRun");
-	      this.contentScriptPort = chrome.tabs.connect(tabId, {
-	        "name": "background"
-	      });
-	      this.contentScriptPort.postMessage({
-	        "isRun": isRun
-	      });
+	      isRun = sn.bb.models.stage.get("isRun");
 	      if (isRun) {
-	        return this.contentScriptPort.onMessage.addListener((function(_this) {
-	          return function(message) {
-	            if (message.name === "updatePointerPosition") {
-	              return console.log(message.pointerPosition);
-	            }
-	          };
-	        })(this));
-	      } else {
-	        return this.contentScriptPort.postMessage({
-	          "status": "disconnect"
+	        contentScriptPort = chrome.tabs.connect(tabId, {
+	          "name": "background"
 	        });
+	        return this._setContentScriptPort(contentScriptPort);
 	      }
 	    };
 	
@@ -12762,6 +12776,7 @@
 	
 	    Socket.prototype._setEvent = function() {
 	      console.log("[Model] Socket -> _setEvent");
+	      this.listenTo(sn.bb.models.connect, "pointerMove", this._sendPointerMove);
 	      this.socket.on("connect", this._connectHandler.bind(this));
 	      this.socket.on("error", this._socketErrorHandler.bind(this));
 	      this.socket.on("disconnect", this._disconnectHandler.bind(this));
@@ -12770,8 +12785,9 @@
 	      this.socket.on("reconnecting", this._reconnectingHandler.bind(this));
 	      this.socket.on("reconnect_error", this._reconnectErrorHandler.bind(this));
 	      this.socket.on("reconnect_failed", this._reconnectFailedHandler.bind(this));
-	      return this.socket.on("jointed", function() {
-	        return console.log("jointed");
+	      this.socket.on("checkIn", this._receiveCheckInHandler.bind(this));
+	      return this.socket.on("updatePointer", function(data) {
+	        return console.log(data);
 	      });
 	    };
 	
@@ -12784,6 +12800,11 @@
 	    Socket.prototype.join = function() {
 	      console.log("[Model] Socket -> join");
 	      return this.socket.emit("join");
+	    };
+	
+	    Socket.prototype._sendPointerMove = function(pointerPosition) {
+	      console.log("[Model] Socket -> pointerMove", pointerPosition);
+	      return this.socket.emit("pointerMove", pointerPosition);
 	    };
 	
 	    Socket.prototype._changeIsPopupOpenHandler = function(model, isPopupOpen) {
@@ -12804,6 +12825,7 @@
 	
 	    Socket.prototype._connectHandler = function() {
 	      console.log("[Model] Socket -> _connectHandler");
+	      console.log(this.socket.id);
 	      return this.set("isConnected", true);
 	    };
 	
@@ -12834,6 +12856,11 @@
 	
 	    Socket.prototype._reconnectFailedHandler = function() {
 	      return console.log("[Model] Socket -> _reconnectErrorHandler");
+	    };
+	
+	    Socket.prototype._receiveCheckInHandler = function(data) {
+	      console.log("[Model] Socket -> _receiveCheckInHandler", data);
+	      return this.trigger("checkIn", data);
 	    };
 	
 	    return Socket;
