@@ -77,7 +77,7 @@
 		{
 			"_id": "1234567890abcdfegh",
 			"dayId": "20150712",
-			"url": "//is-eternal.me/memorys/20150712/1234567890abcdfegh", (virtual)
+			"url": "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
 			"link": "https://www.google.co.jp/",
 			"window": {
 				"width": 1920,
@@ -382,21 +382,15 @@ var socket = io.connect( 'http://api.is-eternal.me/extension' );
 
 ***
 
-### 【join】
-ユーザーの追加通知
+
+### 【disconnect】
 
 #### Overview
 `Client -> API`  
+ユーザーがWebSocketサーバーとの接続が切断された時に通知される  
+Socket接続を終了する。それまで所属していたroom のcapacity をデクリメントする
 
 ##### Parameters
-- data
-
-		@param {Object}
-		@prop {String} [roomId] - 接続するRoomID
-
-		{
-			"roomId": "000000"
-		}
 
 ##### Callback
 
@@ -412,28 +406,271 @@ var socket = io.connect( 'http://api.is-eternal.me/extension' );
 
 ***
 
-### ■ リクエストパラメータ
-#### - image_path (string) (required)
-保存された画像のパス
 
-	例）img/1.png
 
-### ■ 成功時戻り値
-	{
-	    "status": 1,
-	    "data": {
-	        "image_path": "xxxxxx"
-	    }
-	}
 
-##### response detail
-* data.image_path (string): api が受け取った画像パス（確認用）
+### 【join】
+ユーザーの追加通知  
+[checkIn](#io-checkIn) を発信する
 
-  
-  
+#### Overview
+`Client -> API`  
+
+##### Request Parameters
+- data
+
+		@param {Object}
+		@prop {String} [roomId] - 接続するRoomID
+
+		{
+			"roomId": "000000"
+		}
+
+##### Response 
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
+
+### 【pointerMove】
+ポインターが移動した時に通知される  
+同じRoom にJoin しているユーザーに [updatePointer](#io-updatePointer) を発信する
+
+#### Overview
+`Client -> API`  
+
+##### Request Parameters
+- data
+
+		@param {Object}
+		@prop {number} x - 発信者のポインターのx座標
+		@prop {number} y - 発信者のポインターのy座標
+
+		{
+			x: 265,
+			y: 246
+		}
+
+##### Response
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
+
+
+### 【shootLandscape】
+スクリーンショットが更新されたタイミングで通知される  
+同じRoom にJoin しているユーザーに [updateLandscape](#io-updateLandscape) を発信する
+
+#### Overview
+`Client -> API`  
+
+##### Request Parameters
+- data
+
+		@param {Object}
+		@prop {string} landscape - スクリーンショット（base64）
+
+		{
+			landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+		}
+
+
+##### Response
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
+
+
 # socket.io event
 以下のように受信可能  
 
 	socket.on('userAdded', function(data) {
 		var image_path = data.image_path;
 	})
+
+***
+
+<a name="io-checkIn"></a>
+### 【checkIn】
+同じRoom に所属するユーザーのSocket ID の配列を受信する
+
+#### Overview
+`API -> Client`  
+
+##### Request Parameters
+
+##### Response 
+- data
+
+		@return {Object}
+		@prop {[string]} [users] - 同じRoom に所属するユーザーのSocket ID の配列
+
+		{
+			"users": [
+				"T16ontoFZG1fx7OpAAAH",
+				"3fKlmlfGtKBXtnw-AAAD",
+				"WPFZdXhEwrgstuB0AAAG"
+			]
+		}
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
+
+<a name="io-updatePointer"></a>
+### 【updatePointer】
+同じRoom に所属するユーザーのポインターの座標を受信する  
+
+#### Overview
+`API -> Client `  
+
+##### Request Parameters
+
+##### Response 
+- data
+
+		@param {Object}
+		@prop {string} socketId - 発信元のsocket.id
+		@prop {number} x - 発信者のポインターのx座標
+		@prop {number} y - 発信者のポインターのy座標
+
+		{
+			socketId: "T16ontoFZG1fx7OpAAAH",
+			x: 265,
+			y: 246
+		}
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
+
+<a name="io-updateLandscape"></a>
+### 【updateLandscape】
+同じRoom に所属するユーザーのスクリーンショットをBase64 で受信する  
+
+#### Overview
+`API -> Client `  
+
+##### Request Parameters
+
+##### Response 
+- data
+
+		@param {Object}
+		@prop {string} socketId - 発信元のsocket.id
+		@prop {string} landscape - スクリーンショット（base64）
+
+		{
+			socketId: "T16ontoFZG1fx7OpAAAH",
+			landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+		}
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
+
+<a name="io-receiveMemorys"></a>
+### 【receiveMemorys】
+データベースのMemorys からランダムにMemory Document を返す  
+
+#### Overview
+`API -> Client `  
+
+##### Request Parameters
+
+##### Response 
+- data
+
+		@param {Object}
+		@prop {[Memory]} memorys - Memory Document の配列
+
+
+		- Memory object
+		{
+			memorys: {
+				[
+					{
+						"_id": "1234567890abcdfegh",
+						"dayId": "20150712",
+						"url": "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
+						"link": "https://www.google.co.jp/",
+						"window": {
+							"width": 1920,
+							"height": 1080
+						},
+						"ext": ".jpeg",
+						"imgSrc": "//is-eternal.me/memorys/20150712/1234567890abcdfegh.jpeg", (virtual)
+						"positions": [
+					      	{ x: 0, y: 0 },
+					      	{ x: 0, y: 0 },
+					        ...
+					    ],
+						"random": [0.1, 0],
+						"createAt": "2015-07-07T12:00:00.024Z"
+					},
+					...
+				]
+			}
+		}
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
