@@ -80,10 +80,16 @@
 	  };
 	  return $(function() {
 	    sn.tf.setup(function() {
-	      var Extension, key, model;
+	      var Extension, isElement, key, model, shadowRoot;
+	      isElement = document.createElement("div");
+	      shadowRoot = isElement.createShadowRoot();
+	      console.log(shadowRoot);
+	      shadowRoot.innerHTML = "<style>\n  p {\n    color: green;\n  }\n</style>\n<p>Hello Shadow DOM!</p>";
+	      document.body.appendChild(isElement);
+	      console.log(isElement);
 	      Extension = new Backbone.Marionette.Application();
 	      Extension.module('ContentModule', function(ContentModule, App, Backbone, Marionette, $, _) {
-	        var LoverCollection, LoverCollectionView, LoverModel, LoverView;
+	        var IsView, LoverCollection, LoverCollectionView, LoverModel, LoverView;
 	        ContentModule.Controller = Backbone.Marionette.Controller.extend({
 	          initialize: function() {
 	            return console.log("[ContentModule] Controller | initialize");
@@ -94,6 +100,11 @@
 	        });
 	        LoverCollection = Backbone.Collection.extend({
 	          model: LoverModel
+	        });
+	        IsView = Backbone.Marionette.ItemView.extend({
+	          initialize: function() {
+	            return console.log("[ContentModule] IsView | initialize");
+	          }
 	        });
 	        LoverView = Backbone.Marionette.ItemView.extend({
 	          tagName: 'div',
@@ -106,8 +117,11 @@
 	          childView: LoverView
 	        });
 	        return ContentModule.addInitializer(function() {
-	          var loverCollection, loverCollectionView;
+	          var itemViews, loverCollection, loverCollectionView;
 	          ContentModule.controller = new ContentModule.Controller();
+	          itemViews = {
+	            is: new IsView()
+	          };
 	          loverCollection = new LoverCollection([{}, {}]);
 	          loverCollectionView = new LoverCollectionView({
 	            collection: loverCollection

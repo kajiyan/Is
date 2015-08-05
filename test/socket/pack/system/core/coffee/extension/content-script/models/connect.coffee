@@ -102,6 +102,7 @@ module.exports = (sn, $, _) ->
         console.log "call"
         @stopListening sn.bb.models.stage, "change:pointerPosition"
 
+
       # if isRun
       #   # エクステンションが起動状態であればイベントリスナーを登録する
       #   @listenTo sn.bb.models.stage, "change:pointerPosition", @_changePointerPositionHandler

@@ -58,7 +58,67 @@ do (window=window, document=document, $=jQuery) ->
   $ ->
     # --------------------------------------------------------------
     sn.tf.setup ->
-      # ベースになるShadow DOMを作る
+      isElement = document.createElement "div"
+
+      shadowRoot = isElement.createShadowRoot()
+
+      console.log shadowRoot
+
+      shadowRoot.innerHTML = """
+        <style>
+          p {
+            color: green;
+          }
+        </style>
+        <p>Hello Shadow DOM!</p>
+        """
+
+      # isElement.innerHTML = """
+      #   <style>
+      #     p {
+      #       color: green;
+      #     }
+      #   </style>
+      #   <p>Hello Shadow DOM!</p>
+      #   """
+
+      # console.log isElement
+
+      document.body.appendChild isElement
+
+      # shadowRoot = document.documentElement.createShadowRoot()
+      # shadowRoot.appendChild(isElement)
+
+      # testElement = document.createElement "div"
+      # document.body.appendChild testElement
+
+      console.log isElement
+
+
+      # # ベースになるShadow DOMを作る
+      # Is = Object.create(HTMLElement.prototype)
+      # shadowDom = null
+
+      # # /** 
+      # #  *  createdCallback
+      # #  *  要素のインスタンスが生成されるたびに呼ばれる
+      # #  */
+      # Is.createdCallback = () ->
+      #   console.log 'createdCallback'
+
+      #   shadowDom = @createShadowRoot()
+      #   shadowDom.innerHTML = '<div>Is</div>'
+
+      # # ドキュメントにカスタム要素を登録する
+      # document.registerElement 'x-is',
+      #   prototype: Is
+
+      # # カスタム要素を生成する
+      # isEl = document.createElement('x-is');
+
+      # document.body.appendChild(isEl);
+
+
 
       Extension = new Backbone.Marionette.Application()
 
@@ -77,6 +137,49 @@ do (window=window, document=document, $=jQuery) ->
           model: LoverModel
         })
 
+        # --------------------------------------------------------------
+        IsView = Backbone.Marionette.ItemView.extend({
+          initialize: () ->
+            console.log "[ContentModule] IsView | initialize"
+
+            # isElement = document.createElement "div"
+
+            # shadowRoot = document.documentElement.createShadowRoot()
+            # shadowRoot.appendChild(isElement)
+
+            # console.log isElement
+
+            # isElement = document.createElement "x-is"
+            # document.body.appendChild isElement
+
+            # Is = Object.create HTMLDivElement.prototype
+
+            # Is.createdCallback = () ->
+
+            # document.registerElement "x-is",
+            #   prototype: Is
+
+
+            # # カスタム要素を生成してbody に追加する
+            # isElement = document.createElement "x-is"
+            # document.body.appendChild isElement
+
+            # Is = Object.create HTMLElement.prototype
+            # # @shadowDom = null
+
+            # Is.createdCallback = () ->
+            #   console.log "createdCallback"
+
+            #   shadowDom = this.createShadowRoot()
+            #   shadowDom.innerHTML = "<div>Is</div>"
+
+
+            # # ドキュメントにカスタム要素を登録する
+            # document.registerElement "x-is",
+            #   prototype: Is
+            
+        })
+
         # Lover View
         LoverView = Backbone.Marionette.ItemView.extend({
           tagName: 'div'
@@ -93,6 +196,9 @@ do (window=window, document=document, $=jQuery) ->
 
         ContentModule.addInitializer () ->
           ContentModule.controller = new ContentModule.Controller()
+
+          itemViews =
+            is: new IsView()
 
           loverCollection = new LoverCollection([{}, {}])
 
