@@ -25,6 +25,11 @@ do (window=window, document=document, $=jQuery) ->
   require "pepjs/dist/pep.min"
 
   # ============================================================
+  # APPLICATION
+  # ============================================================
+  Extension = new Backbone.Marionette.Application()
+
+  # ============================================================
   # BackBone
   # ============================================================
   sn.bb =
@@ -58,41 +63,7 @@ do (window=window, document=document, $=jQuery) ->
   $ ->
     # --------------------------------------------------------------
     sn.tf.setup ->
-      isElement = document.createElement "div"
-
-      shadowRoot = isElement.createShadowRoot()
-
-      console.log shadowRoot
-
-      shadowRoot.innerHTML = """
-        <style>
-          p {
-            color: green;
-          }
-        </style>
-        <p>Hello Shadow DOM!</p>
-        """
-
-      # isElement.innerHTML = """
-      #   <style>
-      #     p {
-      #       color: green;
-      #     }
-      #   </style>
-      #   <p>Hello Shadow DOM!</p>
-      #   """
-
-      # console.log isElement
-
-      document.body.appendChild isElement
-
-      # shadowRoot = document.documentElement.createShadowRoot()
-      # shadowRoot.appendChild(isElement)
-
-      # testElement = document.createElement "div"
-      # document.body.appendChild testElement
-
-      console.log isElement
+      
 
 
       # # ベースになるShadow DOMを作る
@@ -118,74 +89,141 @@ do (window=window, document=document, $=jQuery) ->
 
       # document.body.appendChild(isEl);
 
-
-
-      Extension = new Backbone.Marionette.Application()
-
+      # ============================================================
+      # CONTENT MODULE
       Extension.module 'ContentModule', (ContentModule, App, Backbone, Marionette, $, _) ->
+        # ============================================================
+        # CONTENT MODULE - Controller
         ContentModule.Controller = Backbone.Marionette.Controller.extend
           initialize: () ->
             console.log "[ContentModule] Controller | initialize"
 
-        # Lover Model
-        LoverModel = Backbone.Model.extend({
+
+        # ============================================================
+        # CONTENT MODULE - Model
+        LoverModel = Backbone.Model.extend(
           defaults: {}
-        })
+        )
 
-        # Lover Collection
-        LoverCollection = Backbone.Collection.extend({
+
+        # ============================================================
+        # CONTENT MODULE - Collection
+        LoverCollection = Backbone.Collection.extend(
           model: LoverModel
-        })
+        )
 
-        # --------------------------------------------------------------
-        IsView = Backbone.Marionette.ItemView.extend({
+
+        # ============================================================
+        # CONTENT MODULE - View
+        IsView = Backbone.Marionette.ItemView.extend(
+          # --------------------------------------------------------------
           initialize: () ->
             console.log "[ContentModule] IsView | initialize"
 
-            # isElement = document.createElement "div"
-
-            # shadowRoot = document.documentElement.createShadowRoot()
-            # shadowRoot.appendChild(isElement)
-
-            # console.log isElement
-
-            # isElement = document.createElement "x-is"
-            # document.body.appendChild isElement
-
-            # Is = Object.create HTMLDivElement.prototype
-
-            # Is.createdCallback = () ->
-
-            # document.registerElement "x-is",
-            #   prototype: Is
-
-
-            # # カスタム要素を生成してbody に追加する
-            # isElement = document.createElement "x-is"
-            # document.body.appendChild isElement
-
-            # Is = Object.create HTMLElement.prototype
-            # # @shadowDom = null
-
-            # Is.createdCallback = () ->
-            #   console.log "createdCallback"
-
-            #   shadowDom = this.createShadowRoot()
-            #   shadowDom.innerHTML = "<div>Is</div>"
-
-
-            # # ドキュメントにカスタム要素を登録する
-            # document.registerElement "x-is",
-            #   prototype: Is
+            # Extension のView になるDOM を生成する
+            isEl = document.createElement "div"
+            $isEl = $(isEl)
             
-        })
+            # Extension のView にID をつける
+            $isEl.attr "id", chrome.runtime.id
+
+            # サイトのCSSに影響を受けないようにShadow DOM を生成する
+            @shadowRoot = isEl.createShadowRoot()
+
+            @shadowRoot.innerHTML = """
+              <style>
+                .is__debug, .is__debug * {
+                  -moz-box-shadow: black 0px 0px 0px 1px inset;
+                  -webkit-box-shadow: black 0px 0px 0px 1px inset;
+                  box-shadow: black 0px 0px 0px 1px inset;
+                  background-color: rgba(204, 204, 204, 0.5);
+                }
+
+                .is__hidden {
+                  position: fixed;
+                  top: 0;
+                  left: 0;
+                  visibility: hidden;
+                  clip: rect(0 0 0 0);
+                }
+
+                .is {}
+
+                  .is .lovers {
+                    position: fixed;
+                    z-index: 2147483647;
+                  }
+
+                    .is .lovers .body {
+                      width: 16px;
+                      height: 22px;
+                      position: fixed;
+                      left: 0;
+                      top: 0;
+                      z-index: 2147483647;
+                    }
+              </style>
+              
+              <div id="js-is" class="is is__debug">
+                <div id="js-lovers" class="lovers">
+                  <div class="people">
+                      <img class="body" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyAgUFVCTElDICctLy9XM0MvL0RURCBTVkcgMS4xLy9FTicgICdodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQnPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB2ZXJzaW9uPSIxLjEiIHk9IjBweCIgeD0iMHB4IiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDE2IDIyIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxNiAyMiI+PGltYWdlIG9wYWNpdHk9Ii4yIiB4bGluazpocmVmPSJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUJJQUFBQVpDQVlBQUFBOENYNlVBQUFBQ1hCSVdYTUFBQXNTQUFBTEVnSFMzWDc4QUFBQUdYUkZXSFJUYjJaMGQyRnlaUUJCWkc5aVpTQkpiV0ZuWlZKbFlXUjVjY2xsUEFBQUFZbEpSRUZVZU5xY2xWdEx3ekFZaHBNdXJrNDhiNTVBOGNwTEwvei8xN3Z3U2dVUkVRVEJ3enlqV0hXck52R052SkVzdGpaMThNRGFway9mSk4vWENqSCtrK0tmdjVZbm1DQk9acHFLbkdRT0xJRVVGRUEza1RuUkZOZ0UyNkFIUHNFN2hWRXk1U1d5YVhaQUc4eURCSng3d2xxUjRFMDIxVHFUTGZLY2lKVXA3NytUYlFTaUtKa0tqcDBzRk5YS1ZNazVQNW1JbGFtS3BJMWw2by8xYXlSVE5ic2FMVk1SdFdabEhaYUdZY1U3TGlqVEtySURYTkV1Z0Mzd0NKNUFCbklyU2lKRk52NExHSUJidHBDZDhxUnJzN0pFeHNNWFBZTmpzQXRPd1NYUGZmZGpLTktNbXZGSmJhNWp3cWxaK1EwNEFYZmdqZW5HRmx2endvQlBzVGV1c2NydHVHbXdBcm9VajhDSFMrNWVJeWxmSHoydXdUNmpkN2pBS1cvT21lUU1QUEQ0cDQ0TXpYYkFIaGlDZTdBTVpwZ2k1WmljVXpGVkxUSmlnb3lpSWJkNGxjVW9PZTBEY01qVWVkazdXL09KVnZSS2NVRkJpN3R6QlBwTWZjMHhwdXFySVhsUmNzZTZURFRMUkZkY2dsOU5LMnRhUTNsRlYzZzdwVVhENzVnTWtsWitwcjRFR0FDMm5vRWdQN2tNN3dBQUFBQkpSVTVFcmtKZ2dnPT0iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTIpIiBoZWlnaHQ9IjI1IiB3aWR0aD0iMTgiIG92ZXJmbG93PSJ2aXNpYmxlIi8+PHBvbHlnb24gcG9pbnRzPSIxMC4xMzcgMTguNDczIDEyIDE3LjQ3IDEzLjYxNSAxNi42MyAxMS4wNDcgMTEuODE0IDE1LjM3OSAxMS44MTQgNCAwLjQwNjcgNCAxNi40MjIgNy4zMTU5IDEzLjIwMSIgZmlsbD0iI2ZmZiIvPjxyZWN0IHk9IjkuMDAwNiIgeD0iOC40MzEzIiBoZWlnaHQ9IjcuOTk4OSIgdHJhbnNmb3JtPSJtYXRyaXgoLjg4MjUgLS40NzA0IC40NzA0IC44ODI1IC01LjAwNjYgNS45NjQ2KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iNSAyLjgxNCA1IDE0LjAwMiA4LjI1NzggMTAuODU3IDEzLjAyNSAxMC44NTciLz48L3N2Zz4=">
+                      <div class="memory"></div>
+                    </div>
+                    <div class="people">
+                      <img class="body" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyAgUFVCTElDICctLy9XM0MvL0RURCBTVkcgMS4xLy9FTicgICdodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQnPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB2ZXJzaW9uPSIxLjEiIHk9IjBweCIgeD0iMHB4IiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDE2IDIyIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxNiAyMiI+PGltYWdlIG9wYWNpdHk9Ii4yIiB4bGluazpocmVmPSJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUJJQUFBQVpDQVlBQUFBOENYNlVBQUFBQ1hCSVdYTUFBQXNTQUFBTEVnSFMzWDc4QUFBQUdYUkZXSFJUYjJaMGQyRnlaUUJCWkc5aVpTQkpiV0ZuWlZKbFlXUjVjY2xsUEFBQUFZbEpSRUZVZU5xY2xWdEx3ekFZaHBNdXJrNDhiNTVBOGNwTEwvei8xN3Z3U2dVUkVRVEJ3enlqV0hXck52R052SkVzdGpaMThNRGFway9mSk4vWENqSCtrK0tmdjVZbm1DQk9acHFLbkdRT0xJRVVGRUEza1RuUkZOZ0UyNkFIUHNFN2hWRXk1U1d5YVhaQUc4eURCSng3d2xxUjRFMDIxVHFUTGZLY2lKVXA3NytUYlFTaUtKa0tqcDBzRk5YS1ZNazVQNW1JbGFtS3BJMWw2by8xYXlSVE5ic2FMVk1SdFdabEhaYUdZY1U3TGlqVEtySURYTkV1Z0Mzd0NKNUFCbklyU2lKRk52NExHSUJidHBDZDhxUnJzN0pFeHNNWFBZTmpzQXRPd1NYUGZmZGpLTktNbXZGSmJhNWp3cWxaK1EwNEFYZmdqZW5HRmx2endvQlBzVGV1c2NydHVHbXdBcm9VajhDSFMrNWVJeWxmSHoydXdUNmpkN2pBS1cvT21lUU1QUEQ0cDQ0TXpYYkFIaGlDZTdBTVpwZ2k1WmljVXpGVkxUSmlnb3lpSWJkNGxjVW9PZTBEY01qVWVkazdXL09KVnZSS2NVRkJpN3R6QlBwTWZjMHhwdXFySVhsUmNzZTZURFRMUkZkY2dsOU5LMnRhUTNsRlYzZzdwVVhENzVnTWtsWitwcjRFR0FDMm5vRWdQN2tNN3dBQUFBQkpSVTVFcmtKZ2dnPT0iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTIpIiBoZWlnaHQ9IjI1IiB3aWR0aD0iMTgiIG92ZXJmbG93PSJ2aXNpYmxlIi8+PHBvbHlnb24gcG9pbnRzPSIxMC4xMzcgMTguNDczIDEyIDE3LjQ3IDEzLjYxNSAxNi42MyAxMS4wNDcgMTEuODE0IDE1LjM3OSAxMS44MTQgNCAwLjQwNjcgNCAxNi40MjIgNy4zMTU5IDEzLjIwMSIgZmlsbD0iI2ZmZiIvPjxyZWN0IHk9IjkuMDAwNiIgeD0iOC40MzEzIiBoZWlnaHQ9IjcuOTk4OSIgdHJhbnNmb3JtPSJtYXRyaXgoLjg4MjUgLS40NzA0IC40NzA0IC44ODI1IC01LjAwNjYgNS45NjQ2KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iNSAyLjgxNCA1IDE0LjAwMiA4LjI1NzggMTAuODU3IDEzLjAyNSAxMC44NTciLz48L3N2Zz4=">
+                      <div class="memory"></div>
+                    </div>
+                  <script type="text/template" id="people-template">
+                    <div class="people">
+                      <img class="body" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyAgUFVCTElDICctLy9XM0MvL0RURCBTVkcgMS4xLy9FTicgICdodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQnPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB2ZXJzaW9uPSIxLjEiIHk9IjBweCIgeD0iMHB4IiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDE2IDIyIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxNiAyMiI+PGltYWdlIG9wYWNpdHk9Ii4yIiB4bGluazpocmVmPSJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUJJQUFBQVpDQVlBQUFBOENYNlVBQUFBQ1hCSVdYTUFBQXNTQUFBTEVnSFMzWDc4QUFBQUdYUkZXSFJUYjJaMGQyRnlaUUJCWkc5aVpTQkpiV0ZuWlZKbFlXUjVjY2xsUEFBQUFZbEpSRUZVZU5xY2xWdEx3ekFZaHBNdXJrNDhiNTVBOGNwTEwvei8xN3Z3U2dVUkVRVEJ3enlqV0hXck52R052SkVzdGpaMThNRGFway9mSk4vWENqSCtrK0tmdjVZbm1DQk9acHFLbkdRT0xJRVVGRUEza1RuUkZOZ0UyNkFIUHNFN2hWRXk1U1d5YVhaQUc4eURCSng3d2xxUjRFMDIxVHFUTGZLY2lKVXA3NytUYlFTaUtKa0tqcDBzRk5YS1ZNazVQNW1JbGFtS3BJMWw2by8xYXlSVE5ic2FMVk1SdFdabEhaYUdZY1U3TGlqVEtySURYTkV1Z0Mzd0NKNUFCbklyU2lKRk52NExHSUJidHBDZDhxUnJzN0pFeHNNWFBZTmpzQXRPd1NYUGZmZGpLTktNbXZGSmJhNWp3cWxaK1EwNEFYZmdqZW5HRmx2endvQlBzVGV1c2NydHVHbXdBcm9VajhDSFMrNWVJeWxmSHoydXdUNmpkN2pBS1cvT21lUU1QUEQ0cDQ0TXpYYkFIaGlDZTdBTVpwZ2k1WmljVXpGVkxUSmlnb3lpSWJkNGxjVW9PZTBEY01qVWVkazdXL09KVnZSS2NVRkJpN3R6QlBwTWZjMHhwdXFySVhsUmNzZTZURFRMUkZkY2dsOU5LMnRhUTNsRlYzZzdwVVhENzVnTWtsWitwcjRFR0FDMm5vRWdQN2tNN3dBQUFBQkpSVTVFcmtKZ2dnPT0iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTIpIiBoZWlnaHQ9IjI1IiB3aWR0aD0iMTgiIG92ZXJmbG93PSJ2aXNpYmxlIi8+PHBvbHlnb24gcG9pbnRzPSIxMC4xMzcgMTguNDczIDEyIDE3LjQ3IDEzLjYxNSAxNi42MyAxMS4wNDcgMTEuODE0IDE1LjM3OSAxMS44MTQgNCAwLjQwNjcgNCAxNi40MjIgNy4zMTU5IDEzLjIwMSIgZmlsbD0iI2ZmZiIvPjxyZWN0IHk9IjkuMDAwNiIgeD0iOC40MzEzIiBoZWlnaHQ9IjcuOTk4OSIgdHJhbnNmb3JtPSJtYXRyaXgoLjg4MjUgLS40NzA0IC40NzA0IC44ODI1IC01LjAwNjYgNS45NjQ2KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iNSAyLjgxNCA1IDE0LjAwMiA4LjI1NzggMTAuODU3IDEzLjAyNSAxMC44NTciLz48L3N2Zz4=">
+                      <div class="memory"></div>
+                    </div>
+                  </script>
+                </div>
+              </div>
+              """
+
+            # 生成したエレメントをDOMツリーに追加
+            document.body.appendChild isEl
+
+            @el = @shadowRoot.querySelector(".is")
+
+            # これで取得できる
+            # console.log @shadowRoot.querySelector('.people')
+
+            console.log @el
+
+            Extension.reqres.setHandler "getShadowRoot", () =>
+              return @$el
+        )
+
 
         # Lover View
-        LoverView = Backbone.Marionette.ItemView.extend({
-          tagName: 'div'
-          className: 'people'
-          template: '<p class="test">test !</p>'
-        })
+        LoverView = Backbone.Marionette.ItemView.extend(
+          # --------------------------------------------------------------
+          # tagName: 'div'
+          
+          # --------------------------------------------------------------
+          # className: 'people'
+
+          # --------------------------------------------------------------
+          template: ->
+            $shadowRoot = Extension.request "getShadowRoot"
+            template = $shadowRoot.find("#people-template")
+            return template
+
+          # --------------------------------------------------------------
+          initialize: () ->
+            console.log "[ContentModule] LoverView | initialize"
+
+            $shadowRoot = Extension.request "getShadowRoot"
+            # console.log shadowRoot.querySelector('.iosSlider')
+            # template = $shadowRoot.find("#js-is")
+
+            # console.log $shadowRoot.find("#js-is")[0]
+            # console.log $shadowRoot
+        )
 
         # Lover Collection View
         LoverCollectionView = Backbone.Marionette.CollectionView.extend({
@@ -195,6 +233,8 @@ do (window=window, document=document, $=jQuery) ->
         })
 
         ContentModule.addInitializer () ->
+
+
           ContentModule.controller = new ContentModule.Controller()
 
           itemViews =
@@ -208,7 +248,6 @@ do (window=window, document=document, $=jQuery) ->
 
           loverCollectionView.render()
           console.log loverCollectionView.el
-
 
 
       Extension.start()
