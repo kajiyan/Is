@@ -63,8 +63,226 @@ do (window=window, document=document, $=jQuery) ->
   $ ->
     # --------------------------------------------------------------
     sn.tf.setup ->
-      
 
+      # ============================================================
+      #  EXTENSION MODULE
+      # ============================================================
+      Extension.module "ExtensionModule", (ExtensionModule, Extension, Backbone, Marionette, $, _) ->
+        # Extension のベースになるDOM を生成する
+        isEl = document.createElement "div"
+        isEl.id = chrome.runtime.id
+        # $isEl = $(isEl)
+        
+        # Extension のView にID をつける
+        $isEl.attr "id", chrome.runtime.id
+
+        shadowRoot = isEl.createShadowRoot()
+
+        # <div id="is-#{chrome.runtime.id}">
+        #     <script type="text/template" id="is-template">
+        #       <div id="region__lovers">lovers</div>
+        #       <div id="region__memorys">memorys</div>
+        #     </script>
+
+        #     <script type="text/template" id="lover-template">
+        #       <img class="body" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyAgUFVCTElDICctLy9XM0MvL0RURCBTVkcgMS4xLy9FTicgICdodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQnPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB2ZXJzaW9uPSIxLjEiIHk9IjBweCIgeD0iMHB4IiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDE2IDIyIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxNiAyMiI+PGltYWdlIG9wYWNpdHk9Ii4yIiB4bGluazpocmVmPSJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUJJQUFBQVpDQVlBQUFBOENYNlVBQUFBQ1hCSVdYTUFBQXNTQUFBTEVnSFMzWDc4QUFBQUdYUkZXSFJUYjJaMGQyRnlaUUJCWkc5aVpTQkpiV0ZuWlZKbFlXUjVjY2xsUEFBQUFZbEpSRUZVZU5xY2xWdEx3ekFZaHBNdXJrNDhiNTVBOGNwTEwvei8xN3Z3U2dVUkVRVEJ3enlqV0hXck52R052SkVzdGpaMThNRGFway9mSk4vWENqSCtrK0tmdjVZbm1DQk9acHFLbkdRT0xJRVVGRUEza1RuUkZOZ0UyNkFIUHNFN2hWRXk1U1d5YVhaQUc4eURCSng3d2xxUjRFMDIxVHFUTGZLY2lKVXA3NytUYlFTaUtKa0tqcDBzRk5YS1ZNazVQNW1JbGFtS3BJMWw2by8xYXlSVE5ic2FMVk1SdFdabEhaYUdZY1U3TGlqVEtySURYTkV1Z0Mzd0NKNUFCbklyU2lKRk52NExHSUJidHBDZDhxUnJzN0pFeHNNWFBZTmpzQXRPd1NYUGZmZGpLTktNbXZGSmJhNWp3cWxaK1EwNEFYZmdqZW5HRmx2endvQlBzVGV1c2NydHVHbXdBcm9VajhDSFMrNWVJeWxmSHoydXdUNmpkN2pBS1cvT21lUU1QUEQ0cDQ0TXpYYkFIaGlDZTdBTVpwZ2k1WmljVXpGVkxUSmlnb3lpSWJkNGxjVW9PZTBEY01qVWVkazdXL09KVnZSS2NVRkJpN3R6QlBwTWZjMHhwdXFySVhsUmNzZTZURFRMUkZkY2dsOU5LMnRhUTNsRlYzZzdwVVhENzVnTWtsWitwcjRFR0FDMm5vRWdQN2tNN3dBQUFBQkpSVTVFcmtKZ2dnPT0iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTIpIiBoZWlnaHQ9IjI1IiB3aWR0aD0iMTgiIG92ZXJmbG93PSJ2aXNpYmxlIi8+PHBvbHlnb24gcG9pbnRzPSIxMC4xMzcgMTguNDczIDEyIDE3LjQ3IDEzLjYxNSAxNi42MyAxMS4wNDcgMTEuODE0IDE1LjM3OSAxMS44MTQgNCAwLjQwNjcgNCAxNi40MjIgNy4zMTU5IDEzLjIwMSIgZmlsbD0iI2ZmZiIvPjxyZWN0IHk9IjkuMDAwNiIgeD0iOC40MzEzIiBoZWlnaHQ9IjcuOTk4OSIgdHJhbnNmb3JtPSJtYXRyaXgoLjg4MjUgLS40NzA0IC40NzA0IC44ODI1IC01LjAwNjYgNS45NjQ2KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iNSAyLjgxNCA1IDE0LjAwMiA4LjI1NzggMTAuODU3IDEzLjAyNSAxMC44NTciLz48L3N2Zz4=">
+        #       <div class="memory"></div>
+        #     </script>
+        #   </div>
+
+        shadowRoot.innerHTML = """
+          <div id="is-#{chrome.runtime.id}">
+          </div>
+        """
+
+        isTemplate = document.createElement "template"
+        isTemplate.innerHTML = """
+          <div id="test">Template Test</div>
+
+          <script type="text/template" id="is-template">
+            <div id="region__lovers">lovers</div>
+            <div id="region__memorys">memorys</div>
+          </script>
+
+          <script type="text/template" id="lover-template">
+            <img class="body" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyAgUFVCTElDICctLy9XM0MvL0RURCBTVkcgMS4xLy9FTicgICdodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQnPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB2ZXJzaW9uPSIxLjEiIHk9IjBweCIgeD0iMHB4IiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmlld0JveD0iMCAwIDE2IDIyIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxNiAyMiI+PGltYWdlIG9wYWNpdHk9Ii4yIiB4bGluazpocmVmPSJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUJJQUFBQVpDQVlBQUFBOENYNlVBQUFBQ1hCSVdYTUFBQXNTQUFBTEVnSFMzWDc4QUFBQUdYUkZXSFJUYjJaMGQyRnlaUUJCWkc5aVpTQkpiV0ZuWlZKbFlXUjVjY2xsUEFBQUFZbEpSRUZVZU5xY2xWdEx3ekFZaHBNdXJrNDhiNTVBOGNwTEwvei8xN3Z3U2dVUkVRVEJ3enlqV0hXck52R052SkVzdGpaMThNRGFway9mSk4vWENqSCtrK0tmdjVZbm1DQk9acHFLbkdRT0xJRVVGRUEza1RuUkZOZ0UyNkFIUHNFN2hWRXk1U1d5YVhaQUc4eURCSng3d2xxUjRFMDIxVHFUTGZLY2lKVXA3NytUYlFTaUtKa0tqcDBzRk5YS1ZNazVQNW1JbGFtS3BJMWw2by8xYXlSVE5ic2FMVk1SdFdabEhaYUdZY1U3TGlqVEtySURYTkV1Z0Mzd0NKNUFCbklyU2lKRk52NExHSUJidHBDZDhxUnJzN0pFeHNNWFBZTmpzQXRPd1NYUGZmZGpLTktNbXZGSmJhNWp3cWxaK1EwNEFYZmdqZW5HRmx2endvQlBzVGV1c2NydHVHbXdBcm9VajhDSFMrNWVJeWxmSHoydXdUNmpkN2pBS1cvT21lUU1QUEQ0cDQ0TXpYYkFIaGlDZTdBTVpwZ2k1WmljVXpGVkxUSmlnb3lpSWJkNGxjVW9PZTBEY01qVWVkazdXL09KVnZSS2NVRkJpN3R6QlBwTWZjMHhwdXFySVhsUmNzZTZURFRMUkZkY2dsOU5LMnRhUTNsRlYzZzdwVVhENzVnTWtsWitwcjRFR0FDMm5vRWdQN2tNN3dBQUFBQkpSVTVFcmtKZ2dnPT0iIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgLTIpIiBoZWlnaHQ9IjI1IiB3aWR0aD0iMTgiIG92ZXJmbG93PSJ2aXNpYmxlIi8+PHBvbHlnb24gcG9pbnRzPSIxMC4xMzcgMTguNDczIDEyIDE3LjQ3IDEzLjYxNSAxNi42MyAxMS4wNDcgMTEuODE0IDE1LjM3OSAxMS44MTQgNCAwLjQwNjcgNCAxNi40MjIgNy4zMTU5IDEzLjIwMSIgZmlsbD0iI2ZmZiIvPjxyZWN0IHk9IjkuMDAwNiIgeD0iOC40MzEzIiBoZWlnaHQ9IjcuOTk4OSIgdHJhbnNmb3JtPSJtYXRyaXgoLjg4MjUgLS40NzA0IC40NzA0IC44ODI1IC01LjAwNjYgNS45NjQ2KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iNSAyLjgxNCA1IDE0LjAwMiA4LjI1NzggMTAuODU3IDEzLjAyNSAxMC44NTciLz48L3N2Zz4=">
+            <div class="memory"></div>
+          </script>
+        """
+        document.body.appendChild isTemplate
+
+        # console.log isTemplateElement
+
+
+        # shadowRoot.appendChild((document.importNode( isTemplateElement, true)))
+
+        # isTemplate = document.body.querySelector("template")
+        # console.log isTemplate
+
+        # console.log isTemplateElement
+
+        # 生成したエレメントをDOMツリーに追加
+        document.body.appendChild isEl
+
+        # # ============================================================
+        # # REGION
+        # extensionRegion = new Backbone.Marionette.Region(
+        #   el: shadowRoot.querySelector("#is-#{chrome.runtime.id}")
+        # )
+
+
+        # # ============================================================
+        # # MODEL
+        # # ============================================================
+        # # ============================================================
+        # # MODEL - LOVER
+        # LoverModel = Backbone.Model.extend(
+        #   # ------------------------------------------------------------
+        #   defaults: {}
+        # )
+
+
+
+
+
+        # # ============================================================
+        # # COLLECTION
+        # # ============================================================
+        # # ============================================================
+        # # COLLECTION - LOVERS
+        # LoversCollection = Backbone.Collection.extend(
+        #   model: LoverModel
+        # )
+
+        # loversCollection = new LoversCollection([{}, {}])
+
+
+
+        # # ============================================================
+        # # ITEM VIEW
+        # # ============================================================
+        # # ============================================================
+        # # ITEM VIEW - LOVER
+        # LoverItemView = Backbone.Marionette.CollectionView.extend(
+        #   # ------------------------------------------------------------
+        #   initialize: () ->
+        #     console.log "[ExtensionModule] LoverItemView -> initialize"
+
+        #   # ------------------------------------------------------------
+        #   tagName: "div"
+          
+        #   # ------------------------------------------------------------
+        #   className: "lover"
+
+        #   # ------------------------------------------------------------
+        #   template: isTemplateElement.querySelector("#lover-template")
+        #   # template: shadowRoot.querySelector("#lover-template")
+        # )
+
+
+
+
+
+        # # ============================================================
+        # # COLLECTION VIEW
+        # # ============================================================
+        # # ============================================================
+        # # COLLECTION VIEW - LOVERS
+        # LoversCollectionView = Backbone.Marionette.CollectionView.extend(
+        #   # ------------------------------------------------------------
+        #   initialize: () ->
+        #     console.log "[ExtensionModule] PeopleCollectionView -> initialize"
+
+        #   # ------------------------------------------------------------
+        #   tagName: "div"
+          
+        #   # ------------------------------------------------------------
+        #   className: "lovers"
+
+        #   # ------------------------------------------------------------
+        #   childView: LoverItemView
+
+        #   # ------------------------------------------------------------
+        #   # collection: loversCollection
+        # )
+
+
+
+
+
+        # # ============================================================
+        # # LAYOUT VIEW
+        # ExtensionLayoutView = Backbone.Marionette.LayoutView.extend(
+        #   # ------------------------------------------------------------
+        #   tagName: "div"
+          
+        #   # ------------------------------------------------------------
+        #   className: "is is__debug"
+
+        #   # ------------------------------------------------------------
+        #   initialize: () ->
+        #     console.log "[ExtensionModule] ExtensionLayoutView -> initialize"
+
+        #   # ------------------------------------------------------------
+        #   template: isTemplateElement.querySelector("#is-template")
+        #   # template: shadowRoot.querySelector("#is-template")
+
+        #   # ------------------------------------------------------------
+        #   # ui:
+        #   #   lovers: "#region__lovers"
+        #   #   memorys: "#region__memorys"
+
+        #   test: () ->
+        #     console.log "--------------------"
+        #     console.log @ui
+        #     console.log "--------------------"
+        #     # @ui.lovers.css "display": "none"
+        #     # console.log $(shadowRoot.getElementById("is-kcondcikicihkpnhhohgdngemopbdjmi")).find("#region__lovers")
+        #     # console.log $("body /deep/ #region__lovers")
+        #     # console.log $("body /deep/ #is-kcondcikicihkpnhhohgdngemopbdjmi") 取れる
+        #     # console.log $isEl.find("#is-#{chrome.runtime.id}")
+        #     # console.log shadowRoot.querySelector("##{chrome.runtime.id}::shadow #region__lovers")
+        #     # console.log shadowRoot.querySelector("#is-kcondcikicihkpnhhohgdngemopbdjmi")
+        #     # @ui.lovers.html("test")
+
+        #   # ------------------------------------------------------------
+        #   # regions: 
+        #   #   lovers: "#region__lovers"
+        #   #   memorys: "#region__memorys"
+        # )
+
+
+
+
+
+        ExtensionModule.addInitializer () ->
+          console.log "[ExtensionModule] addInitializer"
+
+          # layouts =
+          #   extension: new ExtensionLayoutView()
+
+          # layouts.extension.render()
+
+          # layouts.extension.test()
+
+          # shadowRoot.innerHTML = $(shadowRoot.querySelector("#is-#{chrome.runtime.id}")).text()
+
+          # test = $(shadowRoot.querySelector("#region__lovers"))
+
+          # console.log test.find("#test").size()
+
+          # console.log  layouts.extension.getRegion("lovers").$el.size()
+          # layouts.extension.getRegion("lovers").show(new LoversCollectionView(
+          #   collection: loversCollection
+          # ))
+
+          # extensionRegion.show(layouts.extension)
+
+
+      Extension.start()
+
+
+      # console.log ExtensionRegion
 
       # # ベースになるShadow DOMを作る
       # Is = Object.create(HTMLElement.prototype)
@@ -89,6 +307,8 @@ do (window=window, document=document, $=jQuery) ->
 
       # document.body.appendChild(isEl);
 
+
+      ###
       # ============================================================
       # CONTENT MODULE
       Extension.module 'ContentModule', (ContentModule, App, Backbone, Marionette, $, _) ->
@@ -251,6 +471,7 @@ do (window=window, document=document, $=jQuery) ->
 
 
       Extension.start()
+      ###
 
       $.when(
         for key, model of sn.bb.models
