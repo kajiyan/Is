@@ -230,7 +230,7 @@ module.exports = (sn, $, _) ->
 
       # checkIn イベントを発火する
       # [model] connect がlisten
-      @trigger "checkIn", data
+      @trigger "socketCheckIn", data
 
 
 

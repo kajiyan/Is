@@ -11,7 +11,8 @@ module.exports = (sn, $, _) ->
     #  * @prop {number} selsectedTabId - 選択されているタブのID
     #  */
     # ------------------------------------------------------------
-    defaults: {}
+    defaults: 
+      dataUrl: null
 
 
     # --------------------------------------------------------------
@@ -33,9 +34,10 @@ module.exports = (sn, $, _) ->
     initialize: () ->
       console.log "[Model] Connect -> initialize"
 
+      @listenTo @, "change:dataUrl", @_changeLandscapeHandler
+
       # @listenTo @, "change:contentScriptReceiver", @_changeContentScriptReceiverHandler
       # @listenTo @, "change:selsectedTabId", @_changeSelsectedTabIdHandler
-
 
     # ------------------------------------------------------------
     setup: () ->
@@ -62,6 +64,9 @@ module.exports = (sn, $, _) ->
       @listenTo sn.bb.models.stage, "change:isRun", @_changeIsRunHandler
       @listenTo sn.bb.models.stage, "change:selsectedTabId", @_changeSelsectedTabIdHandler
 
+      # @listenTo @, "change:dataUrl", () -> "change:dataUrl"
+
+
       # content script からの通知を受信する
       chrome.runtime.onMessage.addListener (request, sender, sendResponse) =>
         console.log "%cReceive Message", "color: #999999", request, sender, sendResponse
@@ -78,12 +83,64 @@ module.exports = (sn, $, _) ->
         # エクステンションが停止状態
 
         # content script からの通知か判別する
-        if request.from? and request.from is "contentScriptSetup"
-          sendResponse
+        if request.from? and request.from is "contentScript"
+
+          # setup イベント
+          if request.type? and request.type is "setup"
+            sendResponse
+              to: "contentScript"
+              from: "background"
+              body:
+                isRun: isRun
+            # return
+
+          if request.type? and request.type is "updateLandscape"
+            console.log "updateLandscape"
+            chrome.tabs.captureVisibleTab format: "jpeg",
+              (dataUrl) =>
+                @set "dataUrl", dataUrl
+                console.log @get "dataUrl"
+                # console.log sendResponse()
+                sendResponse
+                  to: "contentScript"
+                  from: "background"
+                # console.log dataUrl
+                # sendResponse
+                #   to: "contentScript"
+                #   from: "background"
+                #   body:
+                #     dataUrl: dataUrl
+                
+
+
+
+
+
+    _changeLandscapeHandler: (stageModel, landscape) ->
+      console.log "%c[Model] Connect -> _changeLandscapeHandler", "color: #999999", stageModel
+
+      # content script にデータを送信する
+      chrome.tabs.query
+        active: true
+        currentWindow: true
+        ,
+        (tabs) =>
+          console.log tabs[0].id
+
+          # エクステンションの起動状態をアクティブなTab のcontent script へ通知する
+          chrome.tabs.sendMessage tabs[0].id,
             to: "contentScript"
             from: "background"
-            body:
-              isRun: isRun
+            type: "changeLandscape"
+            body: 
+              dataUrl: @get "dataUrl"
+            ,
+            (response) ->
+              console.log response
+
+
+
+
 
 
     # --------------------------------------------------------------

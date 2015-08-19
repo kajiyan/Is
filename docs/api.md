@@ -518,7 +518,8 @@ Socket接続を終了する。それまで所属していたroom のcapacity を
 
 <a name="io-checkIn"></a>
 ### 【checkIn】
-同じRoom に所属するユーザーのSocket ID の配列を受信する
+同じRoom に所属するユーザーのSocket ID の配列を受信する  
+room へのjoin が完了したタイミングで発信される 
 
 #### Overview
 `API -> Client`  

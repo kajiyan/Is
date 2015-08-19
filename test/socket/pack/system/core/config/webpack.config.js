@@ -85,7 +85,8 @@ module.exports = function(key, value) {
       new webpack.ProvidePlugin({
         jQuery: "jquery",
         $: "jquery",
-        _: "underscore",
+        _: "lodash",
+        // _: "underscore",
         Backbone: "backbone"
       })
     ]

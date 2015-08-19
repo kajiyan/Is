@@ -70,6 +70,10 @@ Extension = (function() {
       _this._extensionSocketIo.on('connection', function(socket) {
         console.log('[Controller] Extension -> connection');
 
+        // console.log("----------");
+        // console.log(socket.id);
+        // console.log("----------");
+
         var joinRoomDocId = ''; // 所属するRoom Document のID
         var joinRoomId = ''; // 所属するRoom ID
 
@@ -164,6 +168,7 @@ Extension = (function() {
                   })
                 ]).then(
                   function(data) {
+                    console.log(data[0]);
                     // update に成功したAutomaticRoomへjoin する
                     if (data[0].ok) {
                       // disconnect の際に使うMongo ID
@@ -229,7 +234,7 @@ Extension = (function() {
 
         // --------------------------------------------------------------
         socket.on('pointerMove', function(pointerPosition) {
-          // console.log(pointerPosition);
+          console.log(pointerPosition);
           // ポインターの座標を送信者以外に送る
           // _this._extensionSocketIo
           socket
