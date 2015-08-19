@@ -25237,6 +25237,8 @@
 	                case "checkIn":
 	                  console.log("%c[Connect] ConnectModel | Receive Message | checkIn", debug.style, request, sender, sendResponse);
 	                  return _this.set("users", request.body.users);
+	                case "checkOut":
+	                  return console.log("%c[Connect] ConnectModel | Receive Message | checkOut", debug.style, request, sender, sendResponse);
 	              }
 	            }
 	          };

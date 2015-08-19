@@ -54,6 +54,8 @@ module.exports = (App, sn, $, _) ->
         App.vent.on "stageSelsectedTabId", @_changeSelsectedTabIdHandler.bind @
         # socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出される
         App.vent.on "socketCheckIn", @_sendCheckInHandler.bind @
+        # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
+        App.vent.on "socketCheckOut", @_sendCheckOutHandler.bind @
 
         # スクリーンショットが撮影された時に呼び出される
         @listenTo @, "change:landscape", @_changeLandscapeHandler
@@ -76,7 +78,7 @@ module.exports = (App, sn, $, _) ->
 
                   # CheckInしているユーザーを取得する
                   @_sendCheckInHandler App.reqres.request "socketGetUsers"
-                  
+
 
                 sendResponse
                   to: "contentScript"
@@ -149,12 +151,37 @@ module.exports = (App, sn, $, _) ->
           currentWindow: true
           ,
           (tabs) =>
-            chrome.tabs.sendMessage tabs[0].id,
-              to: "contentScript"
-              from: "background"
-              type: "checkIn"
-              body:
-                users: users
+            if tabs.length > 0
+              chrome.tabs.sendMessage tabs[0].id,
+                to: "contentScript"
+                from: "background"
+                type: "checkIn"
+                body:
+                  users: users
+
+      # ------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_receiveCheckOutHandler
+      #  * 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出されるイベントハンドラー
+      #  * アクティブなタブのcontent script に切断したユーザーのSocket IDを通知する
+      #  * @param {string} user - 同じRoom に所属していたユーザーのSocket ID
+      #  */
+      # ------------------------------------------------------------
+      _sendCheckOutHandler: (user) ->
+        console.log "%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, user
+
+        chrome.tabs.query
+          active: true
+          currentWindow: true
+          ,
+          (tabs) =>
+            if tabs.length > 0
+              chrome.tabs.sendMessage tabs[0].id,
+                to: "contentScript"
+                from: "background"
+                type: "checkOut"
+                body:
+                  user: user
 
       # --------------------------------------------------------------
       # /**

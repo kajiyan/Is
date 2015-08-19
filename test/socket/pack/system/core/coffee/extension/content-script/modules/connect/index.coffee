@@ -71,6 +71,9 @@ module.exports = (App, sn, $, _) ->
                 console.log "%c[Connect] ConnectModel | Receive Message | checkIn", debug.style, request, sender, sendResponse
                 @set "users", request.body.users
 
+              when "checkOut"
+                console.log "%c[Connect] ConnectModel | Receive Message | checkOut", debug.style, request, sender, sendResponse
+                # 未処理
 
         # background にデータを送信
         chrome.runtime.sendMessage

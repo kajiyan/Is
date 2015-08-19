@@ -24917,7 +24917,10 @@
 	        console.log("%c[Stage] StageModel -> initialize", debug.style);
 	        this.listenTo(this, "change:isRun", this._changeIsRunHandler);
 	        this.listenTo(this, "change:selsectedTabId", this._changeSectedTabIdHandler);
-	        return chrome.tabs.onActivated.addListener(this._onActivatedHandler.bind(this));
+	        chrome.tabs.onActivated.addListener(this._onActivatedHandler.bind(this));
+	        return chrome.windows.onFocusChanged.addListener(function(windowId) {
+	          return console.log(windowId);
+	        });
 	      },
 	      _changeIsRunHandler: function(stageModel, isRun) {
 	        console.log("%c[Stage] StageModel -> _changeIsRunHandler", debug.style, isRun);
@@ -24986,6 +24989,7 @@
 	        App.vent.on("stageChangeIsRun", this._changeIsRunHandler.bind(this));
 	        App.vent.on("stageSelsectedTabId", this._changeSelsectedTabIdHandler.bind(this));
 	        App.vent.on("socketCheckIn", this._sendCheckInHandler.bind(this));
+	        App.vent.on("socketCheckOut", this._sendCheckOutHandler.bind(this));
 	        this.listenTo(this, "change:landscape", this._changeLandscapeHandler);
 	        return chrome.runtime.onMessage.addListener((function(_this) {
 	          return function(request, sender, sendResponse) {
@@ -25056,14 +25060,36 @@
 	          currentWindow: true
 	        }, (function(_this) {
 	          return function(tabs) {
-	            return chrome.tabs.sendMessage(tabs[0].id, {
-	              to: "contentScript",
-	              from: "background",
-	              type: "checkIn",
-	              body: {
-	                users: users
-	              }
-	            });
+	            if (tabs.length > 0) {
+	              return chrome.tabs.sendMessage(tabs[0].id, {
+	                to: "contentScript",
+	                from: "background",
+	                type: "checkIn",
+	                body: {
+	                  users: users
+	                }
+	              });
+	            }
+	          };
+	        })(this));
+	      },
+	      _sendCheckOutHandler: function(user) {
+	        console.log("%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, user);
+	        return chrome.tabs.query({
+	          active: true,
+	          currentWindow: true
+	        }, (function(_this) {
+	          return function(tabs) {
+	            if (tabs.length > 0) {
+	              return chrome.tabs.sendMessage(tabs[0].id, {
+	                to: "contentScript",
+	                from: "background",
+	                type: "checkOut",
+	                body: {
+	                  user: user
+	                }
+	              });
+	            }
 	          };
 	        })(this));
 	      },

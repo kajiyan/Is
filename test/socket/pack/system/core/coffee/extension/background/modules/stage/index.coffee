@@ -61,6 +61,8 @@ module.exports = (App, sn, $, _) ->
         # アクティブなタブが変わった時に呼び出される
         chrome.tabs.onActivated.addListener @_onActivatedHandler.bind(@)
 
+        chrome.windows.onFocusChanged.addListener (windowId) -> console.log windowId
+
       # ------------------------------------------------------------
       # /**
       #  * StageModel#_changeIsRunHandler
