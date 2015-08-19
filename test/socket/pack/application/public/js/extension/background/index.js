@@ -24991,40 +24991,6 @@
 	            }
 	          };
 	        })(this));
-	
-	        /*
-	         * content script からの通知を受信する
-	        chrome.runtime.onMessage.addListener (request, sender, sendResponse) =>
-	           * console.log "%c[Connect] ConnectModel | Receive Message", debug.style, request, sender, sendResponse
-	        
-	           * content script からの通知か判別する
-	          if (request.from? and request.from is "contentScript") and request.type?
-	            switch request.type
-	              when "setup"
-	                console.log "%c[Connect] ConnectModel | Receive Message | setup", debug.style, request, sender, sendResponse
-	                
-	                 * エクステンションがすでに起動している場合の処理
-	                if @get "isRun"
-	                   * contentscript とLong-lived な接続をする
-	                  contentScriptPort = chrome.tabs.connect sender.tab.id, name: "background"
-	                  @_setContentScriptPort contentScriptPort
-	        
-	                   * CheckInしているユーザーを取得する
-	                  @_sendCheckInHandler App.reqres.request "socketGetUsers"
-	        
-	        
-	                sendResponse
-	                  to: "contentScript"
-	                  from: "background"
-	                  body:
-	                    isRun: @get "isRun"
-	        
-	              when "updateLandscape"
-	                console.log "%c[Connect] ConnectModel | Receive Message | updateLandscape", debug.style, request, sender, sendResponse
-	                chrome.tabs.captureVisibleTab format: "jpeg",
-	                  (dataUrl) =>
-	                    @set "landscape", dataUrl
-	         */
 	      },
 	      _changeIsRunHandler: function(port) {
 	        return (function(_this) {
@@ -25041,16 +25007,6 @@
 	            });
 	          };
 	        })(this);
-	      },
-	      _changeSelsectedTabIdHandler: function(tabId) {
-	        var contentScriptPort;
-	        console.log("%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, tabId);
-	        if (this.get("isRun")) {
-	          contentScriptPort = chrome.tabs.connect(tabId, {
-	            "name": "background"
-	          });
-	          return this._setContentScriptPort(contentScriptPort);
-	        }
 	      },
 	      _sendCheckInHandler: function(port) {
 	        return (function(_this) {
@@ -25084,20 +25040,6 @@
 	      },
 	      _changeLandscapeHandler: function(model, landscape) {
 	        return console.log("%c[Connect] ConnectModel -> _changeLandscapeHandler", debug.style);
-	      },
-	      _setContentScriptPort: function(port) {
-	        console.log("%c[Connect] ConnectModel -> _setContentScriptPort", debug.style);
-	        return port.onMessage.addListener((function(_this) {
-	          return function(message) {
-	            console.log("%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message);
-	            if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
-	              switch (message.type) {
-	                case "pointerMove":
-	                  return App.vent.trigger("connectPointerMove", message.body);
-	              }
-	            }
-	          };
-	        })(this));
 	      }
 	    });
 	    ConnectModule.addInitializer(function(options) {
@@ -25141,6 +25083,8 @@
 	      _connect: function() {
 	        console.log("%c[Socket] SocketModel -> _connect", debug.style);
 	        this.socket = io.connect(SETTING.PROTOCOL + ":" + SETTING.BASE_URL + "extension");
+	        console.log(this.socket.connected);
+	        console.log(this.socket.disconnected);
 	        this.socket.on("connect", this._connectHandler.bind(this));
 	        this.socket.on("error", this._socketErrorHandler.bind(this));
 	        this.socket.on("disconnect", this._disconnectHandler.bind(this));
@@ -25167,13 +25111,20 @@
 	      },
 	      _changeIsRunHandler: function(isRun) {
 	        console.log("%c[Socket] SocketModel -> _changeIsRunHandler", debug.style, isRun);
+	        if (isRun) {
+	          this.set("isRun", isRun);
+	          App.vent.off("stageChangeIsRun");
+	          this._connect();
+	          return App.vent.on("stageChangeIsRun", this._toggleIsRunHandler.bind(this));
+	        }
+	      },
+	      _toggleIsRunHandler: function(isRun) {
+	        console.log("%c[Socket] SocketModel -> _toggleIsRunHandler", debug.style, isRun);
 	        this.set("isRun", isRun);
-	        if (isRun && (!this.get("isConnected"))) {
-	          return this._connect();
-	        } else if ((!isRun) && this.get("isConnected")) {
-	          this.socket.disconnect();
-	          this.set("isConnected", false);
-	          return this.set("users", []);
+	        if (isRun && (!this.socket.connected)) {
+	          return this.socket.connect();
+	        } else if ((!isRun) && this.socket.connected) {
+	          return this.socket.disconnect();
 	        }
 	      },
 	      _socketErrorHandler: function(error) {

@@ -51,14 +51,11 @@ module.exports = (App, sn, $, _) ->
 
         # エクステンションの起動状態に変化があった時のイベントリスナー
         App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind @
+        # App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind @
         # ポインターの座標に変化があった時のイベントリスナー
         App.vent.on "connectPointerMove", @_pointerMoveHandler.bind @
         # WebSocket の接続状態が変わった時に実行される
         @listenTo @, "change:isConnected", @_changeIsConnectedHandler.bind(@)
-
-        # TEST 
-        # 本来はエクステンションの起動状態に依存する
-        # @_connect()
 
       # --------------------------------------------------------------
       # /**
@@ -70,6 +67,9 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] SocketModel -> _connect", debug.style
 
         @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
+
+        console.log @socket.connected
+        console.log @socket.disconnected
 
         @socket.on "connect", @_connectHandler.bind(@) # WebSocket が接続された時
         @socket.on "error", @_socketErrorHandler.bind(@)
@@ -127,25 +127,46 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       # /**
       #  * SocketModel#_changeIsRunHandler
-      #  * ポップアップの開閉状態が変更された時に実行される
-      #  * @param {boolean} isPopupOpen - エクステンションの起動状態
+      #  * エクステンションの起動された時に実行され、破棄される
+      #  * @param {boolean} isRun - エクステンションの起動状態
       #  */
       # ------------------------------------------------------------
       _changeIsRunHandler: (isRun) ->
         console.log "%c[Socket] SocketModel -> _changeIsRunHandler", debug.style, isRun
 
+        if isRun
+          @set "isRun", isRun
+          # エクステンションが起動状態であれば
+          # このイベントリスナーを破棄し、Socket サーバーに接続する
+          App.vent.off "stageChangeIsRun"
+          @_connect()
+
+          # socket の再接続と切断をするイベントリスナーを定義
+          App.vent.on "stageChangeIsRun", @_toggleIsRunHandler.bind @
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_changeIsRunHandler
+      #  * エクステンションの状態が変更された時に実行される
+      #  * @param {boolean} isRun - エクステンションの起動状態
+      #  */
+      # ------------------------------------------------------------
+      _toggleIsRunHandler: (isRun) ->
+        console.log "%c[Socket] SocketModel -> _toggleIsRunHandler", debug.style, isRun
         @set "isRun", isRun
 
-        if (isRun and (not @get "isConnected"))
+        if (isRun and (not @socket.connected))
           # エクステンションが起動され、かつWebSocket サーバーに接続されていない時
-          @_connect()
-        else if ((not isRun) and @get "isConnected")
-          # エクステンションが終了された時にWebSocket サーバーに接続されている時
+          # @_connect()
+          @socket.connect()
+        else if ((not isRun) and @socket.connected)
+          # エクステンションが終了された時にWebSocket サーバーに接続されている時 
           @socket.disconnect()
-          # 接続状態を変更
-          @set "isConnected", false
-          # 接続ユーザーを空にする
-          @set "users", []
+
+        #   # # 接続状態を変更
+        #   # @set "isConnected", false
+        #   # # 接続ユーザーを空にする
+        #   # @set "users", []
 
       # ------------------------------------------------------------
       # /**
@@ -267,7 +288,7 @@ module.exports = (App, sn, $, _) ->
         if isConnected
           # 接続がされている時
           @_join()
-        # else
+        
 
 
 
