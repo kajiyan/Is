@@ -4,6 +4,10 @@
 # EVENT
 #   - connectPointerMove
 #
+# SEND TYPE
+#   - changeIsRun ConnectModel#_changeIsRunHandler
+#   - checkIn     ConnectModel#_changeIsRunHandler
+#
 # ============================================================
 module.exports = (App, sn, $, _) ->
   debug = 
@@ -48,18 +52,15 @@ module.exports = (App, sn, $, _) ->
         App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind @
         # タブが変更された時のイベントリスナー
         App.vent.on "stageSelsectedTabId", @_changeSelsectedTabIdHandler.bind @
+        # socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出される
+        App.vent.on "socketCheckIn", @_sendCheckInHandler.bind @
+
         # スクリーンショットが撮影された時に呼び出される
         @listenTo @, "change:landscape", @_changeLandscapeHandler
 
         # content script からの通知を受信する
         chrome.runtime.onMessage.addListener (request, sender, sendResponse) =>
           # console.log "%c[Connect] ConnectModel | Receive Message", debug.style, request, sender, sendResponse
-
-          # # エクステンションがすでに起動している場合の処理
-          # if @get "isRun"
-          #   contentScriptPort = chrome.tabs.connect sender.tab.id, name: "background"
-          #   @_setContentScriptPort contentScriptPort
-
 
           # content script からの通知か判別する
           if (request.from? and request.from is "contentScript") and request.type?
@@ -69,9 +70,14 @@ module.exports = (App, sn, $, _) ->
                 
                 # エクステンションがすでに起動している場合の処理
                 if @get "isRun"
+                  # contentscript とLong-lived な接続をする
                   contentScriptPort = chrome.tabs.connect sender.tab.id, name: "background"
                   @_setContentScriptPort contentScriptPort
-                
+
+                  # CheckInしているユーザーを取得する
+                  @_sendCheckInHandler App.reqres.request "socketGetUsers"
+                  
+
                 sendResponse
                   to: "contentScript"
                   from: "background"
@@ -126,6 +132,29 @@ module.exports = (App, sn, $, _) ->
           contentScriptPort = chrome.tabs.connect tabId, "name": "background"
           @_setContentScriptPort contentScriptPort
 
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_sendCheckInHandler
+      #  * socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出されるイベントハンドラーかつ
+      #  * Receive Message | setup が発生した時にエクステンションが起動している時にも呼び出される
+      #  * アクティブなタブのcontent script にユーザーの一覧を通知する
+      #  * @param {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
+      #  */
+      # -------------------------------------------------------------
+      _sendCheckInHandler: (users) ->
+        console.log "%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users
+
+        chrome.tabs.query
+          active: true
+          currentWindow: true
+          ,
+          (tabs) =>
+            chrome.tabs.sendMessage tabs[0].id,
+              to: "contentScript"
+              from: "background"
+              type: "checkIn"
+              body:
+                users: users
 
       # --------------------------------------------------------------
       # /**

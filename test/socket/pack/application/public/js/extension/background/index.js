@@ -24985,6 +24985,7 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        App.vent.on("stageChangeIsRun", this._changeIsRunHandler.bind(this));
 	        App.vent.on("stageSelsectedTabId", this._changeSelsectedTabIdHandler.bind(this));
+	        App.vent.on("socketCheckIn", this._sendCheckInHandler.bind(this));
 	        this.listenTo(this, "change:landscape", this._changeLandscapeHandler);
 	        return chrome.runtime.onMessage.addListener((function(_this) {
 	          return function(request, sender, sendResponse) {
@@ -24998,6 +24999,7 @@
 	                      name: "background"
 	                    });
 	                    _this._setContentScriptPort(contentScriptPort);
+	                    _this._sendCheckInHandler(App.reqres.request("socketGetUsers"));
 	                  }
 	                  return sendResponse({
 	                    to: "contentScript",
@@ -25047,6 +25049,24 @@
 	          return this._setContentScriptPort(contentScriptPort);
 	        }
 	      },
+	      _sendCheckInHandler: function(users) {
+	        console.log("%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users);
+	        return chrome.tabs.query({
+	          active: true,
+	          currentWindow: true
+	        }, (function(_this) {
+	          return function(tabs) {
+	            return chrome.tabs.sendMessage(tabs[0].id, {
+	              to: "contentScript",
+	              from: "background",
+	              type: "checkIn",
+	              body: {
+	                users: users
+	              }
+	            });
+	          };
+	        })(this));
+	      },
 	      _changeLandscapeHandler: function(model, landscape) {
 	        return console.log("%c[Connect] ConnectModel -> _changeLandscapeHandler", debug.style);
 	      },
@@ -25094,7 +25114,8 @@
 	    SocketModel = Backbone.Model.extend({
 	      defaults: {
 	        isRun: false,
-	        isConnected: false
+	        isConnected: false,
+	        users: []
 	      },
 	      initialize: function() {
 	        console.log("%c[Socket] SocketModel -> initialize", debug.style);
@@ -25142,7 +25163,8 @@
 	      },
 	      _disconnectHandler: function() {
 	        console.log("%c[Socket] SocketModel -> _disconnectHandler", debug.style, error);
-	        return this.set("isConnected", false);
+	        this.set("isConnected", false);
+	        return this.set("users", []);
 	      },
 	      _reconnectHandler: function(reconnection) {
 	        return console.log("%c[Socket] SocketModel -> _reconnectHandler", debug.style, reconnection);
@@ -25162,7 +25184,8 @@
 	      _receiveCheckInHandler: function(data) {
 	        console.log("%c[Socket] Socket -> _receiveCheckInHandler", debug.style, data);
 	        data.users = _.without(data.users, this.socket.id);
-	        return App.vent.trigger("socketCheckIn", data);
+	        this.set("users", data.users);
+	        return App.vent.trigger("socketCheckIn", data.users);
 	      },
 	      _receiveUpdatePointerHandler: function(data) {
 	        return console.log("%c[Socket] Socket -> _receiveUpdatePointerHandler", debug.style, data);
@@ -25176,9 +25199,15 @@
 	    });
 	    SocketModule.addInitializer(function(options) {
 	      console.log("%c[Socket] addInitializer", debug.style, options);
-	      return this.models = {
+	      this.models = {
 	        socket: new SocketModel()
 	      };
+	      return App.reqres.setHandler("socketGetUsers", (function(_this) {
+	        return function() {
+	          console.log("%c[Socket] Request Response | socketGetUsers", debug.style);
+	          return _this.models.socket.get("users");
+	        };
+	      })(this));
 	    });
 	    return SocketModule.addFinalizer(function(options) {
 	      return console.log("%c[Socket] addFinalizer", debug.style, options);

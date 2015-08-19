@@ -54,7 +54,8 @@ module.exports = (App, sn, $, _) ->
 
         # ブラウザアクションが発生した時に呼び出される
         @listenTo @, "change:isRun", @_changeIsRunHandler
-
+        # ブラウザアクションが発生した時に呼び出される
+        # 初回は起動時のtab idが設定される
         @listenTo @, "change:selsectedTabId", @_changeSectedTabIdHandler
 
         # アクティブなタブが変わった時に呼び出される

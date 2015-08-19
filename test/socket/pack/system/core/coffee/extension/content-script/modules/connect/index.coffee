@@ -1,5 +1,10 @@
 # ============================================================
 # Connect
+# 
+# EVENT
+#   - connectChangeUsers
+#
+# ============================================================
 module.exports = (App, sn, $, _) ->
   debug = 
     style: "background-color: #000000; color: #ffffff;"
@@ -23,10 +28,12 @@ module.exports = (App, sn, $, _) ->
       #  * オブジェクトのキーと同じものを指定すると、その値で上書きされる。 
       #  * @type {Object}
       #  * @prop {boolean} isRun - エクステンションの起動状態
+      #  * @param {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
       #  */
       # ------------------------------------------------------------
       defaults: 
         isRun: false
+        users: []
 
       # --------------------------------------------------------------
       # /**
@@ -38,6 +45,7 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Connect] ConnectModel -> initialize", debug.style
 
         @listenTo @, "change:isRun", @_changeIsRunHandler
+        @listenTo @, "change:users", @_changeUsersRunHandler
 
 
         chrome.runtime.onConnect.addListener (port) =>
@@ -50,14 +58,18 @@ module.exports = (App, sn, $, _) ->
 
         # データの受信
         chrome.extension.onMessage.addListener (request, sender, sendResponse) =>
-          console.log "%c[Connect] ConnectModel | Receive Message", debug.style, request, sender, sendResponse
+          # console.log "%c[Connect] ConnectModel | Receive Message", debug.style, request, sender, sendResponse
 
           # background からの通知か判別する
-          if request.from? and request.from is "background"
-            # エクステンションの起動状態の変化メッセージ
-            if request.type? and request.type is "changeIsRun"
-              console.log  "coll!"
-              @set "isRun", request.body.isRun
+          if (request.from? and request.from is "background") and request.type?
+            switch request.type
+              when "changeIsRun"
+                console.log "%c[Connect] ConnectModel | Receive Message | changeIsRun", debug.style, request, sender, sendResponse
+                @set "isRun", request.body.isRun
+
+              when "checkIn"
+                console.log "%c[Connect] ConnectModel | Receive Message | checkIn", debug.style, request, sender, sendResponse
+                @set "users", request.body.users
 
 
         # background にデータを送信
@@ -87,6 +99,19 @@ module.exports = (App, sn, $, _) ->
         if not isRun
           App.vent.off "stagePointerMove"
           # @stopListening sn.bb.models.stage, "change:pointerPosition"
+
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_changeIsRunHandler
+      #  * connectChangeUsers イベントを発火させる
+      #  * @prop {Object} model - BackBone Model Object
+      #  * @param {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
+      #  */
+      # --------------------------------------------------------------
+      _changeUsersRunHandler: (model, users) ->
+        console.log "%c[Connect] ConnectModel | _changeUsersRunHandler", debug.style, users
+
+        App.vent.trigger "connectChangeUsers", users
 
       # --------------------------------------------------------------
       # /**
@@ -121,8 +146,6 @@ module.exports = (App, sn, $, _) ->
           from: "contentScript"
 
         App.vent.on "stagePointerMove", @_pointerMoveHandler(port)
-        # @listenTo sn.bb.models.stage, "change:pointerPosition", @_changePointerPositionHandler(port)
-    
 
       # --------------------------------------------------------------
       # /**

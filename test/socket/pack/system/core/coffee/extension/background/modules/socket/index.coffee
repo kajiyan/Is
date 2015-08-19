@@ -1,5 +1,10 @@
 # ============================================================
 # Socket
+# 
+# EVENT
+#   - socketCheckIn
+#
+# ============================================================
 module.exports = (App, sn, $, _) ->
   debug = 
     style: "background-color: DarkTurquoise; color: #ffffff;"
@@ -26,11 +31,13 @@ module.exports = (App, sn, $, _) ->
       #  * @type {Object}
       #  * @prop {boolean} isRun - エクステンションの起動状態
       #  * @prop {boolean} isConnected - webSocketの接続状態
+      #  * @prop {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
       #  */
       # ------------------------------------------------------------
       defaults:
         isRun: false
         isConnected: false
+        users: []
 
       # --------------------------------------------------------------
       # /**
@@ -154,6 +161,8 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] SocketModel -> _disconnectHandler", debug.style, error
         # 接続状態を変更
         @set "isConnected", false
+        # 接続ユーザーを空にする
+        @set "users", []
 
       # ------------------------------------------------------------
       # /**
@@ -204,18 +213,17 @@ module.exports = (App, sn, $, _) ->
       # /**
       #  * SocketModel#_receiveCheckInHandler
       #  * @param {Object} data
-      #  * @param {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
+      #  * @param {[string]} data.users - 同じRoom に所属するユーザーのSocket ID の配列
       #  */
       # ------------------------------------------------------------
       _receiveCheckInHandler: (data) ->
         console.log "%c[Socket] Socket -> _receiveCheckInHandler", debug.style, data
-
         # 自身のsocket.id を除外する
         data.users = _.without(data.users, @socket.id)
-
-        # checkIn イベントを発火する
-        # [model] connect がlisten
-        App.vent.trigger "socketCheckIn", data
+        
+        @set "users", data.users 
+        # socketCheckIn イベントを発火する | connect がlisten
+        App.vent.trigger "socketCheckIn", data.users
 
       # ------------------------------------------------------------
       # /**
@@ -254,6 +262,12 @@ module.exports = (App, sn, $, _) ->
 
       # ============================================================
       # COMMANDS
+
+      # ============================================================
+      # REQUEST RESPONSE
+      App.reqres.setHandler "socketGetUsers", () =>
+        console.log "%c[Socket] Request Response | socketGetUsers", debug.style
+        return @models.socket.get "users"
 
 
     # ============================================================
