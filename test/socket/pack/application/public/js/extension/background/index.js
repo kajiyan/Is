@@ -25135,6 +25135,7 @@
 	        this.socket.on("reconnect_error", this._reconnectErrorHandler.bind(this));
 	        this.socket.on("reconnect_failed", this._reconnectFailedHandler.bind(this));
 	        this.socket.on("checkIn", this._receiveCheckInHandler.bind(this));
+	        this.socket.on("checkOut", this._receiveCheckOutHandler.bind(this));
 	        return this.socket.on("updatePointer", this._receiveUpdatePointerHandler.bind(this));
 	      },
 	      _join: function() {
@@ -25182,10 +25183,14 @@
 	        return console.log("%c[Socket] SocketModel -> _reconnectErrorHandler", debug.style);
 	      },
 	      _receiveCheckInHandler: function(data) {
-	        console.log("%c[Socket] Socket -> _receiveCheckInHandler", debug.style, data);
+	        console.log("%c[Socket] SocketModel -> _receiveCheckInHandler", debug.style, data);
 	        data.users = _.without(data.users, this.socket.id);
 	        this.set("users", data.users);
 	        return App.vent.trigger("socketCheckIn", data.users);
+	      },
+	      _receiveCheckOutHandler: function(user) {
+	        console.log("%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, user);
+	        return App.vent.trigger("socketCheckOut", user);
 	      },
 	      _receiveUpdatePointerHandler: function(data) {
 	        return console.log("%c[Socket] Socket -> _receiveUpdatePointerHandler", debug.style, data);

@@ -82,6 +82,11 @@ Extension = (function() {
         socket.on('disconnect', function() {
           console.log('[Controller] Extension -> disconnect', joinRoomDocId);
 
+          // 同じRoom に所属するユーザーにSocket ID を送信する
+          _this._extensionSocketIo
+            .to(joinRoomId)
+            .emit('checkOut', socket.id);
+
           // disconnect が発生したらそれまでユーザーが所属していたRoom の
           // capacity をインクリメントする
           _this._dayModel.updateAutomaticRoom({
@@ -234,7 +239,7 @@ Extension = (function() {
 
         // --------------------------------------------------------------
         socket.on('pointerMove', function(pointerPosition) {
-          console.log(pointerPosition);
+          // console.log(pointerPosition);
           // ポインターの座標を送信者以外に送る
           // _this._extensionSocketIo
           socket

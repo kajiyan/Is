@@ -3,6 +3,7 @@
 # 
 # EVENT
 #   - socketCheckIn
+#   - socketCheckOut
 #
 # ============================================================
 module.exports = (App, sn, $, _) ->
@@ -81,6 +82,8 @@ module.exports = (App, sn, $, _) ->
 
         # 同じRoom に所属するユーザーのSocket ID の配列を受信する
         @socket.on "checkIn", @_receiveCheckInHandler.bind(@)
+        # 同じRoom に所属していたユーザーのSocket ID を受信する
+        @socket.on "checkOut", @_receiveCheckOutHandler.bind(@)
 
         # 同じRoom に所属するユーザーのポインター座標を受信する
         @socket.on "updatePointer", @_receiveUpdatePointerHandler.bind(@)
@@ -217,13 +220,25 @@ module.exports = (App, sn, $, _) ->
       #  */
       # ------------------------------------------------------------
       _receiveCheckInHandler: (data) ->
-        console.log "%c[Socket] Socket -> _receiveCheckInHandler", debug.style, data
+        console.log "%c[Socket] SocketModel -> _receiveCheckInHandler", debug.style, data
         # 自身のsocket.id を除外する
         data.users = _.without(data.users, @socket.id)
         
         @set "users", data.users 
         # socketCheckIn イベントを発火する | connect がlisten
         App.vent.trigger "socketCheckIn", data.users
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_receiveCheckOutHandler
+      #  * @param {string} user - 同じRoom に所属していたユーザーのSocket ID
+      #  */
+      # ------------------------------------------------------------
+      _receiveCheckOutHandler: (user) ->
+        console.log "%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, user
+
+        # socketCheckOut イベントを発火する | connect がlisten
+        App.vent.trigger "socketCheckOut", user
 
       # ------------------------------------------------------------
       # /**
