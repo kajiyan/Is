@@ -47,11 +47,41 @@ module.exports = (App, sn, $, _) ->
         @listenTo @, "change:isRun", @_changeIsRunHandler
         @listenTo @, "change:users", @_changeUsersRunHandler
 
+        # TEST
+        # background へのLong-lived 接続
+        @port = chrome.extension.connect name: "contentScript"
+        
+        @port.postMessage
+          to: "background"
+          from: "contentScript"
+          type: "setup"
 
+        @port.onMessage.addListener (message) =>
+          # console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
+          # background からの通知か判別する
+          if (message.from? and message.from is "background") and message.type?
+            switch message.type
+              when "setup"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message.body
+                @set "isRun", message.body.isRun
+
+              when "changeIsRun"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | changeIsRun", debug.style, message.body
+                @set "isRun", message.body.isRun
+
+              when "checkIn"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | checkIn", debug.style, message.body
+                @set "users", message.body.users
+
+              when "checkOut"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body
+
+        # End TEST
+
+        ###
         chrome.runtime.onConnect.addListener (port) =>
           console.log "%c[Connect] ConnectModel | onConnect", debug.style
-
-          # background からの接続
+          # background からのLong-lived 接続
           if port.name is "background"
             @_setBackgroundPort port
 
@@ -75,6 +105,7 @@ module.exports = (App, sn, $, _) ->
                 console.log "%c[Connect] ConnectModel | Receive Message | checkOut", debug.style, request, sender, sendResponse
                 # 未処理
 
+
         # background にデータを送信
         chrome.runtime.sendMessage
           to: "background"
@@ -85,8 +116,9 @@ module.exports = (App, sn, $, _) ->
             # エクステンションの起動状態が返ってくる
             console.log "%c[Connect] ConnectModel | setup | Response Message", debug.style, response
             @set "isRun", response.body.isRun
+        ###
 
-        @_updateLandscape()
+        # @_updateLandscape()
 
       # --------------------------------------------------------------
       # /**
@@ -125,13 +157,13 @@ module.exports = (App, sn, $, _) ->
       _updateLandscape: () ->
         console.log "%c[Connect] ConnectModel | _updateLandscape", debug.style
 
-        chrome.runtime.sendMessage
-          to: "background"
-          from: "contentScript"
-          type: "updateLandscape"
-          ,
-          (response) =>
-            console.log "%c[Connect] ConnectModel | updateLandscape | Response Message", debug.style, response
+        # chrome.runtime.sendMessage
+        #   to: "background"
+        #   from: "contentScript"
+        #   type: "updateLandscape"
+        #   ,
+        #   (response) =>
+        #     console.log "%c[Connect] ConnectModel | updateLandscape | Response Message", debug.style, response
 
       # --------------------------------------------------------------
       # /**
@@ -143,6 +175,10 @@ module.exports = (App, sn, $, _) ->
       # --------------------------------------------------------------
       _setBackgroundPort: (port) ->
         console.log "%c[Connect] ConnectModel | _setBackgroundPort", debug.style, port
+
+        # メッセージを受信した時の処理
+        port.onMessage.addListener (message) =>
+          console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
 
         port.postMessage
           to: "background"

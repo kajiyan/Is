@@ -80,11 +80,10 @@ module.exports = (App, sn, $, _) ->
         @socket.on "reconnect_error", @_reconnectErrorHandler.bind(@)
         @socket.on "reconnect_failed", @_reconnectFailedHandler.bind(@)
 
-        # 同じRoom に所属するユーザーのSocket ID の配列を受信する
+        # # 同じRoom に所属するユーザーのSocket ID の配列を受信する
         @socket.on "checkIn", @_receiveCheckInHandler.bind(@)
         # 同じRoom に所属していたユーザーのSocket ID を受信する
         @socket.on "checkOut", @_receiveCheckOutHandler.bind(@)
-
         # 同じRoom に所属するユーザーのポインター座標を受信する
         @socket.on "updatePointer", @_receiveUpdatePointerHandler.bind(@)
 
@@ -143,6 +142,10 @@ module.exports = (App, sn, $, _) ->
         else if ((not isRun) and @get "isConnected")
           # エクステンションが終了された時にWebSocket サーバーに接続されている時
           @socket.disconnect()
+          # 接続状態を変更
+          @set "isConnected", false
+          # 接続ユーザーを空にする
+          @set "users", []
 
       # ------------------------------------------------------------
       # /**
@@ -161,7 +164,7 @@ module.exports = (App, sn, $, _) ->
       #  */
       # ------------------------------------------------------------
       _disconnectHandler: () ->
-        console.log "%c[Socket] SocketModel -> _disconnectHandler", debug.style, error
+        console.log "%c[Socket] SocketModel -> _disconnectHandler", debug.style
         # 接続状態を変更
         @set "isConnected", false
         # 接続ユーザーを空にする
@@ -201,7 +204,7 @@ module.exports = (App, sn, $, _) ->
       #  * 再接続にエラーが発生した時に実行される
       #  */
       # ------------------------------------------------------------
-      _reconnectErrorHandler: ( error ) ->
+      _reconnectErrorHandler: (error) ->
         console.log "%c[Socket] SocketModel -> _reconnectErrorHandler", debug.style, error
 
       # ------------------------------------------------------------
@@ -210,7 +213,7 @@ module.exports = (App, sn, $, _) ->
       #  */
       # ------------------------------------------------------------
       _reconnectFailedHandler: () ->
-        console.log "%c[Socket] SocketModel -> _reconnectErrorHandler", debug.style
+        console.log "%c[Socket] SocketModel -> _reconnectFailedHandler", debug.style
 
       # ------------------------------------------------------------
       # /**

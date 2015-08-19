@@ -28,20 +28,20 @@ do (window=window, document=document, $=jQuery) ->
 
   # ============================================================
   # BackBone
-  sn.bb =
-    models: null
-    collections: null
-    views: null
+  # sn.bb =
+  #   models: null
+  #   collections: null
+  #   views: null
 
 
   # ============================================================
   # BackBone MODEL
-  sn.bb.models =
-    stage: do ->
-      Stage = require("./models/stage")(sn, $, _)
-      stage = new Stage
-        "debug": true
-      return stage
+  # sn.bb.models =
+  #   stage: do ->
+  #     Stage = require("./models/stage")(sn, $, _)
+  #     stage = new Stage
+  #       "debug": true
+  #     return stage
     # connect: do ->
     #   Connect = require("./models/connect")(sn, $, _)
     #   return new Connect()
@@ -61,26 +61,26 @@ do (window=window, document=document, $=jQuery) ->
   window.appRun = () ->
     console.log "%cAPP RUN", "color: #999999"
     Background.execute "stageAppRun"
-    sn.bb.models.stage.set "isRun", true
+    # sn.bb.models.stage.set "isRun", true
 
 
   window.appStop = () ->
     console.log "%cAPP STOP", "color: #999999"
     Background.execute "stopAppRun"
-    sn.bb.models.stage.set "isRun", false
+    # sn.bb.models.stage.set "isRun", false
 
 
   $ ->
     # --------------------------------------------------------------
     sn.tf.setup ->
-      $.when(
-        for key, model of sn.bb.models
-          model.setup?()
-      ).then( =>
-        $.when(
-          console.log "Background Setup Complete"
-        )
-      )
+      # $.when(
+      #   for key, model of sn.bb.models
+      #     model.setup?()
+      # ).then( =>
+      #   $.when(
+      #     console.log "Background Setup Complete"
+      #   )
+      # )
 
 
 

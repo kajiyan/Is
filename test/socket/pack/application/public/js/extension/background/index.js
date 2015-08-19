@@ -57,48 +57,16 @@
 	    connect: __webpack_require__(8)(Background, sn, $, _),
 	    socket: __webpack_require__(9)(Background, sn, $, _)
 	  };
-	  sn.bb = {
-	    models: null,
-	    collections: null,
-	    views: null
-	  };
-	  sn.bb.models = {
-	    stage: (function() {
-	      var Stage, stage;
-	      Stage = __webpack_require__(10)(sn, $, _);
-	      stage = new Stage({
-	        "debug": true
-	      });
-	      return stage;
-	    })()
-	  };
 	  window.appRun = function() {
 	    console.log("%cAPP RUN", "color: #999999");
-	    Background.execute("stageAppRun");
-	    return sn.bb.models.stage.set("isRun", true);
+	    return Background.execute("stageAppRun");
 	  };
 	  window.appStop = function() {
 	    console.log("%cAPP STOP", "color: #999999");
-	    Background.execute("stopAppRun");
-	    return sn.bb.models.stage.set("isRun", false);
+	    return Background.execute("stopAppRun");
 	  };
 	  return $(function() {
 	    sn.tf.setup(function() {
-	      var key, model;
-	      $.when((function() {
-	        var ref, results;
-	        ref = sn.bb.models;
-	        results = [];
-	        for (key in ref) {
-	          model = ref[key];
-	          results.push(typeof model.setup === "function" ? model.setup() : void 0);
-	        }
-	        return results;
-	      })()).then((function(_this) {
-	        return function() {
-	          return $.when(console.log("Background Setup Complete"));
-	        };
-	      })(this));
 	      Background.addInitializer(function() {
 	        return console.log("[Background] addInitializer");
 	      });
@@ -24917,10 +24885,7 @@
 	        console.log("%c[Stage] StageModel -> initialize", debug.style);
 	        this.listenTo(this, "change:isRun", this._changeIsRunHandler);
 	        this.listenTo(this, "change:selsectedTabId", this._changeSectedTabIdHandler);
-	        chrome.tabs.onActivated.addListener(this._onActivatedHandler.bind(this));
-	        return chrome.windows.onFocusChanged.addListener(function(windowId) {
-	          return console.log(windowId);
-	        });
+	        return chrome.tabs.onActivated.addListener(this._onActivatedHandler.bind(this));
 	      },
 	      _changeIsRunHandler: function(stageModel, isRun) {
 	        console.log("%c[Stage] StageModel -> _changeIsRunHandler", debug.style, isRun);
@@ -24986,53 +24951,87 @@
 	      },
 	      initialize: function() {
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
-	        App.vent.on("stageChangeIsRun", this._changeIsRunHandler.bind(this));
-	        App.vent.on("stageSelsectedTabId", this._changeSelsectedTabIdHandler.bind(this));
-	        App.vent.on("socketCheckIn", this._sendCheckInHandler.bind(this));
-	        App.vent.on("socketCheckOut", this._sendCheckOutHandler.bind(this));
 	        this.listenTo(this, "change:landscape", this._changeLandscapeHandler);
-	        return chrome.runtime.onMessage.addListener((function(_this) {
-	          return function(request, sender, sendResponse) {
-	            var contentScriptPort;
-	            if (((request.from != null) && request.from === "contentScript") && (request.type != null)) {
-	              switch (request.type) {
-	                case "setup":
-	                  console.log("%c[Connect] ConnectModel | Receive Message | setup", debug.style, request, sender, sendResponse);
-	                  if (_this.get("isRun")) {
-	                    contentScriptPort = chrome.tabs.connect(sender.tab.id, {
-	                      name: "background"
-	                    });
-	                    _this._setContentScriptPort(contentScriptPort);
-	                    _this._sendCheckInHandler(App.reqres.request("socketGetUsers"));
+	        return chrome.extension.onConnect.addListener((function(_this) {
+	          return function(port) {
+	            if (port.name === "contentScript") {
+	              console.log("%c[Connect] ConnectModel | onConnect", debug.style);
+	              App.vent.off("stageChangeIsRun", _this._changeIsRunHandler.bind(_this)(port));
+	              App.vent.on("stageChangeIsRun", _this._changeIsRunHandler.bind(_this)(port));
+	              App.vent.off("socketCheckIn", _this._sendCheckInHandler.bind(_this)(port));
+	              App.vent.on("socketCheckIn", _this._sendCheckInHandler.bind(_this)(port));
+	              App.vent.off("socketCheckOut", _this._sendCheckOutHandler.bind(_this)(port));
+	              App.vent.on("socketCheckOut", _this._sendCheckOutHandler.bind(_this)(port));
+	              return port.onMessage.addListener(function(message) {
+	                var _sendCheckInHandler;
+	                console.log("%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message);
+	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
+	                  switch (message.type) {
+	                    case "setup":
+	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message);
+	                      if (_this.get("isRun")) {
+	                        _sendCheckInHandler = _this._sendCheckInHandler.bind(_this)(port);
+	                        _sendCheckInHandler(App.reqres.request("socketGetUsers"));
+	                      }
+	                      return port.postMessage({
+	                        to: "contentScript",
+	                        from: "background",
+	                        type: "setup",
+	                        body: {
+	                          isRun: _this.get("isRun")
+	                        }
+	                      });
+	                    case "pointerMove":
+	                      return App.vent.trigger("connectPointerMove", message.body);
+	                    case "updateLandscape":
+	                      return console.log("%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message);
 	                  }
-	                  return sendResponse({
-	                    to: "contentScript",
-	                    from: "background",
-	                    body: {
-	                      isRun: _this.get("isRun")
-	                    }
-	                  });
-	                case "updateLandscape":
-	                  console.log("%c[Connect] ConnectModel | Receive Message | updateLandscape", debug.style, request, sender, sendResponse);
-	                  return chrome.tabs.captureVisibleTab({
-	                    format: "jpeg"
-	                  }, function(dataUrl) {
-	                    return _this.set("landscape", dataUrl);
-	                  });
-	              }
+	                }
+	              });
 	            }
 	          };
 	        })(this));
+	
+	        /*
+	         * content script からの通知を受信する
+	        chrome.runtime.onMessage.addListener (request, sender, sendResponse) =>
+	           * console.log "%c[Connect] ConnectModel | Receive Message", debug.style, request, sender, sendResponse
+	        
+	           * content script からの通知か判別する
+	          if (request.from? and request.from is "contentScript") and request.type?
+	            switch request.type
+	              when "setup"
+	                console.log "%c[Connect] ConnectModel | Receive Message | setup", debug.style, request, sender, sendResponse
+	                
+	                 * エクステンションがすでに起動している場合の処理
+	                if @get "isRun"
+	                   * contentscript とLong-lived な接続をする
+	                  contentScriptPort = chrome.tabs.connect sender.tab.id, name: "background"
+	                  @_setContentScriptPort contentScriptPort
+	        
+	                   * CheckInしているユーザーを取得する
+	                  @_sendCheckInHandler App.reqres.request "socketGetUsers"
+	        
+	        
+	                sendResponse
+	                  to: "contentScript"
+	                  from: "background"
+	                  body:
+	                    isRun: @get "isRun"
+	        
+	              when "updateLandscape"
+	                console.log "%c[Connect] ConnectModel | Receive Message | updateLandscape", debug.style, request, sender, sendResponse
+	                chrome.tabs.captureVisibleTab format: "jpeg",
+	                  (dataUrl) =>
+	                    @set "landscape", dataUrl
+	         */
 	      },
-	      _changeIsRunHandler: function(isRun) {
-	        console.log("%c[Connect] ConnectModel -> _changeIsRunHandler", debug.style, isRun);
-	        this.set("isRun", isRun);
-	        return chrome.tabs.query({
-	          active: true,
-	          currentWindow: true
-	        }, (function(_this) {
-	          return function(tabs) {
-	            return chrome.tabs.sendMessage(tabs[0].id, {
+	      _changeIsRunHandler: function(port) {
+	        return (function(_this) {
+	          return function(isRun) {
+	            console.log("%c[Connect] ConnectModel -> _changeIsRunHandler", debug.style, isRun);
+	            _this.set("isRun", isRun);
+	            return port.postMessage({
 	              to: "contentScript",
 	              from: "background",
 	              type: "changeIsRun",
@@ -25041,7 +25040,7 @@
 	              }
 	            });
 	          };
-	        })(this));
+	        })(this);
 	      },
 	      _changeSelsectedTabIdHandler: function(tabId) {
 	        var contentScriptPort;
@@ -25053,45 +25052,35 @@
 	          return this._setContentScriptPort(contentScriptPort);
 	        }
 	      },
-	      _sendCheckInHandler: function(users) {
-	        console.log("%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users);
-	        return chrome.tabs.query({
-	          active: true,
-	          currentWindow: true
-	        }, (function(_this) {
-	          return function(tabs) {
-	            if (tabs.length > 0) {
-	              return chrome.tabs.sendMessage(tabs[0].id, {
-	                to: "contentScript",
-	                from: "background",
-	                type: "checkIn",
-	                body: {
-	                  users: users
-	                }
-	              });
-	            }
+	      _sendCheckInHandler: function(port) {
+	        return (function(_this) {
+	          return function(users) {
+	            console.log("%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users);
+	            return port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "checkIn",
+	              body: {
+	                users: users
+	              }
+	            });
 	          };
-	        })(this));
+	        })(this);
 	      },
-	      _sendCheckOutHandler: function(user) {
-	        console.log("%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, user);
-	        return chrome.tabs.query({
-	          active: true,
-	          currentWindow: true
-	        }, (function(_this) {
-	          return function(tabs) {
-	            if (tabs.length > 0) {
-	              return chrome.tabs.sendMessage(tabs[0].id, {
-	                to: "contentScript",
-	                from: "background",
-	                type: "checkOut",
-	                body: {
-	                  user: user
-	                }
-	              });
-	            }
+	      _sendCheckOutHandler: function(port) {
+	        return (function(_this) {
+	          return function(user) {
+	            console.log("%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, user);
+	            return port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "checkOut",
+	              body: {
+	                user: user
+	              }
+	            });
 	          };
-	        })(this));
+	        })(this);
 	      },
 	      _changeLandscapeHandler: function(model, landscape) {
 	        return console.log("%c[Connect] ConnectModel -> _changeLandscapeHandler", debug.style);
@@ -25182,14 +25171,16 @@
 	        if (isRun && (!this.get("isConnected"))) {
 	          return this._connect();
 	        } else if ((!isRun) && this.get("isConnected")) {
-	          return this.socket.disconnect();
+	          this.socket.disconnect();
+	          this.set("isConnected", false);
+	          return this.set("users", []);
 	        }
 	      },
 	      _socketErrorHandler: function(error) {
 	        return console.log("%c[Socket] SocketModel -> _socketErrorHandler", debug.style, error);
 	      },
 	      _disconnectHandler: function() {
-	        console.log("%c[Socket] SocketModel -> _disconnectHandler", debug.style, error);
+	        console.log("%c[Socket] SocketModel -> _disconnectHandler", debug.style);
 	        this.set("isConnected", false);
 	        return this.set("users", []);
 	      },
@@ -25206,7 +25197,7 @@
 	        return console.log("%c[Socket] SocketModel -> _reconnectErrorHandler", debug.style, error);
 	      },
 	      _reconnectFailedHandler: function() {
-	        return console.log("%c[Socket] SocketModel -> _reconnectErrorHandler", debug.style);
+	        return console.log("%c[Socket] SocketModel -> _reconnectFailedHandler", debug.style);
 	      },
 	      _receiveCheckInHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _receiveCheckInHandler", debug.style, data);
@@ -25246,122 +25237,6 @@
 	  });
 	};
 
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(Backbone) {var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-	  hasProp = {}.hasOwnProperty;
-	
-	module.exports = function(sn, $, _) {
-	  var Stage;
-	  return Stage = (function(superClass) {
-	    extend(Stage, superClass);
-	
-	    Stage.prototype.defaults = {
-	      "debug": false,
-	      "isRun": false,
-	      "selsectedTabId": null,
-	      "isBrowserAction": false
-	    };
-	
-	    function Stage() {
-	      this._onActivatedHandler = bind(this._onActivatedHandler, this);
-	      this._changeBrowserActionHandler = bind(this._changeBrowserActionHandler, this);
-	      this._changeSectedTabIdHandler = bind(this._changeSectedTabIdHandler, this);
-	      console.log("[Model] Stage -> Constructor");
-	      Stage.__super__.constructor.apply(this, arguments);
-	    }
-	
-	    Stage.prototype.initialize = function() {
-	      console.log("[Model] Stage -> initialize");
-	      this.listenTo(this, "change:isRun", this._changeisRunHandler);
-	      return this.on("change:isBrowserAction", this._changeBrowserActionHandler);
-	    };
-	
-	    Stage.prototype.setup = function() {
-	      return $.Deferred((function(_this) {
-	        return function(defer) {
-	          var onDone;
-	          onDone = function() {
-	            console.log("%c[Model] Stage -> setup", "color: #999999");
-	            return defer.resolve();
-	          };
-	          _this._setEvent();
-	          return onDone();
-	        };
-	      })(this)).promise();
-	    };
-	
-	    Stage.prototype._setEvent = function() {
-	      console.log("[Model] Stage -> _setEvent");
-	      return chrome.tabs.onActivated.addListener(this._onActivatedHandler);
-	    };
-	
-	    Stage.prototype._changeisRunHandler = function(stageModel, isRun) {
-	      console.log("%c[Model] Stage -> _changeisRunHandler", "color: #999999", stageModel, isRun);
-	      if (isRun) {
-	        return chrome.tabs.getSelected((function(_this) {
-	          return function(tab) {
-	            return _this.set("selsectedTabId", tab.id);
-	          };
-	        })(this));
-	      }
-	    };
-	
-	    Stage.prototype._getSelectedTab = function() {
-	      console.log("[Model] Stage -> _getActiveTab");
-	      return $.Deferred((function(_this) {
-	        return function(defer) {
-	          return chrome.tabs.getSelected(function(tab) {
-	            var error;
-	            if (tab != null) {
-	              return defer.resolve(tab);
-	            } else {
-	              error = new Error("[Model] Stage -> _getActiveTab: Not Selected Tab");
-	              return defer.reject(error);
-	            }
-	          });
-	        };
-	      })(this)).promise();
-	    };
-	
-	    Stage.prototype._changeSectedTabIdHandler = function() {
-	      return console.log("[Model] Stage -> _changeSectedTabIdHandler");
-	    };
-	
-	    Stage.prototype._changeBrowserActionHandler = function(model, isBrowserAction) {
-	      console.log("[Model] Stage -> _changeBrowserActionHandler", model, isBrowserAction);
-	      if (isBrowserAction) {
-	        return chrome.tabs.getSelected((function(_this) {
-	          return function(tab) {
-	            return _this.set("selsectedTabId", tab.id);
-	          };
-	        })(this));
-	      }
-	    };
-	
-	    Stage.prototype._onCreatedHandler = function(tab) {
-	      return console.log("[Model] Stage -> _onCreated", tab);
-	    };
-	
-	    Stage.prototype._onActivatedHandler = function(activeInfo) {
-	      console.log("%c[Model] Stage -> _onActivatedHandler", "color: #999999", activeInfo);
-	      return this.set("selsectedTabId", activeInfo.tabId);
-	    };
-	
-	    Stage.prototype._popupInHandler = function() {};
-	
-	    Stage.prototype._popupOutHandler = function() {};
-	
-	    return Stage;
-	
-	  })(Backbone.Model);
-	};
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }
 /******/ ]);

@@ -48,18 +48,70 @@ module.exports = (App, sn, $, _) ->
       initialize: () ->
         console.log "%c[Connect] ConnectModel -> initialize", debug.style
 
-        # エクステンションの起動状態に変化があった時のイベントリスナー
-        App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind @
+
+        # # エクステンションの起動状態に変化があった時のイベントリスナー
+        # App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind @
         # タブが変更された時のイベントリスナー
-        App.vent.on "stageSelsectedTabId", @_changeSelsectedTabIdHandler.bind @
+        # App.vent.on "stageSelsectedTabId", @_changeSelsectedTabIdHandler.bind @
         # socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出される
-        App.vent.on "socketCheckIn", @_sendCheckInHandler.bind @
+        # App.vent.on "socketCheckIn", @_sendCheckInHandler.bind @
         # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
-        App.vent.on "socketCheckOut", @_sendCheckOutHandler.bind @
+        # App.vent.on "socketCheckOut", @_sendCheckOutHandler.bind @
 
         # スクリーンショットが撮影された時に呼び出される
         @listenTo @, "change:landscape", @_changeLandscapeHandler
 
+        # TEST
+        # content script からのLong-lived 接続
+        chrome.extension.onConnect.addListener (port) =>
+          if port.name is "contentScript"
+            console.log "%c[Connect] ConnectModel | onConnect", debug.style
+
+            # エクステンションの起動状態に変化があった時のイベントリスナー
+            App.vent.off "stageChangeIsRun", @_changeIsRunHandler.bind(@)(port)
+            App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind(@)(port)
+            # socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出される
+            App.vent.off "socketCheckIn", @_sendCheckInHandler.bind(@)(port)
+            App.vent.on "socketCheckIn", @_sendCheckInHandler.bind(@)(port)
+            # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
+            App.vent.off "socketCheckOut", @_sendCheckOutHandler.bind(@)(port)
+            App.vent.on "socketCheckOut", @_sendCheckOutHandler.bind(@)(port)
+
+            # メッセージを受信した時の処理
+            port.onMessage.addListener (message) =>
+              console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
+
+              # content script からの通知か判別する
+              if (message.from? and message.from is "contentScript") and message.type?
+                switch message.type
+                  when "setup"
+                    console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message
+                    
+                    # エクステンションがすでに起動している場合の処理
+                    if @get "isRun"
+                      # contentscript とLong-lived な接続をする
+                      # contentScriptPort = chrome.tabs.connect sender.tab.id, name: "background"
+                      # @_setContentScriptPort contentScriptPort
+                      # CheckInしているユーザーを取得する
+                      _sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
+                      _sendCheckInHandler App.reqres.request "socketGetUsers"
+
+                    port.postMessage
+                      to: "contentScript"
+                      from: "background"
+                      type: "setup"
+                      body:
+                        isRun: @get "isRun"
+
+                  when "pointerMove"
+                    App.vent.trigger "connectPointerMove", message.body
+
+                  when "updateLandscape"
+                    console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message
+        # End TEST
+
+
+        ###
         # content script からの通知を受信する
         chrome.runtime.onMessage.addListener (request, sender, sendResponse) =>
           # console.log "%c[Connect] ConnectModel | Receive Message", debug.style, request, sender, sendResponse
@@ -91,7 +143,7 @@ module.exports = (App, sn, $, _) ->
                 chrome.tabs.captureVisibleTab format: "jpeg",
                   (dataUrl) =>
                     @set "landscape", dataUrl
-
+        ###
 
       # --------------------------------------------------------------
       # /**
@@ -100,24 +152,37 @@ module.exports = (App, sn, $, _) ->
       #  * @param {boolean} isRun - エクステンションの起動状態
       #  */
       # --------------------------------------------------------------
-      _changeIsRunHandler: (isRun) ->
-        console.log "%c[Connect] ConnectModel -> _changeIsRunHandler", debug.style, isRun
+      _changeIsRunHandler: (port) ->
+        return (isRun) =>
+          console.log "%c[Connect] ConnectModel -> _changeIsRunHandler", debug.style, isRun
 
-        @set "isRun", isRun
+          @set "isRun", isRun
 
-        # content script にデータを送信する
-        chrome.tabs.query
-          active: true
-          currentWindow: true
-          ,
-          (tabs) =>
-            # エクステンションの起動状態をアクティブなTab のcontent script へ通知する
-            chrome.tabs.sendMessage tabs[0].id,
-              to: "contentScript"
-              from: "background"
-              type: "changeIsRun"
-              body:
-                isRun: isRun
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "changeIsRun"
+            body:
+              isRun: isRun
+
+      # _changeIsRunHandler: (isRun) ->
+      #   console.log "%c[Connect] ConnectModel -> _changeIsRunHandler", debug.style, isRun
+
+      #   @set "isRun", isRun
+
+      #   # content script にデータを送信する
+      #   chrome.tabs.query
+      #     active: true
+      #     currentWindow: true
+      #     ,
+      #     (tabs) =>
+      #       # エクステンションの起動状態をアクティブなTab のcontent script へ通知する
+      #       chrome.tabs.sendMessage tabs[0].id,
+      #         to: "contentScript"
+      #         from: "background"
+      #         type: "changeIsRun"
+      #         body:
+      #           isRun: isRun
 
       # --------------------------------------------------------------
       # /**
@@ -143,21 +208,32 @@ module.exports = (App, sn, $, _) ->
       #  * @param {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
       #  */
       # -------------------------------------------------------------
-      _sendCheckInHandler: (users) ->
-        console.log "%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users
+      _sendCheckInHandler: (port) ->
+        return (users) =>
+          console.log "%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users
 
-        chrome.tabs.query
-          active: true
-          currentWindow: true
-          ,
-          (tabs) =>
-            if tabs.length > 0
-              chrome.tabs.sendMessage tabs[0].id,
-                to: "contentScript"
-                from: "background"
-                type: "checkIn"
-                body:
-                  users: users
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "checkIn"
+            body:
+              users: users
+
+      # _sendCheckInHandler: (users) ->
+      #   console.log "%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users
+
+      #   chrome.tabs.query
+      #     active: true
+      #     currentWindow: true
+      #     ,
+      #     (tabs) =>
+      #       if tabs.length > 0
+      #         chrome.tabs.sendMessage tabs[0].id,
+      #           to: "contentScript"
+      #           from: "background"
+      #           type: "checkIn"
+      #           body:
+      #             users: users
 
       # ------------------------------------------------------------
       # /**
@@ -167,25 +243,36 @@ module.exports = (App, sn, $, _) ->
       #  * @param {string} user - 同じRoom に所属していたユーザーのSocket ID
       #  */
       # ------------------------------------------------------------
-      _sendCheckOutHandler: (user) ->
-        console.log "%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, user
+      _sendCheckOutHandler: (port) ->
+        (user) =>
+          console.log "%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, user
 
-        chrome.tabs.query
-          active: true
-          currentWindow: true
-          ,
-          (tabs) =>
-            if tabs.length > 0
-              chrome.tabs.sendMessage tabs[0].id,
-                to: "contentScript"
-                from: "background"
-                type: "checkOut"
-                body:
-                  user: user
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "checkOut"
+            body:
+              user: user
+
+      # _sendCheckOutHandler: (user) ->
+      #   console.log "%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, user
+
+      #   chrome.tabs.query
+      #     active: true
+      #     currentWindow: true
+      #     ,
+      #     (tabs) =>
+      #       if tabs.length > 0
+      #         chrome.tabs.sendMessage tabs[0].id,
+      #           to: "contentScript"
+      #           from: "background"
+      #           type: "checkOut"
+      #           body:
+      #             user: user
 
       # --------------------------------------------------------------
       # /**
-      #  * ConnectModel#_changeIsRunHandler
+      #  * ConnectModel#_changeLandscapeHandler
       #  * スクリーンショットが撮影された時に呼び出されるイベントハンドラー
       #  * @param {Object} Model - BackBone Model Object
       #  * @prop {string} landscape - base64形式のスクリーンショット
