@@ -552,6 +552,35 @@ room へのjoin が完了したタイミングで発信される
 
 ***
 
+<a name="io-checkOut"></a>
+### 【checkOut】
+同じRoom に所属していたユーザーのSocket ID を受信する  
+socket サーバーからのdisconnect が完了したタイミングで発信される 
+
+#### Overview
+`API -> Client`  
+
+##### Request Parameters
+
+##### Response 
+- data
+
+		@return {string} 同じRoom に所属していたユーザーのSocket ID
+
+		"T16ontoFZG1fx7OpAAAH"
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
+
 <a name="io-updatePointer"></a>
 ### 【updatePointer】
 同じRoom に所属するユーザーのポインターの座標を受信する  
