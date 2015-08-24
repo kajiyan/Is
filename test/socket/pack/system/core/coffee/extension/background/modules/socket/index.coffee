@@ -4,6 +4,7 @@
 # EVENT
 #   - socketCheckIn
 #   - socketCheckOut
+#   - socketUpdatePointer
 #
 # ============================================================
 module.exports = (App, sn, $, _) ->
@@ -50,8 +51,8 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] SocketModel -> initialize", debug.style
 
         # エクステンションの起動状態に変化があった時のイベントリスナー
-        App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind @
-        # App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind @
+        @changeIsRunHandler = @_changeIsRunHandler.bind @
+        App.vent.on "stageChangeIsRun", @changeIsRunHandler
         # ポインターの座標に変化があった時のイベントリスナー
         App.vent.on "connectPointerMove", @_pointerMoveHandler.bind @
         # WebSocket の接続状態が変わった時に実行される
@@ -67,9 +68,6 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] SocketModel -> _connect", debug.style
 
         @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
-
-        console.log @socket.connected
-        console.log @socket.disconnected
 
         @socket.on "connect", @_connectHandler.bind(@) # WebSocket が接続された時
         @socket.on "error", @_socketErrorHandler.bind(@)
@@ -138,7 +136,7 @@ module.exports = (App, sn, $, _) ->
           @set "isRun", isRun
           # エクステンションが起動状態であれば
           # このイベントリスナーを破棄し、Socket サーバーに接続する
-          App.vent.off "stageChangeIsRun"
+          App.vent.off "stageChangeIsRun", @changeIsRunHandler
           @_connect()
 
           # socket の再接続と切断をするイベントリスナーを定義
@@ -162,11 +160,6 @@ module.exports = (App, sn, $, _) ->
         else if ((not isRun) and @socket.connected)
           # エクステンションが終了された時にWebSocket サーバーに接続されている時 
           @socket.disconnect()
-
-        #   # # 接続状態を変更
-        #   # @set "isConnected", false
-        #   # # 接続ユーザーを空にする
-        #   # @set "users", []
 
       # ------------------------------------------------------------
       # /**
@@ -275,6 +268,9 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       _receiveUpdatePointerHandler: (data) ->
         console.log "%c[Socket] Socket -> _receiveUpdatePointerHandler", debug.style, data
+
+        # socketUpdatePointer イベントを発火する | connect がlisten
+        App.vent.trigger "socketUpdatePointer", data
 
       # ------------------------------------------------------------
       # /**

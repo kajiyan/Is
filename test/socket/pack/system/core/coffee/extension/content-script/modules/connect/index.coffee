@@ -75,6 +75,12 @@ module.exports = (App, sn, $, _) ->
               when "checkOut"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body
 
+              when "updatePointer"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updatePointer", debug.style, message.body
+                # マウス座標の変化を検知したらconnectUpdatePointer イベントを発火させる
+                App.vent.trigger "connectUpdatePointer", message.body
+
+
       # --------------------------------------------------------------
       # /**
       #  * ConnectModel#_changeIsRunHandler
@@ -86,7 +92,9 @@ module.exports = (App, sn, $, _) ->
       _changeIsRunHandler: (model, isRun) ->
         console.log "%c[Connect] ConnectModel | _changeIsRunHandler", debug.style, isRun
 
-        if not isRun
+        if isRun
+          App.vent.on "stagePointerMove", @_pointerMoveHandler @port
+        else if not isRun
           App.vent.off "stagePointerMove"
 
       # --------------------------------------------------------------
@@ -148,7 +156,7 @@ module.exports = (App, sn, $, _) ->
       # --------------------------------------------------------------
       _pointerMoveHandler: (port) ->
         return (pointerPosition) ->
-          console.log "%c[Connect] ConnectModel | _changePointerPositionHandler", debug.style, pointerPosition, port
+          # console.log "%c[Connect] ConnectModel | _changePointerPositionHandler", debug.style, pointerPosition, port
 
           port.postMessage
             to: "background"

@@ -81,17 +81,24 @@
 	        });
 	        LoverModel = Backbone.Model.extend({
 	          defaults: {
-	            x: 0,
-	            y: 0,
+	            position: {
+	              x: 0,
+	              y: 0
+	            },
 	            windowWidth: 0,
 	            windowHeight: 0,
 	            landscape: ""
+	          },
+	          initialize: function() {
+	            return console.log("%c[Extension] LoverModel -> initialize", debug.style);
 	          }
 	        });
 	        MemoryModel = Backbone.Model.extend({
 	          defaults: {
-	            x: 0,
-	            y: 0,
+	            position: {
+	              x: 0,
+	              y: 0
+	            },
 	            windowWidth: 0,
 	            windowHeight: 0,
 	            landscape: "",
@@ -101,7 +108,8 @@
 	        LoversCollection = Backbone.Collection.extend({
 	          initialize: function() {
 	            console.log("%c[Extension] LoversCollection -> initialize", debug.style);
-	            return Extension.vent.on("connectChangeUsers", this._changeUsersHandler.bind(this));
+	            Extension.vent.on("connectChangeUsers", this._changeUsersHandler.bind(this));
+	            return Extension.vent.on("connectUpdatePointer", this._updatePointerHandler.bind(this));
 	          },
 	          model: LoverModel,
 	          _changeUsersHandler: function(users) {
@@ -115,6 +123,18 @@
 	              }));
 	            }
 	            return results;
+	          },
+	          _updatePointerHandler: function(data) {
+	            var lover;
+	            lover = this.findWhere({
+	              id: data.socketId
+	            });
+	            return lover.set({
+	              position: {
+	                x: data.x,
+	                y: data.y
+	              }
+	            });
 	          }
 	        });
 	        MemorysCollection = Backbone.Collection.extend({
@@ -122,11 +142,17 @@
 	        });
 	        LoverItemView = Backbone.Marionette.ItemView.extend({
 	          initialize: function() {
-	            return console.log("[ExtensionModule] LoverItemView -> initialize");
+	            console.log("[ExtensionModule] LoverItemView -> initialize");
+	            return this.listenTo(this.model, "change:position", this._changePositionHandler);
 	          },
 	          tagName: "div",
 	          className: "lover",
-	          template: _.template(isElShadowRoot.querySelector("#lover-template").innerHTML)
+	          template: _.template(isElShadowRoot.querySelector("#lover-template").innerHTML),
+	          _changePositionHandler: function(model, position) {
+	            return this.$el.css({
+	              transform: "translate(" + position.x + "px, " + position.y + "px)"
+	            });
+	          }
 	        });
 	        MemoryItemView = Backbone.Marionette.ItemView.extend({
 	          initialize: function() {
@@ -25166,7 +25192,6 @@
 	        return console.log("%c[Stage] StageItemView -> _windowResizeHandler", debug.style);
 	      },
 	      _pointerMoveHandler: function(e) {
-	        console.log("%c[Stage] StageItemView -> _pointerMoveHandler", debug.style);
 	        return App.vent.trigger("stagePointerMove", {
 	          "x": e.clientX,
 	          "y": e.clientY
@@ -25242,6 +25267,9 @@
 	                  return _this.set("users", message.body.users);
 	                case "checkOut":
 	                  return console.log("%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body);
+	                case "updatePointer":
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | updatePointer", debug.style, message.body);
+	                  return App.vent.trigger("connectUpdatePointer", message.body);
 	              }
 	            }
 	          };
@@ -25249,7 +25277,9 @@
 	      },
 	      _changeIsRunHandler: function(model, isRun) {
 	        console.log("%c[Connect] ConnectModel | _changeIsRunHandler", debug.style, isRun);
-	        if (!isRun) {
+	        if (isRun) {
+	          return App.vent.on("stagePointerMove", this._pointerMoveHandler(this.port));
+	        } else if (!isRun) {
 	          return App.vent.off("stagePointerMove");
 	        }
 	      },
@@ -25259,7 +25289,6 @@
 	      },
 	      _pointerMoveHandler: function(port) {
 	        return function(pointerPosition) {
-	          console.log("%c[Connect] ConnectModel | _changePointerPositionHandler", debug.style, pointerPosition, port);
 	          return port.postMessage({
 	            to: "background",
 	            from: "contentScript",

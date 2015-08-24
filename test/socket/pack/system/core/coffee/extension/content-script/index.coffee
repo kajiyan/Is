@@ -167,11 +167,29 @@ do (window=window, document=document, $=jQuery) ->
         LoverModel = Backbone.Model.extend(
           # ------------------------------------------------------------
           defaults:
-            x: 0
-            y: 0
+            position:
+              x: 0
+              y: 0
             windowWidth: 0
             windowHeight: 0
             landscape: ""
+
+          # --------------------------------------------------------------
+          # /**
+          #  * LoverModel#initialize
+          #  */
+          # --------------------------------------------------------------
+          initialize: () ->
+            console.log "%c[Extension] LoverModel -> initialize", debug.style
+            # @listenTo @, "change:position", _changePositionHandler
+
+          # # --------------------------------------------------------------
+          # # /**
+          # #  * LoverModel#_changePositionHandler
+          # #  */
+          # # --------------------------------------------------------------
+          # _changePositionHandler: () ->
+          #   console.log "%c[Extension] LoversCollection -> _changePositionHandler", debug.style
         )
 
         # ============================================================
@@ -179,8 +197,9 @@ do (window=window, document=document, $=jQuery) ->
         MemoryModel = Backbone.Model.extend(
           # ------------------------------------------------------------
           defaults:
-            x: 0
-            y: 0
+            position:
+              x: 0
+              y: 0
             windowWidth: 0
             windowHeight: 0
             landscape: ""
@@ -203,6 +222,7 @@ do (window=window, document=document, $=jQuery) ->
           initialize: () ->
             console.log "%c[Extension] LoversCollection -> initialize", debug.style
             Extension.vent.on "connectChangeUsers", @_changeUsersHandler.bind @
+            Extension.vent.on "connectUpdatePointer", @_updatePointerHandler.bind @
 
           # --------------------------------------------------------------
           # /**
@@ -226,6 +246,25 @@ do (window=window, document=document, $=jQuery) ->
               @add
                 id: user
 
+          # --------------------------------------------------------------
+          # /**
+          #  * LoversCollection#_updatePointerHandler
+          #  * 同じRoom に所属していたユーザーのポインターの座標の変化をsoketが受信した時に呼び出されるイベントハンドラー
+          #  * @param {Object} data
+          #  * @prop {string} socketId - 発信元のsocket.id
+          #  * @prop {number} x - 発信者のポインターのx座標
+          #  * @prop {number} y - 発信者のポインターのy座標
+          #  */
+          # --------------------------------------------------------------
+          _updatePointerHandler: (data) ->
+            # console.log "%c[Extension] LoversCollection -> _updatePointerHandler", debug.style, data
+
+            lover = @findWhere id: data.socketId
+            lover.set
+              position:
+                x: data.x
+                y: data.y
+
         # End. COLLECTION - LOVERS
         # ============================================================
 
@@ -246,6 +285,7 @@ do (window=window, document=document, $=jQuery) ->
           # ------------------------------------------------------------
           initialize: () ->
             console.log "[ExtensionModule] LoverItemView -> initialize"
+            @listenTo @model, "change:position", @_changePositionHandler
 
           # ------------------------------------------------------------
           tagName: "div"
@@ -255,6 +295,23 @@ do (window=window, document=document, $=jQuery) ->
 
           # ------------------------------------------------------------
           template: _.template(isElShadowRoot.querySelector("#lover-template").innerHTML)
+          
+          # --------------------------------------------------------------
+          # /**
+          #  * LoverItemView#_changePositionHandler
+          #  * loverModel のposition の値が変化した時に呼び出される
+          #  * （同じRoom に所属していたユーザーのポインターの座標の変化した時）
+          #  * @param {Object} loverModel - BackBone Model Object
+          #  * @param {Object} position
+          #  * @prop {number} x - ポインターのx座標
+          #  * @prop {number} y - ポインターのy座標
+          #  */
+          # --------------------------------------------------------------
+          _changePositionHandler: (model, position) ->
+            # console.log "%c[Extension] LoverItemView -> _changePositionHandler", debug.style, position
+        
+            @$el.css
+              transform: "translate(#{position.x}px, #{position.y}px)"
         )
 
         # ============================================================

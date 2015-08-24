@@ -69,6 +69,9 @@ module.exports = (App, sn, $, _) ->
             # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
             App.vent.off "socketCheckOut", @_sendCheckOutHandler.bind(@)(port)
             App.vent.on "socketCheckOut", @_sendCheckOutHandler.bind(@)(port)
+            # ポインターの座標に変化があった時に呼び出される
+            App.vent.off "socketUpdatePointer", @_sendUpdatePointerHandler.bind(@)(port)
+            App.vent.on "socketUpdatePointer", @_sendUpdatePointerHandler.bind(@)(port)
 
             # メッセージを受信した時の処理
             port.onMessage.addListener (message) =>
@@ -172,6 +175,27 @@ module.exports = (App, sn, $, _) ->
             type: "checkOut"
             body:
               user: user
+
+      # ------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_sendUpdatePointerHandler
+      #  * 同じRoom に所属していたユーザーのポインターの座標の変化をsoketが受信した時に呼び出されるイベントハンドラー
+      #  * アクティブなタブのcontent script にポインター座標の情報を通知する
+      #  * @param {Object} data
+      #  * @prop {string} socketId - 発信元のsocket.id
+      #  * @prop {number} x - 発信者のポインターのx座標
+      #  * @prop {number} y - 発信者のポインターのy座標
+      #  */
+      # ------------------------------------------------------------
+      _sendUpdatePointerHandler: (port) ->
+        (data) =>
+          console.log "%c[Connect] ConnectModel -> _sendUpdatePointerHandler", debug.style, data
+
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "updatePointer"
+            body: data
 
       # --------------------------------------------------------------
       # /**

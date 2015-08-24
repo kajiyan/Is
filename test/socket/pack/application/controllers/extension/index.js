@@ -240,6 +240,7 @@ Extension = (function() {
         // --------------------------------------------------------------
         socket.on('pointerMove', function(pointerPosition) {
           // console.log(pointerPosition);
+          
           // ポインターの座標を送信者以外に送る
           // _this._extensionSocketIo
           socket

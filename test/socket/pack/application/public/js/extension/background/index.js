@@ -24962,6 +24962,8 @@
 	              App.vent.on("socketCheckIn", _this._sendCheckInHandler.bind(_this)(port));
 	              App.vent.off("socketCheckOut", _this._sendCheckOutHandler.bind(_this)(port));
 	              App.vent.on("socketCheckOut", _this._sendCheckOutHandler.bind(_this)(port));
+	              App.vent.off("socketUpdatePointer", _this._sendUpdatePointerHandler.bind(_this)(port));
+	              App.vent.on("socketUpdatePointer", _this._sendUpdatePointerHandler.bind(_this)(port));
 	              return port.onMessage.addListener(function(message) {
 	                var _sendCheckInHandler;
 	                console.log("%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message);
@@ -25038,6 +25040,19 @@
 	          };
 	        })(this);
 	      },
+	      _sendUpdatePointerHandler: function(port) {
+	        return (function(_this) {
+	          return function(data) {
+	            console.log("%c[Connect] ConnectModel -> _sendUpdatePointerHandler", debug.style, data);
+	            return port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "updatePointer",
+	              body: data
+	            });
+	          };
+	        })(this);
+	      },
 	      _changeLandscapeHandler: function(model, landscape) {
 	        return console.log("%c[Connect] ConnectModel -> _changeLandscapeHandler", debug.style);
 	      }
@@ -25076,15 +25091,14 @@
 	      },
 	      initialize: function() {
 	        console.log("%c[Socket] SocketModel -> initialize", debug.style);
-	        App.vent.on("stageChangeIsRun", this._changeIsRunHandler.bind(this));
+	        this.changeIsRunHandler = this._changeIsRunHandler.bind(this);
+	        App.vent.on("stageChangeIsRun", this.changeIsRunHandler);
 	        App.vent.on("connectPointerMove", this._pointerMoveHandler.bind(this));
 	        return this.listenTo(this, "change:isConnected", this._changeIsConnectedHandler.bind(this));
 	      },
 	      _connect: function() {
 	        console.log("%c[Socket] SocketModel -> _connect", debug.style);
 	        this.socket = io.connect(SETTING.PROTOCOL + ":" + SETTING.BASE_URL + "extension");
-	        console.log(this.socket.connected);
-	        console.log(this.socket.disconnected);
 	        this.socket.on("connect", this._connectHandler.bind(this));
 	        this.socket.on("error", this._socketErrorHandler.bind(this));
 	        this.socket.on("disconnect", this._disconnectHandler.bind(this));
@@ -25113,7 +25127,7 @@
 	        console.log("%c[Socket] SocketModel -> _changeIsRunHandler", debug.style, isRun);
 	        if (isRun) {
 	          this.set("isRun", isRun);
-	          App.vent.off("stageChangeIsRun");
+	          App.vent.off("stageChangeIsRun", this.changeIsRunHandler);
 	          this._connect();
 	          return App.vent.on("stageChangeIsRun", this._toggleIsRunHandler.bind(this));
 	        }
@@ -25161,7 +25175,8 @@
 	        return App.vent.trigger("socketCheckOut", user);
 	      },
 	      _receiveUpdatePointerHandler: function(data) {
-	        return console.log("%c[Socket] Socket -> _receiveUpdatePointerHandler", debug.style, data);
+	        console.log("%c[Socket] Socket -> _receiveUpdatePointerHandler", debug.style, data);
+	        return App.vent.trigger("socketUpdatePointer", data);
 	      },
 	      _changeIsConnectedHandler: function(socketModel, isConnected) {
 	        console.log("%c[Socket] SocketModel -> _changeIsConnectedHandler", debug.style, socketModel, isConnected);

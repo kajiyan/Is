@@ -61,15 +61,11 @@ module.exports = (App, sn, $, _) ->
       #  */
       # --------------------------------------------------------------
       _pointerMoveHandler: (e) ->
-        console.log "%c[Stage] StageItemView -> _pointerMoveHandler", debug.style
+        # console.log "%c[Stage] StageItemView -> _pointerMoveHandler", debug.style
 
         App.vent.trigger "stagePointerMove",
           "x": e.clientX
           "y": e.clientY
-
-        # @model.set "pointerPosition",
-        #   "x": e.clientX
-        #   "y": e.clientY
     )
 
 
