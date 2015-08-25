@@ -24952,18 +24952,27 @@
 	      initialize: function() {
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        this.listenTo(this, "change:landscape", this._changeLandscapeHandler);
-	        return chrome.extension.onConnect.addListener((function(_this) {
+	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
+	            var changeIsRunHandler, sendCheckInHandler, sendCheckOutHandler, sendUpdatePointerHandler;
+	            changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
+	            sendCheckInHandler = _this._sendCheckInHandler.bind(_this)(port);
+	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
+	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
+	            port.onDisconnect.addListener(function() {
+	              App.vent.off("stageChangeIsRun", changeIsRunHandler);
+	              App.vent.off("socketCheckIn", sendCheckInHandler);
+	              App.vent.off("socketCheckOut", sendCheckOutHandler);
+	              App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
+	              port.disconnect();
+	              return console.log("%c[Connect] ConnectModel | onDisconnect", debug.style);
+	            });
 	            if (port.name === "contentScript") {
 	              console.log("%c[Connect] ConnectModel | onConnect", debug.style);
-	              App.vent.off("stageChangeIsRun", _this._changeIsRunHandler.bind(_this)(port));
-	              App.vent.on("stageChangeIsRun", _this._changeIsRunHandler.bind(_this)(port));
-	              App.vent.off("socketCheckIn", _this._sendCheckInHandler.bind(_this)(port));
-	              App.vent.on("socketCheckIn", _this._sendCheckInHandler.bind(_this)(port));
-	              App.vent.off("socketCheckOut", _this._sendCheckOutHandler.bind(_this)(port));
-	              App.vent.on("socketCheckOut", _this._sendCheckOutHandler.bind(_this)(port));
-	              App.vent.off("socketUpdatePointer", _this._sendUpdatePointerHandler.bind(_this)(port));
-	              App.vent.on("socketUpdatePointer", _this._sendUpdatePointerHandler.bind(_this)(port));
+	              App.vent.on("stageChangeIsRun", changeIsRunHandler);
+	              App.vent.on("socketCheckIn", sendCheckInHandler);
+	              App.vent.on("socketCheckOut", sendCheckOutHandler);
+	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              return port.onMessage.addListener(function(message) {
 	                var _sendCheckInHandler;
 	                console.log("%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message);

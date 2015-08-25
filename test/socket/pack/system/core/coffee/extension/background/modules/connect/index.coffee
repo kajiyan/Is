@@ -56,22 +56,42 @@ module.exports = (App, sn, $, _) ->
 
         # TEST
         # content script からのLong-lived 接続
-        chrome.extension.onConnect.addListener (port) =>
+        # chrome.extension.onConnect.addListener (port) =>
+        chrome.runtime.onConnect.addListener (port) =>
+          changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
+          sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
+          sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
+          sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
+
+          # Long-lived 接続 切断時の処理を登録する
+          port.onDisconnect.addListener =>
+            App.vent.off "stageChangeIsRun", changeIsRunHandler
+            App.vent.off "socketCheckIn", sendCheckInHandler
+            App.vent.off "socketCheckOut", sendCheckOutHandler
+            App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
+            port.disconnect()
+            console.log "%c[Connect] ConnectModel | onDisconnect", debug.style
+
+
           if port.name is "contentScript"
             console.log "%c[Connect] ConnectModel | onConnect", debug.style
 
             # エクステンションの起動状態に変化があった時のイベントリスナー
-            App.vent.off "stageChangeIsRun", @_changeIsRunHandler.bind(@)(port)
-            App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind(@)(port)
+            # App.vent.off "stageChangeIsRun", @_changeIsRunHandler.bind(@)(port)
+            # App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind(@)(port)
+            App.vent.on "stageChangeIsRun", changeIsRunHandler
             # socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出される
-            App.vent.off "socketCheckIn", @_sendCheckInHandler.bind(@)(port)
-            App.vent.on "socketCheckIn", @_sendCheckInHandler.bind(@)(port)
+            # App.vent.off "socketCheckIn", @_sendCheckInHandler.bind(@)(port)
+            # App.vent.on "socketCheckIn", @_sendCheckInHandler.bind(@)(port)
+            App.vent.on "socketCheckIn", sendCheckInHandler
             # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
-            App.vent.off "socketCheckOut", @_sendCheckOutHandler.bind(@)(port)
-            App.vent.on "socketCheckOut", @_sendCheckOutHandler.bind(@)(port)
+            # App.vent.off "socketCheckOut", @_sendCheckOutHandler.bind(@)(port)
+            # App.vent.on "socketCheckOut", @_sendCheckOutHandler.bind(@)(port)
+            App.vent.on "socketCheckOut", sendCheckOutHandler
             # ポインターの座標に変化があった時に呼び出される
-            App.vent.off "socketUpdatePointer", @_sendUpdatePointerHandler.bind(@)(port)
-            App.vent.on "socketUpdatePointer", @_sendUpdatePointerHandler.bind(@)(port)
+            # App.vent.off "socketUpdatePointer", @_sendUpdatePointerHandler.bind(@)(port)
+            # App.vent.on "socketUpdatePointer", @_sendUpdatePointerHandler.bind(@)(port)
+            App.vent.on "socketUpdatePointer", sendUpdatePointerHandler
 
             # メッセージを受信した時の処理
             port.onMessage.addListener (message) =>

@@ -48,7 +48,8 @@ module.exports = (App, sn, $, _) ->
         @listenTo @, "change:users", @_changeUsersRunHandler
 
         # background へのLong-lived 接続
-        @port = chrome.extension.connect name: "contentScript"
+        @port = chrome.runtime.connect name: "contentScript"
+        # @port = chrome.extension.connect name: "contentScript"
         
         @port.postMessage
           to: "background"
@@ -76,7 +77,8 @@ module.exports = (App, sn, $, _) ->
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body
 
               when "updatePointer"
-                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updatePointer", debug.style, message.body
+                # console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updatePointer", debug.style, message.body
+                
                 # マウス座標の変化を検知したらconnectUpdatePointer イベントを発火させる
                 App.vent.trigger "connectUpdatePointer", message.body
 
@@ -150,13 +152,13 @@ module.exports = (App, sn, $, _) ->
 
       # --------------------------------------------------------------
       # /**
-      #  * ConnectModel#_changePointerPositionHandler
+      #  * ConnectModel#_pointerMoveHandler
       #  * ポインターの座標に変化があった時のイベントハンドラー
       #  */
       # --------------------------------------------------------------
       _pointerMoveHandler: (port) ->
         return (pointerPosition) ->
-          # console.log "%c[Connect] ConnectModel | _changePointerPositionHandler", debug.style, pointerPosition, port
+          # console.log "%c[Connect] ConnectModel | _pointerMoveHandler", debug.style, pointerPosition, port
 
           port.postMessage
             to: "background"

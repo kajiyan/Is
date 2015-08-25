@@ -25244,7 +25244,7 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        this.listenTo(this, "change:isRun", this._changeIsRunHandler);
 	        this.listenTo(this, "change:users", this._changeUsersRunHandler);
-	        this.port = chrome.extension.connect({
+	        this.port = chrome.runtime.connect({
 	          name: "contentScript"
 	        });
 	        this.port.postMessage({
@@ -25268,7 +25268,6 @@
 	                case "checkOut":
 	                  return console.log("%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body);
 	                case "updatePointer":
-	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | updatePointer", debug.style, message.body);
 	                  return App.vent.trigger("connectUpdatePointer", message.body);
 	              }
 	            }
