@@ -21,8 +21,8 @@ do (window=window, document=document, $=jQuery) ->
   # ============================================================
   jQBridget = require "jquery-bridget"
   
-  require "backbone.marionette/lib/backbone.marionette.min"
   require "pepjs/dist/pep.min"
+  require "backbone.marionette/lib/backbone.marionette.min"
 
   # ============================================================
   # APPLICATION
@@ -86,6 +86,15 @@ do (window=window, document=document, $=jQuery) ->
             .is {}
 
             .is .lover {
+              /*
+              -moz-box-shadow: black 0px 0px 0px 1px inset;
+              -webkit-box-shadow: black 0px 0px 0px 1px inset;
+              box-shadow: black 0px 0px 0px 1px inset;
+              background-color: rgba(204, 204, 204, 0.5);
+              width: 300px;
+              height: 300px;
+              */
+
               position: fixed;
               left: 0;
               top: 0;
@@ -100,6 +109,7 @@ do (window=window, document=document, $=jQuery) ->
             }
 
             .is .body {
+              vertical-align: top;
               width: 16px;
               height: 22px;
               z-index: 2147483647;
@@ -296,6 +306,19 @@ do (window=window, document=document, $=jQuery) ->
           # ------------------------------------------------------------
           template: _.template(isElShadowRoot.querySelector("#lover-template").innerHTML)
           
+          # ------------------------------------------------------------
+          ui: 
+            body: ".body"
+            landscape: ".landscape"
+
+          # --------------------------------------------------------------
+          events: 
+            "mouseenter @ui.body": "_bodyMouseenterHandler"
+            # "click @ui.body": () ->
+
+          # --------------------------------------------------------------
+          onRender: () ->
+
           # --------------------------------------------------------------
           # /**
           #  * LoverItemView#_changePositionHandler
@@ -312,6 +335,14 @@ do (window=window, document=document, $=jQuery) ->
         
             @$el.css
               transform: "translate(#{position.x}px, #{position.y}px)"
+
+          # --------------------------------------------------------------
+          # /**
+          #  * LoverItemView#_bodyMouseenterHandler
+          #  */
+          # --------------------------------------------------------------
+          _bodyMouseenterHandler: () ->
+            console.log "[ExtensionModule] MemoryItemView -> _bodyMouseenterHandler"
         )
 
         # ============================================================

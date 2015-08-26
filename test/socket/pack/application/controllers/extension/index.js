@@ -240,7 +240,7 @@ Extension = (function() {
         // --------------------------------------------------------------
         socket.on('pointerMove', function(pointerPosition) {
           // console.log(pointerPosition);
-          
+
           // ポインターの座標を送信者以外に送る
           // _this._extensionSocketIo
           socket
@@ -253,6 +253,26 @@ Extension = (function() {
             });
         });
 
+        // --------------------------------------------------------------
+        /**
+         * 接続ユーザーのスクリーンショットが更新されたタイミングで通知される
+         * 同じRoom にJoin しているユーザーに updateLandscape を発信する
+         * @param {Object} data
+         * @prop {string} data.landscape - スクリーンショット（base64）
+         */
+        // --------------------------------------------------------------
+        socket.on('shootLandscape', function(data) {
+          console.log('[Controller] Extension -> Socket Receive Message | pointerPosition');
+          
+          // 同じRoom に所属するユーザーにスクリーンショットをBase64 で発信する
+          socket
+            .broadcast
+            .to(joinRoomId)
+            .emit('updateLandscape', {
+              'socketId': socket.id,
+              'landscape': data.landscape
+            });
+        });
       });
     })(this);
   };

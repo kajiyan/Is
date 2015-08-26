@@ -5,6 +5,7 @@
 #   - socketCheckIn
 #   - socketCheckOut
 #   - socketUpdatePointer
+#   - socketUpdateLandscape
 #
 # ============================================================
 module.exports = (App, sn, $, _) ->
@@ -88,6 +89,8 @@ module.exports = (App, sn, $, _) ->
         @socket.on "checkOut", @_receiveCheckOutHandler.bind(@)
         # 同じRoom に所属するユーザーのポインター座標を受信する
         @socket.on "updatePointer", @_receiveUpdatePointerHandler.bind(@)
+        # 同じRoom に所属するユーザーのスクリーンショットを受信する
+        @socket.on "updateLandscape", @_receiveUpdateLandscapeHandler.bind(@)
 
       # ------------------------------------------------------------
       # /**
@@ -125,13 +128,13 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       # /**
       #  * SocketModel#_updateLandscapeHandler
-      #  * @param {Object} landscape
+      #  * @param {Object} data
       #  * @prop {string} landscape - スクリーンショット（base64）
       #  */
       # ------------------------------------------------------------
-      _updateLandscapeHandler: (landscape) ->
-        console.log "%c[Socket] SocketModel -> _updateLandscapeHandler", debug.style, landscape
-        @socket.emit "shootLandscape", landscape
+      _updateLandscapeHandler: (data) ->
+        console.log "%c[Socket] SocketModel -> _updateLandscapeHandler", debug.style, data
+        @socket.emit "shootLandscape", data
 
       # ------------------------------------------------------------
       # /**
@@ -293,6 +296,20 @@ module.exports = (App, sn, $, _) ->
 
         # socketUpdatePointer イベントを発火する | connect がlisten
         App.vent.trigger "socketUpdatePointer", data
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_receiveUpdateLandscapeHandler
+      #  * socketUpdateLandscape イベントを発火する | connect がlisten
+      #  * @param {Object} data
+      #  * @prop {string} socketId - 発信元のsocket.id
+      #  * @prop {string} landscape - スクリーンショット（base64）
+      #  */
+      # ------------------------------------------------------------
+      _receiveUpdateLandscapeHandler: (data) ->
+        console.log "%c[Socket] Socket -> _receiveUpdateLandscapeHandler", debug.style, data
+
+        App.vent.trigger "socketUpdateLandscape", data
 
       # ------------------------------------------------------------
       # /**

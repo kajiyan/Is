@@ -53,9 +53,6 @@ module.exports = (App, sn, $, _) ->
         # タブが変更された時のイベントリスナー
         # App.vent.on "stageSelsectedTabId", @_changeSelsectedTabIdHandler.bind @
 
-        # スクリーンショットが撮影された時に呼び出される
-        @listenTo @, "change:landscape", @_changeLandscapeHandler
-
         # TEST
         # content script からのLong-lived 接続
         # chrome.extension.onConnect.addListener (port) =>
@@ -66,6 +63,7 @@ module.exports = (App, sn, $, _) ->
           sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
           sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
           sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
+          sendUpdateLandscapeHandler = @_sendUpdateLandscapeHandler.bind(@)(port)
 
           # Long-lived 接続 切断時の処理を登録する
           port.onDisconnect.addListener =>
@@ -73,6 +71,7 @@ module.exports = (App, sn, $, _) ->
             App.vent.off "socketCheckIn", sendCheckInHandler
             App.vent.off "socketCheckOut", sendCheckOutHandler
             App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
+            App.vent.off "socketUpdateLandscape", sendUpdateLandscapeHandler
             port.disconnect()
             console.log "%c[Connect] ConnectModel | onDisconnect", debug.style
 
@@ -88,6 +87,8 @@ module.exports = (App, sn, $, _) ->
             App.vent.on "socketCheckOut", sendCheckOutHandler
             # 同じRoom に所属しているユーザーのポインター座標に変化があった時に呼び出される
             App.vent.on "socketUpdatePointer", sendUpdatePointerHandler
+            # 同じRoom に所属しているユーザーのスクリーンショットが更新された時に呼び出される
+            App.vent.on "socketUpdateLandscape", sendUpdateLandscapeHandler
 
             # メッセージを受信した時の処理
             port.onMessage.addListener (message) =>
@@ -99,7 +100,7 @@ module.exports = (App, sn, $, _) ->
                   when "setup"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message
                     
-                    # 初期値の幅高さ
+                    # 初期値の幅高さ リンク
 
                     # エクステンションがすでに起動している場合の処理
                     if @get "isRun"
@@ -231,37 +232,23 @@ module.exports = (App, sn, $, _) ->
 
       # --------------------------------------------------------------
       # /**
-      #  * ConnectModel#_changeLandscapeHandler
-      #  * スクリーンショットが撮影された時に呼び出されるイベントハンドラー
-      #  * @param {Object} Model - BackBone Model Object
-      #  * @prop {string} landscape - base64形式のスクリーンショット
+      #  * ConnectModel#_sendUpdateLandscapeHandler
+      #  * 同じRoom に所属しているユーザーのスクリーンショットが更新された時に呼び出されるイベントハンドラー
+      #  * アクティブなタブのcontent script にスクリーンショットの情報を通知する
+      #  * @param {Object} data
+      #  * @prop {string} socketId - 発信元のsocket.id
+      #  * @prop {string} landscape - スクリーンショット（base64）
       #  */
       # --------------------------------------------------------------
-      _changeLandscapeHandler: (model, landscape) ->
-        console.log "%c[Connect] ConnectModel -> _changeLandscapeHandler", debug.style
+      _sendUpdateLandscapeHandler: (port) ->
+        (data) =>
+          console.log "%c[Connect] ConnectModel -> _sendUpdateLandscapeHandler", debug.style, data
 
-
-      # # --------------------------------------------------------------
-      # # /**
-      # #  * ConnectModel#_setContentScriptPort
-      # #  * contentScript に接続したLong-lived なポートの設定をする
-      # #  * @param {Port} port - 双方向通信を可能にするオブジェクト
-      # #  * @prop https://developer.chrome.com/extensions/runtime#type-Port
-      # #  */
-      # # --------------------------------------------------------------
-      # _setContentScriptPort: (port) ->
-      #   console.log "%c[Connect] ConnectModel -> _setContentScriptPort", debug.style
-
-      #   # メッセージを受信した時の処理
-      #   port.onMessage.addListener (message) =>
-      #     console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
-
-      #     # content script からの通知か判別する
-      #     if (message.from? and message.from is "contentScript") and message.type?
-      #       switch message.type
-      #         when "pointerMove"
-      #           App.vent.trigger "connectPointerMove", message.body
-
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "updateLandscape"
+            body: data
 
     # ============================================================
     ConnectModule.addInitializer (options) ->

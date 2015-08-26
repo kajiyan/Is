@@ -24951,20 +24951,21 @@
 	      },
 	      initialize: function() {
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
-	        this.listenTo(this, "change:landscape", this._changeLandscapeHandler);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeIsRunHandler, sendCheckInHandler, sendCheckOutHandler, sendUpdatePointerHandler, windowId;
+	            var changeIsRunHandler, sendCheckInHandler, sendCheckOutHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, windowId;
 	            windowId = port.sender.tab.windowId;
 	            changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
 	            sendCheckInHandler = _this._sendCheckInHandler.bind(_this)(port);
 	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
 	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
+	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
 	            port.onDisconnect.addListener(function() {
 	              App.vent.off("stageChangeIsRun", changeIsRunHandler);
 	              App.vent.off("socketCheckIn", sendCheckInHandler);
 	              App.vent.off("socketCheckOut", sendCheckOutHandler);
 	              App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
+	              App.vent.off("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              port.disconnect();
 	              return console.log("%c[Connect] ConnectModel | onDisconnect", debug.style);
 	            });
@@ -24974,6 +24975,7 @@
 	              App.vent.on("socketCheckIn", sendCheckInHandler);
 	              App.vent.on("socketCheckOut", sendCheckOutHandler);
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
+	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              return port.onMessage.addListener(function(message) {
 	                var _sendCheckInHandler;
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
@@ -25073,8 +25075,18 @@
 	          };
 	        })(this);
 	      },
-	      _changeLandscapeHandler: function(model, landscape) {
-	        return console.log("%c[Connect] ConnectModel -> _changeLandscapeHandler", debug.style);
+	      _sendUpdateLandscapeHandler: function(port) {
+	        return (function(_this) {
+	          return function(data) {
+	            console.log("%c[Connect] ConnectModel -> _sendUpdateLandscapeHandler", debug.style, data);
+	            return port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "updateLandscape",
+	              body: data
+	            });
+	          };
+	        })(this);
 	      }
 	    });
 	    ConnectModule.addInitializer(function(options) {
@@ -25131,7 +25143,8 @@
 	        this.socket.on("reconnect_failed", this._reconnectFailedHandler.bind(this));
 	        this.socket.on("checkIn", this._receiveCheckInHandler.bind(this));
 	        this.socket.on("checkOut", this._receiveCheckOutHandler.bind(this));
-	        return this.socket.on("updatePointer", this._receiveUpdatePointerHandler.bind(this));
+	        this.socket.on("updatePointer", this._receiveUpdatePointerHandler.bind(this));
+	        return this.socket.on("updateLandscape", this._receiveUpdateLandscapeHandler.bind(this));
 	      },
 	      _join: function() {
 	        console.log("%c[Socket] SocketModel -> join", debug.style);
@@ -25143,9 +25156,9 @@
 	      _pointerMoveHandler: function(pointerPosition) {
 	        return this.socket.emit("pointerMove", pointerPosition);
 	      },
-	      _updateLandscapeHandler: function(landscape) {
-	        console.log("%c[Socket] SocketModel -> _updateLandscapeHandler", debug.style, landscape);
-	        return this.socket.emit("shootLandscape", landscape);
+	      _updateLandscapeHandler: function(data) {
+	        console.log("%c[Socket] SocketModel -> _updateLandscapeHandler", debug.style, data);
+	        return this.socket.emit("shootLandscape", data);
 	      },
 	      _connectHandler: function() {
 	        console.log("%c[Socket] SocketModel -> _connectHandler", debug.style, this.socket.id);
@@ -25205,6 +25218,10 @@
 	      _receiveUpdatePointerHandler: function(data) {
 	        console.log("%c[Socket] Socket -> _receiveUpdatePointerHandler", debug.style, data);
 	        return App.vent.trigger("socketUpdatePointer", data);
+	      },
+	      _receiveUpdateLandscapeHandler: function(data) {
+	        console.log("%c[Socket] Socket -> _receiveUpdateLandscapeHandler", debug.style, data);
+	        return App.vent.trigger("socketUpdateLandscape", data);
 	      },
 	      _changeIsConnectedHandler: function(socketModel, isConnected) {
 	        console.log("%c[Socket] SocketModel -> _changeIsConnectedHandler", debug.style, socketModel, isConnected);

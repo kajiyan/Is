@@ -78,10 +78,11 @@ module.exports = (App, sn, $, _) ->
 
               when "updatePointer"
                 # console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updatePointer", debug.style, message.body
-                
                 # マウス座標の変化を検知したらconnectUpdatePointer イベントを発火させる
                 App.vent.trigger "connectUpdatePointer", message.body
 
+              when "updateLandscape"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message.body
 
       # --------------------------------------------------------------
       # /**
