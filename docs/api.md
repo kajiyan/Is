@@ -344,8 +344,11 @@ JPEG画像を base64 エンコードした文字列
 # socket.io 系
 
 * [connect](#connect)
+* [disconnect](#disconnect)
 * [join](#join)
-* [getImage](#getImage)
+* [windowResize](#windowResize)
+* [pointerMove](#pointerMove)
+* [shootLandscape](#shootLandscape)
 
 ### port: 80
 
@@ -354,6 +357,7 @@ JPEG画像を base64 エンコードした文字列
 http://api.is-eternal.me/extension
 
 ## Namespace `Extension`
+
 
 <a name="connect"></a>
 ### 【connect】
@@ -383,14 +387,16 @@ var socket = io.connect( 'http://api.is-eternal.me/extension' );
 ***
 
 
+<a name="disconnect"></a>
 ### 【disconnect】
 
 #### Overview
 `Client -> API`  
-ユーザーがWebSocketサーバーとの接続が切断された時に通知される  
-Socket接続を終了する。それまで所属していたroom のcapacity をデクリメントする
+ユーザーがWebSocketサーバーとの接続が切断した時に受信する    
+Socket接続を終了し、それまで所属していたroom のcapacity をデクリメントする  
+[checkOut](#io-checkOut) を発信する
 
-##### Parameters
+##### Request Parameters
 
 ##### Callback
 
@@ -407,8 +413,7 @@ Socket接続を終了する。それまで所属していたroom のcapacity を
 ***
 
 
-
-
+<a name="join"></a>
 ### 【join】
 ユーザーの追加通知  
 [checkIn](#io-checkIn) を発信する
@@ -438,8 +443,47 @@ Socket接続を終了する。それまで所属していたroom のcapacity を
 ```js
 ```
 
+
 ***
 
+
+<a name="windowResize"></a>
+### 【windowResize】
+ユーザーのwindow サイズを受信する  
+受信した値を元に[updateWindowSize](#io-updateWindowSize) を発信する
+
+#### Overview
+`Client -> API`  
+
+##### Request Parameters
+- data
+
+		@param {Object}
+		@prop {number} [width] - 接続ユーザーのwindow の幅
+		@prop {number} [height] - 接続ユーザーのwindow の高さ
+
+		{
+			"width": 1920
+			"height": 1080
+		}
+
+##### Response 
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+
+***
+
+
+<a name="pointerMove"></a>
 ### 【pointerMove】
 ポインターが移動した時に通知される  
 同じRoom にJoin しているユーザーに [updatePointer](#io-updatePointer) を発信する
@@ -474,6 +518,7 @@ Socket接続を終了する。それまで所属していたroom のcapacity を
 ***
 
 
+<a name="shootLandscape"></a>
 ### 【shootLandscape】
 スクリーンショットが更新されたタイミングで通知される  
 同じRoom にJoin しているユーザーに [updateLandscape](#io-updateLandscape) を発信する
@@ -579,7 +624,46 @@ socket サーバーからのdisconnect が完了したタイミングで発信�
 ```js
 ```
 
+
 ***
+
+
+<a name="io-updateWindowSize"></a>
+### 【updateWindowSize】
+同じRoom に所属するユーザーのwindow サイズを受信する  
+
+#### Overview
+`API -> Client `  
+
+##### Request Parameters
+
+##### Response 
+- data
+
+		@param {Object}
+		@prop {string} socketId - 発信元のsocket.id
+		@prop {number} [width] - 接続ユーザーのwindow の幅
+		@prop {number} [height] - 接続ユーザーのwindow の高さ
+
+
+		{
+			socketId: "T16ontoFZG1fx7OpAAAH",
+			width: 1920,
+			height: 1080
+		}
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
+
 
 <a name="io-updatePointer"></a>
 ### 【updatePointer】

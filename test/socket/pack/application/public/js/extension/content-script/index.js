@@ -25175,9 +25175,26 @@
 	    StageItemView = Backbone.Marionette.ItemView.extend({
 	      initialize: function() {
 	        console.log("%c[Stage] StageItemView -> initialize", debug.style);
-	        return window.onload = function() {
-	          return alert("");
-	        };
+	        this._scrollTop = this.$el.scrollTop();
+	        this._scrollInterval = 100;
+	        this._windowScrollDebounce = _.debounce((function(_this) {
+	          return function(e) {
+	            console.log("%c[Stage] StageItemView -> _windowScrollDebounce", debug.style, e);
+	            if (_this._scrollInterval < Math.abs(_this._scrollTop - _this.$el.scrollTop())) {
+	              _this._scrollTop = _this.$el.scrollTop();
+	              return App.vent.trigger("stageWindowScroll");
+	            }
+	          };
+	        })(this), 500);
+	        return this._windowResizeDebounce = _.debounce((function(_this) {
+	          return function(e) {
+	            console.log("%c[Stage] StageItemView -> _windowResizeDebounce", debug.style, e);
+	            return App.vent.trigger("stageWindowResize", {
+	              width: _this.$el.width(),
+	              height: _this.$el.height()
+	            });
+	          };
+	        })(this), 500);
 	      },
 	      el: window,
 	      events: {
@@ -25186,10 +25203,12 @@
 	        "pointermove": "_pointerMoveHandler"
 	      },
 	      _windowScrollHandler: function(e) {
-	        return console.log("%c[Stage] StageItemView -> _windowScrollHandler", debug.style);
+	        console.log("%c[Stage] StageItemView -> _windowScrollHandler", debug.style);
+	        return this._windowScrollDebounce(e);
 	      },
 	      _windowResizeHandler: function(e) {
-	        return console.log("%c[Stage] StageItemView -> _windowResizeHandler", debug.style);
+	        console.log("%c[Stage] StageItemView -> _windowResizeHandler", debug.style);
+	        return this._windowResizeDebounce(e);
 	      },
 	      _pointerMoveHandler: function(e) {
 	        return App.vent.trigger("stagePointerMove", {
@@ -25277,14 +25296,46 @@
 	      _changeIsRunHandler: function(model, isRun) {
 	        console.log("%c[Connect] ConnectModel | _changeIsRunHandler", debug.style, isRun);
 	        if (isRun) {
+	          App.vent.on("stageWindowScroll", this._windowScrollHandler(this.port));
+	          App.vent.on("stageWindowResize", this._windowResizeHandler(this.port));
 	          return App.vent.on("stagePointerMove", this._pointerMoveHandler(this.port));
 	        } else if (!isRun) {
+	          App.vent.off("stageWindowScroll");
+	          App.vent.off("stageWindowResize");
 	          return App.vent.off("stagePointerMove");
 	        }
 	      },
 	      _changeUsersRunHandler: function(model, users) {
 	        console.log("%c[Connect] ConnectModel | _changeUsersRunHandler", debug.style, users);
 	        return App.vent.trigger("connectChangeUsers", users);
+	      },
+	      _windowScrollHandler: function(port) {
+	        return function() {
+	          console.log("%c[Connect] ConnectModel | _windowScrollHandler", debug.style);
+	          return port.postMessage({
+	            to: "background",
+	            from: "contentScript",
+	            type: "updateLandscape",
+	            body: null
+	          });
+	        };
+	      },
+	      _windowResizeHandler: function(port) {
+	        return function(windowSize) {
+	          console.log("%c[Connect] ConnectModel | _windowResizeHandler", debug.style, windowSize, port);
+	          port.postMessage({
+	            to: "background",
+	            from: "contentScript",
+	            type: "updateLandscape",
+	            body: null
+	          });
+	          return port.postMessage({
+	            to: "background",
+	            from: "contentScript",
+	            type: "windowResize",
+	            body: windowSize
+	          });
+	        };
 	      },
 	      _pointerMoveHandler: function(port) {
 	        return function(pointerPosition) {

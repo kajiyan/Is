@@ -24954,7 +24954,8 @@
 	        this.listenTo(this, "change:landscape", this._changeLandscapeHandler);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeIsRunHandler, sendCheckInHandler, sendCheckOutHandler, sendUpdatePointerHandler;
+	            var changeIsRunHandler, sendCheckInHandler, sendCheckOutHandler, sendUpdatePointerHandler, windowId;
+	            windowId = port.sender.tab.windowId;
 	            changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
 	            sendCheckInHandler = _this._sendCheckInHandler.bind(_this)(port);
 	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
@@ -24975,7 +24976,6 @@
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              return port.onMessage.addListener(function(message) {
 	                var _sendCheckInHandler;
-	                console.log("%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message);
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
 	                  switch (message.type) {
 	                    case "setup":
@@ -24992,10 +24992,21 @@
 	                          isRun: _this.get("isRun")
 	                        }
 	                      });
+	                    case "windowResize":
+	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | windowResize", debug.style, message);
+	                      return App.vent.trigger("connectWindowResize", message.body);
 	                    case "pointerMove":
 	                      return App.vent.trigger("connectPointerMove", message.body);
 	                    case "updateLandscape":
-	                      return console.log("%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message);
+	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message);
+	                      return chrome.tabs.captureVisibleTab(windowId, {
+	                        format: "jpeg",
+	                        quality: 80
+	                      }, function(dataUrl) {
+	                        return App.vent.trigger("connectUpdateLandscape", {
+	                          landscape: dataUrl
+	                        });
+	                      });
 	                  }
 	                }
 	              });
@@ -25102,7 +25113,9 @@
 	        console.log("%c[Socket] SocketModel -> initialize", debug.style);
 	        this.changeIsRunHandler = this._changeIsRunHandler.bind(this);
 	        App.vent.on("stageChangeIsRun", this.changeIsRunHandler);
+	        App.vent.on("connectWindowResize", this._windowResizeHandler.bind(this));
 	        App.vent.on("connectPointerMove", this._pointerMoveHandler.bind(this));
+	        App.vent.on("connectUpdateLandscape", this._updateLandscapeHandler.bind(this));
 	        return this.listenTo(this, "change:isConnected", this._changeIsConnectedHandler.bind(this));
 	      },
 	      _connect: function() {
@@ -25124,9 +25137,15 @@
 	        console.log("%c[Socket] SocketModel -> join", debug.style);
 	        return this.socket.emit("join");
 	      },
+	      _windowResizeHandler: function() {
+	        return console.log("%c[Socket] SocketModel -> _windowResizeHandler", debug.style);
+	      },
 	      _pointerMoveHandler: function(pointerPosition) {
-	        console.log("%c[Socket] SocketModel -> _pointerMoveHandler", debug.style, pointerPosition);
 	        return this.socket.emit("pointerMove", pointerPosition);
+	      },
+	      _updateLandscapeHandler: function(landscape) {
+	        console.log("%c[Socket] SocketModel -> _updateLandscapeHandler", debug.style, landscape);
+	        return this.socket.emit("shootLandscape", landscape);
 	      },
 	      _connectHandler: function() {
 	        console.log("%c[Socket] SocketModel -> _connectHandler", debug.style, this.socket.id);

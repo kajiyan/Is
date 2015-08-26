@@ -95,8 +95,13 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Connect] ConnectModel | _changeIsRunHandler", debug.style, isRun
 
         if isRun
+          App.vent.on "stageWindowScroll", @_windowScrollHandler @port
+          App.vent.on "stageWindowResize", @_windowResizeHandler @port
           App.vent.on "stagePointerMove", @_pointerMoveHandler @port
+
         else if not isRun
+          App.vent.off "stageWindowScroll"
+          App.vent.off "stageWindowResize"
           App.vent.off "stagePointerMove"
 
       # --------------------------------------------------------------
@@ -129,26 +134,52 @@ module.exports = (App, sn, $, _) ->
       #   #   (response) =>
       #   #     console.log "%c[Connect] ConnectModel | updateLandscape | Response Message", debug.style, response
 
-      # # --------------------------------------------------------------
-      # # /**
-      # #  * ConnectModel#_setBackgroundPort
-      # #  * background と接続しているLong-lived なポートの設定をする
-      # #  * @param {Port} port - 双方向通信を可能にするオブジェクト
-      # #  * @prop https://developer.chrome.com/extensions/runtime#type-Port
-      # #  */
-      # # --------------------------------------------------------------
-      # _setBackgroundPort: (port) ->
-      #   console.log "%c[Connect] ConnectModel | _setBackgroundPort", debug.style, port
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_windowScrollHandler
+      #  * スクロール座標に変化があった時のイベントハンドラー
+      #  * background script にスクリーンショットの撮影依頼をする
+      #  * @param {Object} port - Chrome Extentions Port Object
+      #  */
+      # --------------------------------------------------------------
+      _windowScrollHandler: (port) ->
+        return () ->
+          console.log "%c[Connect] ConnectModel | _windowScrollHandler", debug.style
 
-      #   # メッセージを受信した時の処理
-      #   port.onMessage.addListener (message) =>
-      #     console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
+          port.postMessage
+            to: "background"
+            from: "contentScript"
+            type: "updateLandscape"
+            body: null
 
-      #   port.postMessage
-      #     to: "background"
-      #     from: "contentScript"
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_windowResizeHandler
+      #  * windowサイズに変化があった時のイベントハンドラー
+      #  * background script にwindowサイズを通知とスクリーンショットの撮影依頼をする
+      #  * @param {Object} port - Chrome Extentions Port Object
+      #  */
+      # --------------------------------------------------------------
+      _windowResizeHandler: (port) ->
+        # /**
+        #  * @param {Object} windowSize
+        #  * @prop {number} width - window の幅
+        #  * @prop {number} height - window の高さ
+        #  */
+        return (windowSize) ->
+          console.log "%c[Connect] ConnectModel | _windowResizeHandler", debug.style, windowSize, port
 
-      #   App.vent.on "stagePointerMove", @_pointerMoveHandler(port)
+          port.postMessage
+            to: "background"
+            from: "contentScript"
+            type: "updateLandscape"
+            body: null
+
+          port.postMessage
+            to: "background"
+            from: "contentScript"
+            type: "windowResize"
+            body: windowSize
 
       # --------------------------------------------------------------
       # /**

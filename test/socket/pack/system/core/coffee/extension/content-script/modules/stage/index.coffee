@@ -2,6 +2,8 @@
 # Stage
 # 
 # EVENT
+#   - stageWindowScroll
+#   - stageWindowResize
 #   - stagePointerMove
 #
 # ============================================================
@@ -26,7 +28,41 @@ module.exports = (App, sn, $, _) ->
       initialize: () ->
         console.log "%c[Stage] StageItemView -> initialize", debug.style
 
-        window.onload = () -> alert ""
+        @_scrollTop = @$el.scrollTop()
+        # stageWindowScroll イベントを発火させる間隔
+        @_scrollInterval = 100
+
+        # Debounce Method
+        # derayTime = 400
+        # --------------------------------------------------------------
+        # /**
+        #  * StageItemView#_windowScrollDebounce
+        #  * StageItemView#_windowScrollHandler 内で呼び出される
+        #  * stageWindowScroll イベントを発火させる
+        #  */
+        # --------------------------------------------------------------
+        @_windowScrollDebounce = _.debounce (e) =>
+          console.log "%c[Stage] StageItemView -> _windowScrollDebounce", debug.style, e
+          
+          if @_scrollInterval < Math.abs(@_scrollTop - @$el.scrollTop())
+            @_scrollTop = @$el.scrollTop()
+            App.vent.trigger "stageWindowScroll"
+        , 500
+
+        # --------------------------------------------------------------
+        # /**
+        #  * StageItemView#_windowResizeDebounce
+        #  * StageItemView#_windowResizeHandler 内で呼び出される
+        #  * stageWindowResize イベントを発火させる
+        #  */
+        # --------------------------------------------------------------
+        @_windowResizeDebounce = _.debounce (e) =>
+          console.log "%c[Stage] StageItemView -> _windowResizeDebounce", debug.style, e
+
+          App.vent.trigger "stageWindowResize",
+            width: @$el.width()
+            height: @$el.height()
+        , 500
 
         # App.vent.on "stagePointerMove", (e) -> console.log e
         # App.vent.off "stagePointerMove"
@@ -40,24 +76,33 @@ module.exports = (App, sn, $, _) ->
         "resize": "_windowResizeHandler"
         "pointermove": "_pointerMoveHandler"
 
-
+      # --------------------------------------------------------------
+      # /**
+      #  * StageItemView#_windowScrollHandler
+      #  * @el でwindowScroll イベントが発生すると呼ばれるイベントハンドラー
+      #  * @param {Object} e - windowScroll のイベントオブジェクト
+      #  */
+      # --------------------------------------------------------------
       _windowScrollHandler: (e) ->
         console.log "%c[Stage] StageItemView -> _windowScrollHandler", debug.style
-
+        @_windowScrollDebounce(e)
 
       # --------------------------------------------------------------
       # /**
       #  * StageItemView#_windowResizeHandler
+      #  * @el でwindowResize イベントが発生すると呼ばれるイベントハンドラー
+      #  * @param {Object} e - windowResize のイベントオブジェクト
       #  */
       # --------------------------------------------------------------
       _windowResizeHandler: (e) ->
         console.log "%c[Stage] StageItemView -> _windowResizeHandler", debug.style
+        @_windowResizeDebounce(e)
 
       # --------------------------------------------------------------
       # /**
       #  * StageItemView#_pointerMoveHandler
       #  * @el でpointerMove イベントが発生すると呼ばれるイベントハンドラー
-      #  * @param {Object} e - pointermoveイベントのイベントオブジェクト
+      #  * @param {Object} e - pointermove のイベントオブジェクト
       #  */
       # --------------------------------------------------------------
       _pointerMoveHandler: (e) ->

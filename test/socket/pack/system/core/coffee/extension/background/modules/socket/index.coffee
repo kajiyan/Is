@@ -53,8 +53,12 @@ module.exports = (App, sn, $, _) ->
         # エクステンションの起動状態に変化があった時のイベントリスナー
         @changeIsRunHandler = @_changeIsRunHandler.bind @
         App.vent.on "stageChangeIsRun", @changeIsRunHandler
+        # window のサイズに変化があった時のイベントリスナー
+        App.vent.on "connectWindowResize", @_windowResizeHandler.bind @
         # ポインターの座標に変化があった時のイベントリスナー
         App.vent.on "connectPointerMove", @_pointerMoveHandler.bind @
+        # スクリーンショットが撮影された時のイベントリスナー
+        App.vent.on "connectUpdateLandscape", @_updateLandscapeHandler.bind @
         # WebSocket の接続状態が変わった時に実行される
         @listenTo @, "change:isConnected", @_changeIsConnectedHandler.bind(@)
 
@@ -96,6 +100,14 @@ module.exports = (App, sn, $, _) ->
 
         @socket.emit "join"
         # @socket.emit "join", { roomId: "000000" }, (e) -> console.log e
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_windowResizeHandler
+      #  */
+      # ------------------------------------------------------------
+      _windowResizeHandler: () ->
+        console.log "%c[Socket] SocketModel -> _windowResizeHandler", debug.style
         
       # ------------------------------------------------------------
       # /**
@@ -107,9 +119,19 @@ module.exports = (App, sn, $, _) ->
       #  */
       # ------------------------------------------------------------
       _pointerMoveHandler: (pointerPosition) ->
-        console.log "%c[Socket] SocketModel -> _pointerMoveHandler", debug.style, pointerPosition
-
+        # console.log "%c[Socket] SocketModel -> _pointerMoveHandler", debug.style, pointerPosition
         @socket.emit "pointerMove", pointerPosition
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_updateLandscapeHandler
+      #  * @param {Object} landscape
+      #  * @prop {string} landscape - スクリーンショット（base64）
+      #  */
+      # ------------------------------------------------------------
+      _updateLandscapeHandler: (landscape) ->
+        console.log "%c[Socket] SocketModel -> _updateLandscapeHandler", debug.style, landscape
+        @socket.emit "shootLandscape", landscape
 
       # ------------------------------------------------------------
       # /**

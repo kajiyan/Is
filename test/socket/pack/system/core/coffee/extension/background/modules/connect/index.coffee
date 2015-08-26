@@ -2,7 +2,9 @@
 # Connect
 # 
 # EVENT
+#   - connectWindowResize
 #   - connectPointerMove
+#   - connectUpdateLandscape
 #
 # SEND TYPE
 #   - changeIsRun ConnectModel#_changeIsRunHandler
@@ -58,6 +60,8 @@ module.exports = (App, sn, $, _) ->
         # content script からのLong-lived 接続
         # chrome.extension.onConnect.addListener (port) =>
         chrome.runtime.onConnect.addListener (port) =>
+          windowId = port.sender.tab.windowId
+
           changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
           sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
           sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
@@ -77,25 +81,17 @@ module.exports = (App, sn, $, _) ->
             console.log "%c[Connect] ConnectModel | onConnect", debug.style
 
             # エクステンションの起動状態に変化があった時のイベントリスナー
-            # App.vent.off "stageChangeIsRun", @_changeIsRunHandler.bind(@)(port)
-            # App.vent.on "stageChangeIsRun", @_changeIsRunHandler.bind(@)(port)
             App.vent.on "stageChangeIsRun", changeIsRunHandler
             # socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出される
-            # App.vent.off "socketCheckIn", @_sendCheckInHandler.bind(@)(port)
-            # App.vent.on "socketCheckIn", @_sendCheckInHandler.bind(@)(port)
             App.vent.on "socketCheckIn", sendCheckInHandler
             # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
-            # App.vent.off "socketCheckOut", @_sendCheckOutHandler.bind(@)(port)
-            # App.vent.on "socketCheckOut", @_sendCheckOutHandler.bind(@)(port)
             App.vent.on "socketCheckOut", sendCheckOutHandler
-            # ポインターの座標に変化があった時に呼び出される
-            # App.vent.off "socketUpdatePointer", @_sendUpdatePointerHandler.bind(@)(port)
-            # App.vent.on "socketUpdatePointer", @_sendUpdatePointerHandler.bind(@)(port)
+            # 同じRoom に所属しているユーザーのポインター座標に変化があった時に呼び出される
             App.vent.on "socketUpdatePointer", sendUpdatePointerHandler
 
             # メッセージを受信した時の処理
             port.onMessage.addListener (message) =>
-              console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
+              # console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
 
               # content script からの通知か判別する
               if (message.from? and message.from is "contentScript") and message.type?
@@ -103,6 +99,8 @@ module.exports = (App, sn, $, _) ->
                   when "setup"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message
                     
+                    # 初期値の幅高さ
+
                     # エクステンションがすでに起動している場合の処理
                     if @get "isRun"
                       # CheckInしているユーザーを取得する
@@ -116,11 +114,25 @@ module.exports = (App, sn, $, _) ->
                       body:
                         isRun: @get "isRun"
 
+                  when "windowResize"
+                    console.log "%c[Connect] ConnectModel | Long-lived Receive Message | windowResize", debug.style, message
+                    App.vent.trigger "connectWindowResize", message.body
+
                   when "pointerMove"
+                    # console.log "%c[Connect] ConnectModel | Long-lived Receive Message | pointerMove", debug.style, message
                     App.vent.trigger "connectPointerMove", message.body
 
                   when "updateLandscape"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message
+                    
+                    # スクリーンショットを撮影する
+                    chrome.tabs.captureVisibleTab windowId,
+                      format: "jpeg"
+                      quality: 80
+                      ,
+                      (dataUrl) ->
+                        App.vent.trigger "connectUpdateLandscape", landscape: dataUrl
+
 
       # --------------------------------------------------------------
       # /**
