@@ -131,8 +131,10 @@ module.exports = (App, sn, $, _) ->
                       format: "jpeg"
                       quality: 80
                       ,
-                      (dataUrl) ->
-                        App.vent.trigger "connectUpdateLandscape", landscape: dataUrl
+                      (_dataUrl) ->
+                        App.vent.trigger "connectUpdateLandscape",
+                          devicePixelRatio: message.body.devicePixelRatio
+                          dataUrl: _dataUrl
 
 
       # --------------------------------------------------------------
@@ -237,6 +239,7 @@ module.exports = (App, sn, $, _) ->
       #  * アクティブなタブのcontent script にスクリーンショットの情報を通知する
       #  * @param {Object} data
       #  * @prop {string} socketId - 発信元のsocket.id
+      #  * @prop {number} devicePixelRatio - 発信元のデバイスピクセル比
       #  * @prop {string} landscape - スクリーンショット（base64）
       #  */
       # --------------------------------------------------------------

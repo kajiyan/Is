@@ -270,7 +270,8 @@ Extension = (function() {
             .to(joinRoomId)
             .emit('updateLandscape', {
               'socketId': socket.id,
-              'landscape': data.landscape
+              'devicePixelRatio': data.devicePixelRatio,
+              'dataUrl': data.dataUrl
             });
         });
       });

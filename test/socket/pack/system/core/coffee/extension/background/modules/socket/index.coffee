@@ -303,6 +303,7 @@ module.exports = (App, sn, $, _) ->
       #  * socketUpdateLandscape イベントを発火する | connect がlisten
       #  * @param {Object} data
       #  * @prop {string} socketId - 発信元のsocket.id
+      #  * @prop {number} devicePixelRatio - 発信元のデバイスピクセル比
       #  * @prop {string} landscape - スクリーンショット（base64）
       #  */
       # ------------------------------------------------------------

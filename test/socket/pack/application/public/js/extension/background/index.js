@@ -25004,9 +25004,10 @@
 	                      return chrome.tabs.captureVisibleTab(windowId, {
 	                        format: "jpeg",
 	                        quality: 80
-	                      }, function(dataUrl) {
+	                      }, function(_dataUrl) {
 	                        return App.vent.trigger("connectUpdateLandscape", {
-	                          landscape: dataUrl
+	                          devicePixelRatio: message.body.devicePixelRatio,
+	                          dataUrl: _dataUrl
 	                        });
 	                      });
 	                  }

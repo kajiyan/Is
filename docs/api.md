@@ -530,10 +530,12 @@ Socket接続を終了し、それまで所属していたroom のcapacity をデ
 - data
 
 		@param {Object}
-		@prop {string} landscape - スクリーンショット（base64）
+		@prop {number} devicePixelRatio - ピクセル比
+		@prop {string} dataUrl - スクリーンショット（base64）
 
 		{
-			landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+			devicePixelRatio: 1,
+			dataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
 		}
 
 
@@ -714,11 +716,13 @@ socket サーバーからのdisconnect が完了したタイミングで発信�
 
 		@param {Object}
 		@prop {string} socketId - 発信元のsocket.id
-		@prop {string} landscape - スクリーンショット（base64）
+		@prop {number} devicePixelRatio - ピクセル比
+		@prop {string} dataUrl - スクリーンショット（base64）
 
 		{
 			socketId: "T16ontoFZG1fx7OpAAAH",
-			landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+			devicePixelRatio: 1,
+			dataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
 		}
 
 ###### Server

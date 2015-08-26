@@ -2,6 +2,7 @@
 # Connect
 # 
 # EVENT
+#   - connectChangeIsRun
 #   - connectChangeUsers
 #
 # ============================================================
@@ -83,17 +84,23 @@ module.exports = (App, sn, $, _) ->
 
               when "updateLandscape"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message.body
+                # 同じRoom に所属しているユーザーのスクリーンショットの
+                # 更新を検知したらconnectUpdateLandscape イベントを発火させる
+                App.vent.trigger "connectUpdateLandscape", message.body
 
       # --------------------------------------------------------------
       # /**
       #  * ConnectModel#_changeIsRunHandler
       #  * background からエクステンションの起動状態を受信した時の処理を設定する 
+      #  * connectChangeIsRun イベントを発火させる
       #  * @prop {Object} model - BackBone Model Object
       #  * @prop {boolean} isRun - エクステンションの起動状態
       #  */
       # --------------------------------------------------------------
       _changeIsRunHandler: (model, isRun) ->
         console.log "%c[Connect] ConnectModel | _changeIsRunHandler", debug.style, isRun
+
+        App.vent.trigger "connectChangeIsRun", "isRun": isRun
 
         if isRun
           App.vent.on "stageWindowScroll", @_windowScrollHandler @port
@@ -151,7 +158,8 @@ module.exports = (App, sn, $, _) ->
             to: "background"
             from: "contentScript"
             type: "updateLandscape"
-            body: null
+            body: 
+              devicePixelRatio: window.devicePixelRatio
 
       # --------------------------------------------------------------
       # /**

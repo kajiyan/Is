@@ -87,7 +87,10 @@
 	            },
 	            windowWidth: 0,
 	            windowHeight: 0,
-	            landscape: ""
+	            landscape: {
+	              devicePixelRatio: 0,
+	              dataUrl: ""
+	            }
 	          },
 	          initialize: function() {
 	            return console.log("%c[Extension] LoverModel -> initialize", debug.style);
@@ -109,7 +112,8 @@
 	          initialize: function() {
 	            console.log("%c[Extension] LoversCollection -> initialize", debug.style);
 	            Extension.vent.on("connectChangeUsers", this._changeUsersHandler.bind(this));
-	            return Extension.vent.on("connectUpdatePointer", this._updatePointerHandler.bind(this));
+	            Extension.vent.on("connectUpdatePointer", this._updatePointerHandler.bind(this));
+	            return Extension.vent.on("connectUpdateLandscape", this._updateLandscapeHandler.bind(this));
 	          },
 	          model: LoverModel,
 	          _changeUsersHandler: function(users) {
@@ -135,6 +139,19 @@
 	                y: data.y
 	              }
 	            });
+	          },
+	          _updateLandscapeHandler: function(data) {
+	            var lover;
+	            console.log("%c[Extension] LoversCollection -> _updateLandscapeHandler", debug.style, data);
+	            lover = this.findWhere({
+	              id: data.socketId
+	            });
+	            return lover.set({
+	              landscape: {
+	                devicePixelRatio: data.devicePixelRatio,
+	                dataUrl: data.dataUrl
+	              }
+	            });
 	          }
 	        });
 	        MemorysCollection = Backbone.Collection.extend({
@@ -143,7 +160,8 @@
 	        LoverItemView = Backbone.Marionette.ItemView.extend({
 	          initialize: function() {
 	            console.log("[ExtensionModule] LoverItemView -> initialize");
-	            return this.listenTo(this.model, "change:position", this._changePositionHandler);
+	            this.listenTo(this.model, "change:position", this._changePositionHandler);
+	            return this.listenTo(this.model, "change:landscape", this._changeLandscapeHandler);
 	          },
 	          tagName: "div",
 	          className: "lover",
@@ -157,8 +175,14 @@
 	          },
 	          onRender: function() {},
 	          _changePositionHandler: function(model, position) {
-	            return this.$el.css({
+	            return this.ui.body.css({
 	              transform: "translate(" + position.x + "px, " + position.y + "px)"
+	            });
+	          },
+	          _changeLandscapeHandler: function(model, landscape) {
+	            console.log("%c[Extension] LoverItemView -> _changeLandscapeHandler", debug.style, landscape);
+	            return this.ui.landscape.css({
+	              "background-image": "url(" + landscape.dataUrl + ")"
 	            });
 	          },
 	          _bodyMouseenterHandler: function() {
@@ -25300,7 +25324,8 @@
 	                case "updatePointer":
 	                  return App.vent.trigger("connectUpdatePointer", message.body);
 	                case "updateLandscape":
-	                  return console.log("%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message.body);
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message.body);
+	                  return App.vent.trigger("connectUpdateLandscape", message.body);
 	              }
 	            }
 	          };
@@ -25308,6 +25333,9 @@
 	      },
 	      _changeIsRunHandler: function(model, isRun) {
 	        console.log("%c[Connect] ConnectModel | _changeIsRunHandler", debug.style, isRun);
+	        App.vent.trigger("connectChangeIsRun", {
+	          "isRun": isRun
+	        });
 	        if (isRun) {
 	          App.vent.on("stageWindowScroll", this._windowScrollHandler(this.port));
 	          App.vent.on("stageWindowResize", this._windowResizeHandler(this.port));
@@ -25329,7 +25357,9 @@
 	            to: "background",
 	            from: "contentScript",
 	            type: "updateLandscape",
-	            body: null
+	            body: {
+	              devicePixelRatio: window.devicePixelRatio
+	            }
 	          });
 	        };
 	      },
