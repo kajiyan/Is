@@ -24959,14 +24959,13 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeIsRunHandler, link, sendAddUser, sendCheckInHandler, sendCheckOutHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, tabId, windowId;
+	            var changeIsRunHandler, link, sendAddUser, sendCheckOutHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, tabId, windowId;
 	            tabId = port.sender.tab.id;
 	            windowId = port.sender.tab.windowId;
 	            link = port.sender.tab.url;
 	            changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
 	            sendJointedHandler = _this._sendJointedHandler.bind(_this)(port);
 	            sendAddUser = _this._sendAddUser.bind(_this)(port);
-	            sendCheckInHandler = _this._sendCheckInHandler.bind(_this)(port);
 	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
 	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
 	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
@@ -24974,7 +24973,6 @@
 	              App.vent.off("stageChangeIsRun", changeIsRunHandler);
 	              App.vent.off("socketJointed", sendJointedHandler);
 	              App.vent.off("socketAddUser", sendAddUser);
-	              App.vent.off("socketCheckIn", sendCheckInHandler);
 	              App.vent.off("socketCheckOut", sendCheckOutHandler);
 	              App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.off("socketUpdateLandscape", sendUpdateLandscapeHandler);
@@ -24986,20 +24984,14 @@
 	              App.vent.on("stageChangeIsRun", changeIsRunHandler);
 	              App.vent.on("socketJointed", sendJointedHandler);
 	              App.vent.on("socketAddUser", sendAddUser);
-	              App.vent.on("socketCheckIn", sendCheckInHandler);
 	              App.vent.on("socketCheckOut", sendCheckOutHandler);
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              return port.onMessage.addListener(function(message) {
-	                var _sendCheckInHandler, selsectedTabId;
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
 	                  switch (message.type) {
 	                    case "setup":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message);
-	                      if (_this.get("isRun")) {
-	                        _sendCheckInHandler = _this._sendCheckInHandler.bind(_this)(port);
-	                        _sendCheckInHandler(App.reqres.request("socketGetUsers"));
-	                      }
 	                      return port.postMessage({
 	                        to: "contentScript",
 	                        from: "background",
@@ -25029,22 +25021,18 @@
 	                      });
 	                    case "initializeResident":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message);
-	                      selsectedTabId = App.reqres.request("stageGetSelsectedTabId");
-	                      if (tabId === selsectedTabId) {
-	                        return chrome.tabs.captureVisibleTab(windowId, {
-	                          format: "jpeg",
-	                          quality: 80
-	                        }, function(dataUrl) {
-	                          return App.vent.trigger("connectInitializeResident", {
-	                            toSocketId: message.body.toSocketId,
-	                            position: message.body.position,
-	                            window: message.body.window,
-	                            link: link,
-	                            landscape: dataUrl
-	                          });
+	                      return chrome.tabs.captureVisibleTab(windowId, {
+	                        format: "jpeg",
+	                        quality: 80
+	                      }, function(dataUrl) {
+	                        return App.vent.trigger("connectInitializeResident", {
+	                          toSocketId: message.body.toSocketId,
+	                          position: message.body.position,
+	                          window: message.body.window,
+	                          link: link,
+	                          landscape: dataUrl
 	                        });
-	                      }
-	                      break;
+	                      });
 	                    case "windowResize":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | windowResize", debug.style, message);
 	                      return App.vent.trigger("connectWindowResize", message.body);
@@ -25099,6 +25087,7 @@
 	      _sendAddUser: function(port) {
 	        return (function(_this) {
 	          return function(data) {
+	            var selsectedTabId, tabId;
 	            console.log("%c[Connect] ConnectModel -> _sendAddUser", debug.style, data);
 	            port.postMessage({
 	              to: "contentScript",
@@ -25106,14 +25095,18 @@
 	              type: "addUser",
 	              body: data
 	            });
-	            return port.postMessage({
-	              to: "contentScript",
-	              from: "background",
-	              type: "initializeResident",
-	              body: {
-	                toSocketId: data.id
-	              }
-	            });
+	            tabId = port.sender.tab.id;
+	            selsectedTabId = App.reqres.request("stageGetSelsectedTabId");
+	            if (tabId === selsectedTabId) {
+	              return port.postMessage({
+	                to: "contentScript",
+	                from: "background",
+	                type: "initializeResident",
+	                body: {
+	                  toSocketId: data.id
+	                }
+	              });
+	            }
 	          };
 	        })(this);
 	      },
@@ -25229,6 +25222,7 @@
 	        this.socket.on("reconnect_error", this._reconnectErrorHandler.bind(this));
 	        this.socket.on("reconnect_failed", this._reconnectFailedHandler.bind(this));
 	        this.socket.on("addUser", this._receiveAddUserHandler.bind(this));
+	        this.socket.on("addResident", this._receiveAddResidentHandler.bind(this));
 	        this.socket.on("checkOut", this._receiveCheckOutHandler.bind(this));
 	        this.socket.on("updatePointer", this._receiveUpdatePointerHandler.bind(this));
 	        return this.socket.on("updateLandscape", this._receiveUpdateLandscapeHandler.bind(this));
@@ -25306,6 +25300,10 @@
 	      _receiveAddUserHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _receiveAddUserHandler", debug.style, data);
 	        return App.vent.trigger("socketAddUser", data);
+	      },
+	      _receiveAddResidentHandler: function(data) {
+	        console.log("%c[Socket] SocketModel -> _receiveAddResidentHandler", debug.style, data);
+	        return App.vent.trigger("socketAddResident", data);
 	      },
 	      _receiveCheckInHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _receiveCheckInHandler", debug.style, data);

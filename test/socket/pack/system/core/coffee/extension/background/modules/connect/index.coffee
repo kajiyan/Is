@@ -72,7 +72,7 @@ module.exports = (App, sn, $, _) ->
           changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
           sendJointedHandler = @_sendJointedHandler.bind(@)(port)
           sendAddUser = @_sendAddUser.bind(@)(port)
-          sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
+          # sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
           sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
           sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
           sendUpdateLandscapeHandler = @_sendUpdateLandscapeHandler.bind(@)(port)
@@ -82,7 +82,8 @@ module.exports = (App, sn, $, _) ->
             App.vent.off "stageChangeIsRun", changeIsRunHandler
             App.vent.off "socketJointed", sendJointedHandler
             App.vent.off "socketAddUser", sendAddUser
-            App.vent.off "socketCheckIn", sendCheckInHandler
+            # "socketAddResident"
+            # App.vent.off "socketCheckIn", sendCheckInHandler
             App.vent.off "socketCheckOut", sendCheckOutHandler
             App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
             App.vent.off "socketUpdateLandscape", sendUpdateLandscapeHandler
@@ -100,7 +101,7 @@ module.exports = (App, sn, $, _) ->
             # socketサーバーから所属するroomに新規ユーザーが追加された時に呼び出される
             App.vent.on "socketAddUser", sendAddUser
             # socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出される
-            App.vent.on "socketCheckIn", sendCheckInHandler
+            # App.vent.on "socketCheckIn", sendCheckInHandler
             # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
             App.vent.on "socketCheckOut", sendCheckOutHandler
             # 同じRoom に所属しているユーザーのポインター座標に変化があった時に呼び出される
@@ -117,14 +118,12 @@ module.exports = (App, sn, $, _) ->
                 switch message.type
                   when "setup"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message
-                    
-                    # 初期値の幅高さ リンク
 
-                    # エクステンションがすでに起動している場合の処理
-                    if @get "isRun"
-                      # CheckInしているユーザーを取得する
-                      _sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
-                      _sendCheckInHandler App.reqres.request "socketGetUsers"
+                    # # エクステンションがすでに起動している場合の処理
+                    # if @get "isRun"
+                    #   # CheckInしているユーザーを取得する
+                    #   _sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
+                    #   _sendCheckInHandler App.reqres.request "socketGetUsers"
 
                     port.postMessage
                       to: "contentScript"
@@ -155,22 +154,17 @@ module.exports = (App, sn, $, _) ->
                   when "initializeResident"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message
 
-                    # 現在選択されているTabのIDを取得する
-                    selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
-
-                    # アクティブなタブのデータで初期値を送信する
-                    if tabId is selsectedTabId
-                      chrome.tabs.captureVisibleTab windowId,
-                        format: "jpeg"
-                        quality: 80
-                        ,
-                        (dataUrl) ->
-                          App.vent.trigger "connectInitializeResident",
-                            toSocketId: message.body.toSocketId
-                            position: message.body.position
-                            window: message.body.window
-                            link: link
-                            landscape: dataUrl
+                    chrome.tabs.captureVisibleTab windowId,
+                      format: "jpeg"
+                      quality: 80
+                      ,
+                      (dataUrl) ->
+                        App.vent.trigger "connectInitializeResident",
+                          toSocketId: message.body.toSocketId
+                          position: message.body.position
+                          window: message.body.window
+                          link: link
+                          landscape: dataUrl
 
 
                   when "windowResize"
@@ -273,12 +267,19 @@ module.exports = (App, sn, $, _) ->
             type: "addUser"
             body: data
 
-          port.postMessage
-            to: "contentScript"
-            from: "background"
-            type: "initializeResident"
-            body:
-              toSocketId: data.id
+          # このポートが接続しているtabId
+          tabId = port.sender.tab.id
+          # 現在選択されているTabのIDを取得する
+          selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
+
+          # アクティブなタブだけにメッセージを送る
+          if tabId is selsectedTabId
+            port.postMessage
+              to: "contentScript"
+              from: "background"
+              type: "initializeResident"
+              body:
+                toSocketId: data.id
 
       # --------------------------------------------------------------
       # /**

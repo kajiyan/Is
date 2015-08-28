@@ -256,6 +256,8 @@ Extension = (function() {
            * @prop {string} landscape - スクリーンショット（base64）
            */
           function(data) {
+            console.log('[Controller] Extension -> Socket Receive Message | initializeUser');
+
             // ポインターの初期値を送信者以外に送る
             socket
               .broadcast
@@ -270,6 +272,33 @@ Extension = (function() {
                   'width': data.window.width,
                   'height': data.window.height
                 },
+                'link': data.link,
+                'landscape': data.landscape
+              });
+          }
+        );
+
+        // --------------------------------------------------------------
+        socket.on('initializeResident',
+          /**
+           * @param {Object} data
+           * @prop {string} toSoketId - 送信先のsocketID
+           * @prop {number} position.x - 接続ユーザーのポインター x座標
+           * @prop {number} position.y - 接続ユーザーのポインター y座標
+           * @prop {number} window.width - 接続ユーザーのwindow の幅
+           * @prop {number} window.height - 接続ユーザーのwindow の高さ
+           * @prop {string} link - 接続ユーザーが閲覧していたページのURL
+           * @prop {string} landscape - スクリーンショット（base64）
+           */
+          function(data) {
+            console.log('[Controller] Extension -> Socket Receive Message | initializeResident');
+
+            socket
+              .to(data.toSocketId)
+              .emit('addResident', {
+                'id': socket.id,
+                'position': data.position,
+                'window': data.window,
                 'link': data.link,
                 'landscape': data.landscape
               });

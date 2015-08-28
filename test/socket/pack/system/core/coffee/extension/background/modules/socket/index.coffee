@@ -96,7 +96,8 @@ module.exports = (App, sn, $, _) ->
         # @socket.on "checkIn", @_receiveCheckInHandler.bind(@)
 
         @socket.on "addUser", @_receiveAddUserHandler.bind(@)
-
+        # 同じRoom に所属するユーザーの初期化に必要なデータを受信する
+        @socket.on "addResident", @_receiveAddResidentHandler.bind(@)
         # 同じRoom に所属していたユーザーのSocket ID を受信する
         @socket.on "checkOut", @_receiveCheckOutHandler.bind(@)
         # 同じRoom に所属するユーザーのポインター座標を受信する
@@ -153,7 +154,7 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       _initializeResidentHandler: (data) ->
         console.log "%c[Socket] SocketModel -> _initializeResidentHandler", debug.style, data
-        @socket.emit "initializeResident", data        
+        @socket.emit "initializeResident", data   
 
       # ------------------------------------------------------------
       # /**
@@ -325,7 +326,24 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] SocketModel -> _receiveAddUserHandler", debug.style, data
         App.vent.trigger "socketAddUser", data
 
-        # 自分の情報を新規ユーザーに通知する
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_receiveAddResidentHandler
+      #  * 同じRoomに所属するユーザーの初期化に必要なデータを受信したときのイベントハンドラー
+      #  * socketAddResidentイベントを発火する
+      #  * @param {Object} data
+      #  * @prop {string} id - 接続済ユーザーのsocket.id
+      #  * @prop {number} position.x - 接続済ユーザーのポインター x座標
+      #  * @prop {number} position.y - 接続済ユーザーのポインター y座標
+      #  * @prop {number} window.width - 接続済ユーザーのwindow の幅
+      #  * @prop {number} window.height - 接続済ユーザーのwindow の高さ
+      #  * @prop {string} link - 接続済ユーザーが閲覧していたページのURL
+      #  * @prop {string} landscape - スクリーンショット（base64）
+      #  */
+      # ------------------------------------------------------------
+      _receiveAddResidentHandler: (data) ->
+        console.log "%c[Socket] SocketModel -> _receiveAddResidentHandler", debug.style, data
+        App.vent.trigger "socketAddResident", data
 
       # ------------------------------------------------------------
       # /**
