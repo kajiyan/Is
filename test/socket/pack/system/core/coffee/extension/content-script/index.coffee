@@ -233,6 +233,7 @@ do (window=window, document=document, $=jQuery) ->
           initialize: () ->
             console.log "%c[Extension] LoversCollection -> initialize", debug.style
             Extension.vent.on "connectAddUser", @_addUserHandler.bind @
+            Extension.vent.on "connectAddResident", @_addUserHandler.bind @
             # Extension.vent.on "connectChangeUsers", @_changeUsersHandler.bind @
             # Extension.vent.on "connectUpdatePointer", @_updatePointerHandler.bind @
             # Extension.vent.on "connectUpdateLandscape", @_updateLandscapeHandler.bind @

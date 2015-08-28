@@ -111,7 +111,8 @@
 	        LoversCollection = Backbone.Collection.extend({
 	          initialize: function() {
 	            console.log("%c[Extension] LoversCollection -> initialize", debug.style);
-	            return Extension.vent.on("connectAddUser", this._addUserHandler.bind(this));
+	            Extension.vent.on("connectAddUser", this._addUserHandler.bind(this));
+	            return Extension.vent.on("connectAddResident", this._addUserHandler.bind(this));
 	          },
 	          model: LoverModel,
 	          _addUserHandler: function(data) {
@@ -25370,6 +25371,9 @@
 	                case "addUser":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | addUser", debug.style, message.body);
 	                  return App.vent.trigger("connectAddUser", message.body);
+	                case "addResident":
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | addResident", debug.style, message.body);
+	                  return App.vent.trigger("connectAddResident", message.body);
 	                case "initializeResident":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message.body);
 	                  return App.vent.trigger("connectInitializeResident", message.body);

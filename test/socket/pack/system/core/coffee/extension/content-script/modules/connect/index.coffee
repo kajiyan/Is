@@ -6,6 +6,7 @@
 #   - connectChangeUsers
 #   - connectJointed
 #   - connectAddUser
+#   - connectAddResident
 #
 # ============================================================
 module.exports = (App, sn, $, _) ->
@@ -81,6 +82,10 @@ module.exports = (App, sn, $, _) ->
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | addUser", debug.style, message.body
                 App.vent.trigger "connectAddUser", message.body
 
+              when "addResident"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | addResident", debug.style, message.body
+                App.vent.trigger "connectAddResident", message.body
+              
               when "initializeResident"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message.body
                 App.vent.trigger "connectInitializeResident", message.body

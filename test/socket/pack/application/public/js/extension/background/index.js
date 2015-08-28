@@ -24959,13 +24959,14 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeIsRunHandler, link, sendAddUser, sendCheckOutHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, tabId, windowId;
+	            var changeIsRunHandler, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, tabId, windowId;
 	            tabId = port.sender.tab.id;
 	            windowId = port.sender.tab.windowId;
 	            link = port.sender.tab.url;
 	            changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
 	            sendJointedHandler = _this._sendJointedHandler.bind(_this)(port);
 	            sendAddUser = _this._sendAddUser.bind(_this)(port);
+	            sendAddResident = _this._sendAddResident.bind(_this)(port);
 	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
 	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
 	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
@@ -24973,6 +24974,7 @@
 	              App.vent.off("stageChangeIsRun", changeIsRunHandler);
 	              App.vent.off("socketJointed", sendJointedHandler);
 	              App.vent.off("socketAddUser", sendAddUser);
+	              App.vent.off("socketAddResident", sendAddResident);
 	              App.vent.off("socketCheckOut", sendCheckOutHandler);
 	              App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.off("socketUpdateLandscape", sendUpdateLandscapeHandler);
@@ -24984,6 +24986,7 @@
 	              App.vent.on("stageChangeIsRun", changeIsRunHandler);
 	              App.vent.on("socketJointed", sendJointedHandler);
 	              App.vent.on("socketAddUser", sendAddUser);
+	              App.vent.on("socketAddResident", sendAddResident);
 	              App.vent.on("socketCheckOut", sendCheckOutHandler);
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
@@ -25110,17 +25113,15 @@
 	          };
 	        })(this);
 	      },
-	      _sendCheckInHandler: function(port) {
+	      _sendAddResident: function(port) {
 	        return (function(_this) {
-	          return function(users) {
-	            console.log("%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users);
+	          return function(data) {
+	            console.log("%c[Connect] ConnectModel -> _sendAddResident", debug.style, data);
 	            return port.postMessage({
 	              to: "contentScript",
 	              from: "background",
-	              type: "checkIn",
-	              body: {
-	                users: users
-	              }
+	              type: "addResident",
+	              body: data
 	            });
 	          };
 	        })(this);

@@ -72,7 +72,7 @@ module.exports = (App, sn, $, _) ->
           changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
           sendJointedHandler = @_sendJointedHandler.bind(@)(port)
           sendAddUser = @_sendAddUser.bind(@)(port)
-          # sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
+          sendAddResident = @_sendAddResident.bind(@)(port)
           sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
           sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
           sendUpdateLandscapeHandler = @_sendUpdateLandscapeHandler.bind(@)(port)
@@ -82,8 +82,7 @@ module.exports = (App, sn, $, _) ->
             App.vent.off "stageChangeIsRun", changeIsRunHandler
             App.vent.off "socketJointed", sendJointedHandler
             App.vent.off "socketAddUser", sendAddUser
-            # "socketAddResident"
-            # App.vent.off "socketCheckIn", sendCheckInHandler
+            App.vent.off "socketAddResident", sendAddResident
             App.vent.off "socketCheckOut", sendCheckOutHandler
             App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
             App.vent.off "socketUpdateLandscape", sendUpdateLandscapeHandler
@@ -101,7 +100,7 @@ module.exports = (App, sn, $, _) ->
             # socketサーバーから所属するroomに新規ユーザーが追加された時に呼び出される
             App.vent.on "socketAddUser", sendAddUser
             # socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出される
-            # App.vent.on "socketCheckIn", sendCheckInHandler
+            App.vent.on "socketAddResident", sendAddResident
             # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
             App.vent.on "socketCheckOut", sendCheckOutHandler
             # 同じRoom に所属しているユーザーのポインター座標に変化があった時に呼び出される
@@ -283,23 +282,50 @@ module.exports = (App, sn, $, _) ->
 
       # --------------------------------------------------------------
       # /**
-      #  * ConnectModel#_sendCheckInHandler
-      #  * socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出されるイベントハンドラーかつ
-      #  * Receive Message | setup が発生した時にエクステンションが起動している時にも呼び出される
-      #  * アクティブなタブのcontent script にユーザーの一覧を通知する
-      #  * @param {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
+      #  * ConnectModel#_sendAddResident
+      #  * 同じRoomに所属するユーザーの初期化に必要なデータを受信したときのイベントハンドラー
+      #  * content script に既存ユーザーの表示依頼(addResident)を発信する
       #  */
       # -------------------------------------------------------------
-      _sendCheckInHandler: (port) ->
-        return (users) =>
-          console.log "%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users
+      _sendAddResident: (port) ->
+        # /**
+        #  * @param {Object} data
+        #  * @prop {string} id - 発信元のsocket.id
+        #  * @prop {number} position.x - 接続ユーザーのポインター x座標
+        #  * @prop {number} position.y - 接続ユーザーのポインター y座標
+        #  * @prop {number} window.width - 接続ユーザーのwindow の幅
+        #  * @prop {number} window.height - 接続ユーザーのwindow の高さ
+        #  * @prop {string} link - 接続ユーザーが閲覧していたページのURL
+        #  * @prop {string} landscape - スクリーンショット（base64）
+        #  */
+        return (data) =>
+          console.log "%c[Connect] ConnectModel -> _sendAddResident", debug.style, data
 
           port.postMessage
             to: "contentScript"
             from: "background"
-            type: "checkIn"
-            body:
-              users: users
+            type: "addResident"
+            body: data
+
+      # # --------------------------------------------------------------
+      # # /**
+      # #  * ConnectModel#_sendCheckInHandler
+      # #  * socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出されるイベントハンドラーかつ
+      # #  * Receive Message | setup が発生した時にエクステンションが起動している時にも呼び出される
+      # #  * アクティブなタブのcontent script にユーザーの一覧を通知する
+      # #  * @param {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
+      # #  */
+      # # -------------------------------------------------------------
+      # _sendCheckInHandler: (port) ->
+      #   return (users) =>
+      #     console.log "%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users
+
+      #     port.postMessage
+      #       to: "contentScript"
+      #       from: "background"
+      #       type: "checkIn"
+      #       body:
+      #         users: users
 
       # ------------------------------------------------------------
       # /**
