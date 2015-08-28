@@ -2,6 +2,7 @@
 # Connect
 # 
 # EVENT
+#   - connectInitializeUser
 #   - connectWindowResize
 #   - connectPointerMove
 #   - connectUpdateLandscape
@@ -57,9 +58,20 @@ module.exports = (App, sn, $, _) ->
         # content script からのLong-lived 接続
         # chrome.extension.onConnect.addListener (port) =>
         chrome.runtime.onConnect.addListener (port) =>
+
+          # chrome.tabs.query
+          #   currentWindow: true
+          #   active: true
+          #   ,
+          #   (tabs) ->
+          #     console.log tabs
+          tabId = port.sender.tab.id
           windowId = port.sender.tab.windowId
+          link = port.sender.tab.url
 
           changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
+          sendJointedHandler = @_sendJointedHandler.bind(@)(port)
+          sendAddUser = @_sendAddUser.bind(@)(port)
           sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
           sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
           sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
@@ -68,6 +80,8 @@ module.exports = (App, sn, $, _) ->
           # Long-lived 接続 切断時の処理を登録する
           port.onDisconnect.addListener =>
             App.vent.off "stageChangeIsRun", changeIsRunHandler
+            App.vent.off "socketJointed", sendJointedHandler
+            App.vent.off "socketAddUser", sendAddUser
             App.vent.off "socketCheckIn", sendCheckInHandler
             App.vent.off "socketCheckOut", sendCheckOutHandler
             App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
@@ -81,6 +95,10 @@ module.exports = (App, sn, $, _) ->
 
             # エクステンションの起動状態に変化があった時のイベントリスナー
             App.vent.on "stageChangeIsRun", changeIsRunHandler
+            # socketサーバーの特定のRoomへの入室が完了した時に呼び出される
+            App.vent.on "socketJointed", sendJointedHandler
+            # socketサーバーから所属するroomに新規ユーザーが追加された時に呼び出される
+            App.vent.on "socketAddUser", sendAddUser
             # socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出される
             App.vent.on "socketCheckIn", sendCheckInHandler
             # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
@@ -115,6 +133,46 @@ module.exports = (App, sn, $, _) ->
                       body:
                         isRun: @get "isRun"
 
+                  when "initializeUser"
+                    console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message
+                    
+                    # スクリーンショットを撮影する
+                    chrome.tabs.captureVisibleTab windowId,
+                      format: "jpeg"
+                      quality: 80
+                      ,
+                      (dataUrl) ->
+                        App.vent.trigger "connectInitializeUser",
+                          position:
+                            x: message.body.position.x
+                            y: message.body.position.y
+                          window:
+                            width: message.body.window.width
+                            height: message.body.window.height
+                          link: link
+                          landscape: dataUrl
+
+                  when "initializeResident"
+                    console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message
+
+                    # 現在選択されているTabのIDを取得する
+                    selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
+
+                    # アクティブなタブのデータで初期値を送信する
+                    if tabId is selsectedTabId
+                      chrome.tabs.captureVisibleTab windowId,
+                        format: "jpeg"
+                        quality: 80
+                        ,
+                        (dataUrl) ->
+                          App.vent.trigger "connectInitializeResident",
+                            toSocketId: message.body.toSocketId
+                            position: message.body.position
+                            window: message.body.window
+                            link: link
+                            landscape: dataUrl
+
+
                   when "windowResize"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | windowResize", debug.style, message
                     App.vent.trigger "connectWindowResize", message.body
@@ -131,10 +189,9 @@ module.exports = (App, sn, $, _) ->
                       format: "jpeg"
                       quality: 80
                       ,
-                      (_dataUrl) ->
+                      (dataUrl) ->
                         App.vent.trigger "connectUpdateLandscape",
-                          devicePixelRatio: message.body.devicePixelRatio
-                          dataUrl: _dataUrl
+                          landscape: dataUrl
 
 
       # --------------------------------------------------------------
@@ -171,6 +228,57 @@ module.exports = (App, sn, $, _) ->
       #   if @get "isRun"
       #     contentScriptPort = chrome.tabs.connect tabId, "name": "background"
       #     @_setContentScriptPort contentScriptPort
+
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_sendJointedHandler
+      #  * socketサーバーの特定のRoomへの入室が完了した時に呼び出されるイベントハンドラー
+      #  */
+      # -------------------------------------------------------------
+      _sendJointedHandler: (port) ->
+        return () =>
+          console.log "%c[Connect] ConnectModel -> _sendJointedHandler", debug.style
+
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "jointed"
+            body: {}
+
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_sendAddUser
+      #  * socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出されるイベントハンドラー
+      #  * content script に新規ユーザーの表示依頼(addUser)と、
+      #  * 新規ユーザーに通知する既存ユーザーの情報取得依頼(initializeResident)をする
+      #  */
+      # -------------------------------------------------------------
+      _sendAddUser: (port) ->
+        # /**
+        #  * @param {Object} data
+        #  * @prop {string} id - 発信元のsocket.id
+        #  * @prop {number} position.x - 接続ユーザーのポインター x座標
+        #  * @prop {number} position.y - 接続ユーザーのポインター y座標
+        #  * @prop {number} window.width - 接続ユーザーのwindow の幅
+        #  * @prop {number} window.height - 接続ユーザーのwindow の高さ
+        #  * @prop {string} link - 接続ユーザーが閲覧していたページのURL
+        #  * @prop {string} landscape - スクリーンショット（base64）
+        #  */
+        return (data) =>
+          console.log "%c[Connect] ConnectModel -> _sendAddUser", debug.style, data
+
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "addUser"
+            body: data
+
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "initializeResident"
+            body:
+              toSocketId: data.id
 
       # --------------------------------------------------------------
       # /**

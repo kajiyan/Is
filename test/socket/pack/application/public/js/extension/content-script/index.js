@@ -72,7 +72,7 @@
 	        isElShadowRoot.innerHTML = "<style>\n  .is-debug {\n    -moz-box-shadow: black 0px 0px 0px 1px inset;\n    -webkit-box-shadow: black 0px 0px 0px 1px inset;\n    box-shadow: black 0px 0px 0px 1px inset;\n    background-color: rgba(204, 204, 204, 0.5);\n  }\n\n  .is-debug * {\n    -moz-box-shadow: black 0px 0px 0px 1px inset;\n    -webkit-box-shadow: black 0px 0px 0px 1px inset;\n    box-shadow: black 0px 0px 0px 1px inset;\n    background-color: rgba(204, 204, 204, 0.5);\n  }\n\n  .is-hidden {\n    position: fixed;\n    top: 0;\n    left: 0;\n    visibility: hidden;\n    clip: rect(0 0 0 0);\n  }\n\n  .is {}\n\n  .is .lover {\n    /*\n    -moz-box-shadow: black 0px 0px 0px 1px inset;\n    -webkit-box-shadow: black 0px 0px 0px 1px inset;\n    box-shadow: black 0px 0px 0px 1px inset;\n    background-color: rgba(204, 204, 204, 0.5);\n    width: 300px;\n    height: 300px;\n    */\n\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483647;\n  }\n\n  .is .memory {\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483647;\n  }\n\n  .is .body {\n    vertical-align: top;\n    width: 16px;\n    height: 22px;\n    z-index: 2147483647;\n  }\n\n  .is .landscape {\n    background-repeat: no-repeat;\n    background-position: center;\n    width: 100%;\n    height: 100%;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n  }\n</style>";
 	        isTemplate = document.createElement("template");
 	        isTemplate.id = "is-template-" + chrome.runtime.id;
-	        isTemplate.innerHTML = "<div id=\"is\" class=\"is\">\n  <script id=\"is-template\" type=\"text/html\">\n    <div id=\"is-region__lovers\">lovers</div>\n    <div id=\"is-region__memorys\">memorys</div>\n  <\/script>\n</div>\n\n<script id=\"lover-template\" type=\"text/html\">\n  <img class=\"body\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgJy0vL1czQy8vRFREIFNWRyAxLjEvL0VOJyAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdmVyc2lvbj0iMS4xIiB5PSIwcHgiIHg9IjBweCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxNiAyMiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTYgMjIiPjxpbWFnZSBvcGFjaXR5PSIuMiIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFCSUFBQUFaQ0FZQUFBQThDWDZVQUFBQUNYQklXWE1BQUFzU0FBQUxFZ0hTM1g3OEFBQUEgR1hSRldIUlRiMlowZDJGeVpRQkJaRzlpWlNCSmJXRm5aVkpsWVdSNWNjbGxQQUFBQVpWSlJFRlVlTnFrbGMxTHcwQVF4YlBKcXJWVSBDNjFmMEJZL0Rub1ZQdzZlRlB6VDllQkpQWWpvUlFRVlViRm9wYWh0emZvRzNzcVlOdGl0Z1Y5TDA5MlhtWjAzRXhPRlh5YnoyOGxIIEVpZ1NnM0V3Q2NhVWtBc1JrclZGTUE4V1FRVjhnVStRSmdFaUVrVWRiSUVkc0FCYTRBVjBiSUJJQTJ5RFhiQU1yc0FsRUExakEwWDIgd1NaVGJQSzg1TndpR3lnaTN6WHd3ZitOcmtLSVNJUFI5TzJ6STRqayt1SmZrUXdTR2xsRUM4WEtKOEVpWHNEUTdqTmdIZXpSZEhXSyB4OFAyVGtRL3pJRTFzQUxLM21qRDlvOVZqZGVqNVcrVTBhcU0xZ3dyMUFIMzRBZzhnZzB3QWFaVWwvK01qRHdoSDAyVDNlellTMTAvIEl0U2FsUHZTdkloU3RYQ2FiVkJoaW82alFoN1VaZ0ZTOWRBK1p5ZE1wY2F5bDNsUEluc0FaK0NXMVozMTQ4TkhaOVg0bEUwRlVPTDkgTGlOcGMyUWNnQXRHdWdSZXdUTXorVFVoWXg1c2tZS0dpK1R3VDhBaE9HZFV3alc0QTI4U2xja0lGZWduOGRLcU92UlRjTXpLT2o3USBNYlZlVmtoSFZXSUtWVzZRTTNvQzd3TXM0S0ljb3hrS1dsYk4rNnc3cU94NTc2Zy8zMTk1MTdjQUF3QlJabU1PRlQ0U0lBQUFBQUJKIFJVNUVya0pnZ2c9PSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMikiIGhlaWdodD0iMjUiIHdpZHRoPSIxOCIgb3ZlcmZsb3c9InZpc2libGUiPjwvaW1hZ2U+PHBvbHlnb24gcG9pbnRzPSI5LjI0MTcgMTguNDc4IDcuMzc4OSAxNy40NzUgNS43NjQyIDE2LjYzNSA4LjMzMiAxMS44MiA0IDExLjgyIDE1LjM3OSAwLjQxMTcgMTUuMzc5IDE2LjQyNyAxMi4wNjMgMTMuMjA2IiBmaWxsPSIjZmZmIi8+PHJlY3QgeT0iOS4wMDU1IiB4PSI4LjY2MzkiIGhlaWdodD0iNy45OTg5IiB0cmFuc2Zvcm09Im1hdHJpeCgtLjg4MjUgLS40NzA0IC40NzA0IC0uODgyNSAxMi4wNzUgMjkuMDI3KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iMTQuMDk1IDIuODE5IDE0LjA5NSAxNC4wMDcgMTAuODM4IDEwLjg2MiA2LjA3MDUgMTAuODYyIi8+PC9zdmc+\">\n  <div class=\"landscape is-hidden\"></div>\n<\/script>\n\n<script id=\"memory-template\" type=\"text/html\">\n  <div class=\"memory__inner\">\n    <img class=\"body\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgJy0vL1czQy8vRFREIFNWRyAxLjEvL0VOJyAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdmVyc2lvbj0iMS4xIiB5PSIwcHgiIHg9IjBweCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxNiAyMiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTYgMjIiPjxpbWFnZSBvcGFjaXR5PSIuMiIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFCSUFBQUFaQ0FZQUFBQThDWDZVQUFBQUNYQklXWE1BQUFzU0FBQUxFZ0hTM1g3OEFBQUEgR1hSRldIUlRiMlowZDJGeVpRQkJaRzlpWlNCSmJXRm5aVkpsWVdSNWNjbGxQQUFBQVpWSlJFRlVlTnFrbGMxTHcwQVF4YlBKcXJWVSBDNjFmMEJZL0Rub1ZQdzZlRlB6VDllQkpQWWpvUlFRVlViRm9wYWh0emZvRzNzcVlOdGl0Z1Y5TDA5MlhtWjAzRXhPRlh5YnoyOGxIIEVpZ1NnM0V3Q2NhVWtBc1JrclZGTUE4V1FRVjhnVStRSmdFaUVrVWRiSUVkc0FCYTRBVjBiSUJJQTJ5RFhiQU1yc0FsRUExakEwWDIgd1NaVGJQSzg1TndpR3lnaTN6WHd3ZitOcmtLSVNJUFI5TzJ6STRqayt1SmZrUXdTR2xsRUM4WEtKOEVpWHNEUTdqTmdIZXpSZEhXSyB4OFAyVGtRL3pJRTFzQUxLM21qRDlvOVZqZGVqNVcrVTBhcU0xZ3dyMUFIMzRBZzhnZzB3QWFaVWwvK01qRHdoSDAyVDNlellTMTAvIEl0U2FsUHZTdkloU3RYQ2FiVkJoaW82alFoN1VaZ0ZTOWRBK1p5ZE1wY2F5bDNsUEluc0FaK0NXMVozMTQ4TkhaOVg0bEUwRlVPTDkgTGlOcGMyUWNnQXRHdWdSZXdUTXorVFVoWXg1c2tZS0dpK1R3VDhBaE9HZFV3alc0QTI4U2xja0lGZWduOGRLcU92UlRjTXpLT2o3USBNYlZlVmtoSFZXSUtWVzZRTTNvQzd3TXM0S0ljb3hrS1dsYk4rNnc3cU94NTc2Zy8zMTk1MTdjQUF3QlJabU1PRlQ0U0lBQUFBQUJKIFJVNUVya0pnZ2c9PSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMikiIGhlaWdodD0iMjUiIHdpZHRoPSIxOCIgb3ZlcmZsb3c9InZpc2libGUiPjwvaW1hZ2U+PHBvbHlnb24gcG9pbnRzPSI5LjI0MTcgMTguNDc4IDcuMzc4OSAxNy40NzUgNS43NjQyIDE2LjYzNSA4LjMzMiAxMS44MiA0IDExLjgyIDE1LjM3OSAwLjQxMTcgMTUuMzc5IDE2LjQyNyAxMi4wNjMgMTMuMjA2IiBmaWxsPSIjZmZmIi8+PHJlY3QgeT0iOS4wMDU1IiB4PSI4LjY2MzkiIGhlaWdodD0iNy45OTg5IiB0cmFuc2Zvcm09Im1hdHJpeCgtLjg4MjUgLS40NzA0IC40NzA0IC0uODgyNSAxMi4wNzUgMjkuMDI3KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iMTQuMDk1IDIuODE5IDE0LjA5NSAxNC4wMDcgMTAuODM4IDEwLjg2MiA2LjA3MDUgMTAuODYyIi8+PC9zdmc+\">\n    <div class=\"landscape is-hidden\"></div>\n  </div>\n  <div class=\"time\"></div>\n<\/script>";
+	        isTemplate.innerHTML = "<div id=\"is\" class=\"is\">\n  <script id=\"is-template\" type=\"text/html\">\n    <div id=\"is-region__lovers\">lovers</div>\n    <div id=\"is-region__memorys\">memorys</div>\n  <\/script>\n</div>\n\n<script id=\"lover-template\" type=\"text/html\">\n  <a href=\"<%- link %>\">\n    <img class=\"body\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgJy0vL1czQy8vRFREIFNWRyAxLjEvL0VOJyAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdmVyc2lvbj0iMS4xIiB5PSIwcHgiIHg9IjBweCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxNiAyMiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTYgMjIiPjxpbWFnZSBvcGFjaXR5PSIuMiIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFCSUFBQUFaQ0FZQUFBQThDWDZVQUFBQUNYQklXWE1BQUFzU0FBQUxFZ0hTM1g3OEFBQUEgR1hSRldIUlRiMlowZDJGeVpRQkJaRzlpWlNCSmJXRm5aVkpsWVdSNWNjbGxQQUFBQVpWSlJFRlVlTnFrbGMxTHcwQVF4YlBKcXJWVSBDNjFmMEJZL0Rub1ZQdzZlRlB6VDllQkpQWWpvUlFRVlViRm9wYWh0emZvRzNzcVlOdGl0Z1Y5TDA5MlhtWjAzRXhPRlh5YnoyOGxIIEVpZ1NnM0V3Q2NhVWtBc1JrclZGTUE4V1FRVjhnVStRSmdFaUVrVWRiSUVkc0FCYTRBVjBiSUJJQTJ5RFhiQU1yc0FsRUExakEwWDIgd1NaVGJQSzg1TndpR3lnaTN6WHd3ZitOcmtLSVNJUFI5TzJ6STRqayt1SmZrUXdTR2xsRUM4WEtKOEVpWHNEUTdqTmdIZXpSZEhXSyB4OFAyVGtRL3pJRTFzQUxLM21qRDlvOVZqZGVqNVcrVTBhcU0xZ3dyMUFIMzRBZzhnZzB3QWFaVWwvK01qRHdoSDAyVDNlellTMTAvIEl0U2FsUHZTdkloU3RYQ2FiVkJoaW82alFoN1VaZ0ZTOWRBK1p5ZE1wY2F5bDNsUEluc0FaK0NXMVozMTQ4TkhaOVg0bEUwRlVPTDkgTGlOcGMyUWNnQXRHdWdSZXdUTXorVFVoWXg1c2tZS0dpK1R3VDhBaE9HZFV3alc0QTI4U2xja0lGZWduOGRLcU92UlRjTXpLT2o3USBNYlZlVmtoSFZXSUtWVzZRTTNvQzd3TXM0S0ljb3hrS1dsYk4rNnc3cU94NTc2Zy8zMTk1MTdjQUF3QlJabU1PRlQ0U0lBQUFBQUJKIFJVNUVya0pnZ2c9PSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMikiIGhlaWdodD0iMjUiIHdpZHRoPSIxOCIgb3ZlcmZsb3c9InZpc2libGUiPjwvaW1hZ2U+PHBvbHlnb24gcG9pbnRzPSI5LjI0MTcgMTguNDc4IDcuMzc4OSAxNy40NzUgNS43NjQyIDE2LjYzNSA4LjMzMiAxMS44MiA0IDExLjgyIDE1LjM3OSAwLjQxMTcgMTUuMzc5IDE2LjQyNyAxMi4wNjMgMTMuMjA2IiBmaWxsPSIjZmZmIi8+PHJlY3QgeT0iOS4wMDU1IiB4PSI4LjY2MzkiIGhlaWdodD0iNy45OTg5IiB0cmFuc2Zvcm09Im1hdHJpeCgtLjg4MjUgLS40NzA0IC40NzA0IC0uODgyNSAxMi4wNzUgMjkuMDI3KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iMTQuMDk1IDIuODE5IDE0LjA5NSAxNC4wMDcgMTAuODM4IDEwLjg2MiA2LjA3MDUgMTAuODYyIi8+PC9zdmc+\" style=\"transform: translate(<%- position.x %>px, <%- position.y %>px);\">\n  </a>\n  <div class=\"landscape is-hidden\" style=\"background-image: url(<%- landscape %>); background-size: <%- window.width %>px <%- window.height %>px;\"></div>\n<\/script>\n\n<script id=\"memory-template\" type=\"text/html\">\n  <div class=\"memory__inner\">\n    <img class=\"body\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgJy0vL1czQy8vRFREIFNWRyAxLjEvL0VOJyAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdmVyc2lvbj0iMS4xIiB5PSIwcHgiIHg9IjBweCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxNiAyMiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTYgMjIiPjxpbWFnZSBvcGFjaXR5PSIuMiIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFCSUFBQUFaQ0FZQUFBQThDWDZVQUFBQUNYQklXWE1BQUFzU0FBQUxFZ0hTM1g3OEFBQUEgR1hSRldIUlRiMlowZDJGeVpRQkJaRzlpWlNCSmJXRm5aVkpsWVdSNWNjbGxQQUFBQVpWSlJFRlVlTnFrbGMxTHcwQVF4YlBKcXJWVSBDNjFmMEJZL0Rub1ZQdzZlRlB6VDllQkpQWWpvUlFRVlViRm9wYWh0emZvRzNzcVlOdGl0Z1Y5TDA5MlhtWjAzRXhPRlh5YnoyOGxIIEVpZ1NnM0V3Q2NhVWtBc1JrclZGTUE4V1FRVjhnVStRSmdFaUVrVWRiSUVkc0FCYTRBVjBiSUJJQTJ5RFhiQU1yc0FsRUExakEwWDIgd1NaVGJQSzg1TndpR3lnaTN6WHd3ZitOcmtLSVNJUFI5TzJ6STRqayt1SmZrUXdTR2xsRUM4WEtKOEVpWHNEUTdqTmdIZXpSZEhXSyB4OFAyVGtRL3pJRTFzQUxLM21qRDlvOVZqZGVqNVcrVTBhcU0xZ3dyMUFIMzRBZzhnZzB3QWFaVWwvK01qRHdoSDAyVDNlellTMTAvIEl0U2FsUHZTdkloU3RYQ2FiVkJoaW82alFoN1VaZ0ZTOWRBK1p5ZE1wY2F5bDNsUEluc0FaK0NXMVozMTQ4TkhaOVg0bEUwRlVPTDkgTGlOcGMyUWNnQXRHdWdSZXdUTXorVFVoWXg1c2tZS0dpK1R3VDhBaE9HZFV3alc0QTI4U2xja0lGZWduOGRLcU92UlRjTXpLT2o3USBNYlZlVmtoSFZXSUtWVzZRTTNvQzd3TXM0S0ljb3hrS1dsYk4rNnc3cU94NTc2Zy8zMTk1MTdjQUF3QlJabU1PRlQ0U0lBQUFBQUJKIFJVNUVya0pnZ2c9PSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMikiIGhlaWdodD0iMjUiIHdpZHRoPSIxOCIgb3ZlcmZsb3c9InZpc2libGUiPjwvaW1hZ2U+PHBvbHlnb24gcG9pbnRzPSI5LjI0MTcgMTguNDc4IDcuMzc4OSAxNy40NzUgNS43NjQyIDE2LjYzNSA4LjMzMiAxMS44MiA0IDExLjgyIDE1LjM3OSAwLjQxMTcgMTUuMzc5IDE2LjQyNyAxMi4wNjMgMTMuMjA2IiBmaWxsPSIjZmZmIi8+PHJlY3QgeT0iOS4wMDU1IiB4PSI4LjY2MzkiIGhlaWdodD0iNy45OTg5IiB0cmFuc2Zvcm09Im1hdHJpeCgtLjg4MjUgLS40NzA0IC40NzA0IC0uODgyNSAxMi4wNzUgMjkuMDI3KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iMTQuMDk1IDIuODE5IDE0LjA5NSAxNC4wMDcgMTAuODM4IDEwLjg2MiA2LjA3MDUgMTAuODYyIi8+PC9zdmc+\">\n    <div class=\"landscape is-hidden\"></div>\n  </div>\n  <div class=\"time\"></div>\n<\/script>";
 	        isTemplateCloneNode = document.importNode(isTemplate.content, true);
 	        document.body.appendChild(isEl);
 	        isElShadowRoot.appendChild(isTemplateCloneNode);
@@ -85,12 +85,12 @@
 	              x: 0,
 	              y: 0
 	            },
-	            windowWidth: 0,
-	            windowHeight: 0,
-	            landscape: {
-	              devicePixelRatio: 0,
-	              dataUrl: ""
-	            }
+	            window: {
+	              width: 0,
+	              height: 0
+	            },
+	            link: "",
+	            landscape: ""
 	          },
 	          initialize: function() {
 	            return console.log("%c[Extension] LoverModel -> initialize", debug.style);
@@ -111,11 +111,13 @@
 	        LoversCollection = Backbone.Collection.extend({
 	          initialize: function() {
 	            console.log("%c[Extension] LoversCollection -> initialize", debug.style);
-	            Extension.vent.on("connectChangeUsers", this._changeUsersHandler.bind(this));
-	            Extension.vent.on("connectUpdatePointer", this._updatePointerHandler.bind(this));
-	            return Extension.vent.on("connectUpdateLandscape", this._updateLandscapeHandler.bind(this));
+	            return Extension.vent.on("connectAddUser", this._addUserHandler.bind(this));
 	          },
 	          model: LoverModel,
+	          _addUserHandler: function(data) {
+	            console.log("%c[Extension] LoversCollection -> _addUserHandler", debug.style, data);
+	            return this.add(data);
+	          },
 	          _changeUsersHandler: function(users) {
 	            var i, index, len, results, user;
 	            console.log("%c[Extension] LoversCollection -> _changeUsersHandler", debug.style, users);
@@ -25210,6 +25212,13 @@
 	    StageItemView = Backbone.Marionette.ItemView.extend({
 	      initialize: function() {
 	        console.log("%c[Stage] StageItemView -> initialize", debug.style);
+	        App.vent.on("connectChangeIsRun", this._changeIsRunHandler.bind(this));
+	        App.vent.on("connectJointed", this._jointedHandler.bind(this));
+	        App.vent.on("connectInitializeResident", this._initializeResidentHandler.bind(this));
+	        this.model.set({
+	          width: this.$el.width(),
+	          height: this.$el.height()
+	        });
 	        this._scrollTop = this.$el.scrollTop();
 	        this._scrollInterval = 100;
 	        this._windowScrollDebounce = _.debounce((function(_this) {
@@ -25232,10 +25241,9 @@
 	        })(this), 500);
 	      },
 	      el: window,
-	      events: {
-	        "scroll": "_windowScrollHandler",
-	        "resize": "_windowResizeHandler",
-	        "pointermove": "_pointerMoveHandler"
+	      events: {},
+	      setup: function() {
+	        return console.log("%c[Stage] StageItemView -> setup", debug.style);
 	      },
 	      _windowScrollHandler: function(e) {
 	        console.log("%c[Stage] StageItemView -> _windowScrollHandler", debug.style);
@@ -25246,13 +25254,53 @@
 	        return this._windowResizeDebounce(e);
 	      },
 	      _pointerMoveHandler: function(e) {
+	        this.model.set({
+	          "x": e.clientX,
+	          "y": e.clientY
+	        });
 	        return App.vent.trigger("stagePointerMove", {
 	          "x": e.clientX,
 	          "y": e.clientY
 	        });
+	      },
+	      _changeIsRunHandler: function(isRun) {
+	        return console.log("%c[Stage] StageItemView -> _changeIsRunHandler", debug.style, isRun);
+	      },
+	      _jointedHandler: function() {
+	        console.log("%c[Stage] StageItemView -> _jointedHandler", debug.style);
+	        return App.vent.trigger("stageInitializeUser", {
+	          position: {
+	            x: this.model.get("x"),
+	            y: this.model.get("y")
+	          },
+	          window: {
+	            width: this.model.get("width"),
+	            height: this.model.get("height")
+	          }
+	        });
+	      },
+	      _initializeResidentHandler: function(data) {
+	        console.log("%c[Stage] StageItemView -> _initializeResidentHandler", debug.style);
+	        return App.vent.trigger("stageInitializeResident", {
+	          toSocketId: data.toSocketId,
+	          position: {
+	            x: this.model.get("x"),
+	            y: this.model.get("y")
+	          },
+	          window: {
+	            width: this.model.get("width"),
+	            height: this.model.get("height")
+	          }
+	        });
 	      }
 	    });
 	    StageModel = Backbone.Model.extend({
+	      defaults: {
+	        x: 0,
+	        y: 0,
+	        width: 0,
+	        height: 0
+	      },
 	      initialize: function() {
 	        return console.log("%c[Stage] StageModel -> initialize", debug.style);
 	      }
@@ -25316,6 +25364,15 @@
 	                case "changeIsRun":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | changeIsRun", debug.style, message.body);
 	                  return _this.set("isRun", message.body.isRun);
+	                case "jointed":
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | jointed", debug.style, message.body);
+	                  return App.vent.trigger("connectJointed");
+	                case "addUser":
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | addUser", debug.style, message.body);
+	                  return App.vent.trigger("connectAddUser", message.body);
+	                case "initializeResident":
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message.body);
+	                  return App.vent.trigger("connectInitializeResident", message.body);
 	                case "checkIn":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | checkIn", debug.style, message.body);
 	                  return _this.set("users", message.body.users);
@@ -25333,22 +25390,46 @@
 	      },
 	      _changeIsRunHandler: function(model, isRun) {
 	        console.log("%c[Connect] ConnectModel | _changeIsRunHandler", debug.style, isRun);
-	        App.vent.trigger("connectChangeIsRun", {
-	          "isRun": isRun
-	        });
 	        if (isRun) {
+	          App.vent.on("stageInitializeUser", this._initializeUserHandler(this.port));
+	          App.vent.on("stageInitializeResident", this._initializeResidentHandler(this.port));
 	          App.vent.on("stageWindowScroll", this._windowScrollHandler(this.port));
 	          App.vent.on("stageWindowResize", this._windowResizeHandler(this.port));
-	          return App.vent.on("stagePointerMove", this._pointerMoveHandler(this.port));
+	          App.vent.on("stagePointerMove", this._pointerMoveHandler(this.port));
 	        } else if (!isRun) {
+	          App.vent.off("stageInitializeUser");
+	          App.vent.off("stageInitializeSpace");
 	          App.vent.off("stageWindowScroll");
 	          App.vent.off("stageWindowResize");
-	          return App.vent.off("stagePointerMove");
+	          App.vent.off("stagePointerMove");
 	        }
+	        return App.vent.trigger("connectChangeIsRun", isRun);
 	      },
 	      _changeUsersRunHandler: function(model, users) {
 	        console.log("%c[Connect] ConnectModel | _changeUsersRunHandler", debug.style, users);
 	        return App.vent.trigger("connectChangeUsers", users);
+	      },
+	      _initializeUserHandler: function(port) {
+	        return function(data) {
+	          console.log("%c[Connect] ConnectModel | _initializeUserHandler", debug.style, data);
+	          return port.postMessage({
+	            to: "background",
+	            from: "contentScript",
+	            type: "initializeUser",
+	            body: data
+	          });
+	        };
+	      },
+	      _initializeResidentHandler: function(port) {
+	        return function(data) {
+	          console.log("%c[Connect] ConnectModel | _initializeResidentHandler", debug.style, data);
+	          return port.postMessage({
+	            to: "background",
+	            from: "contentScript",
+	            type: "initializeResident",
+	            body: data
+	          });
+	        };
 	      },
 	      _windowScrollHandler: function(port) {
 	        return function() {
@@ -25365,7 +25446,7 @@
 	      },
 	      _windowResizeHandler: function(port) {
 	        return function(windowSize) {
-	          console.log("%c[Connect] ConnectModel | _windowResizeHandler", debug.style, windowSize, port);
+	          console.log("%c[Connect] ConnectModel | _windowResizeHandler", debug.style, windowSize);
 	          port.postMessage({
 	            to: "background",
 	            from: "contentScript",

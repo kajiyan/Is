@@ -2,6 +2,8 @@
 # Socket
 # 
 # EVENT
+#   - socketJointed
+#   - socketAddUser
 #   - socketCheckIn
 #   - socketCheckOut
 #   - socketUpdatePointer
@@ -54,6 +56,10 @@ module.exports = (App, sn, $, _) ->
         # エクステンションの起動状態に変化があった時のイベントリスナー
         @changeIsRunHandler = @_changeIsRunHandler.bind @
         App.vent.on "stageChangeIsRun", @changeIsRunHandler
+        # ユーザーの初期値が揃った時のイベントリスナー
+        App.vent.on "connectInitializeUser", @_initializeUserHandler.bind @
+        # 新規ユーザーに通知する値が揃った時のイベントリスナー
+        App.vent.on "connectInitializeResident", @_initializeResidentHandler.bind @
         # window のサイズに変化があった時のイベントリスナー
         App.vent.on "connectWindowResize", @_windowResizeHandler.bind @
         # ポインターの座標に変化があった時のイベントリスナー
@@ -61,7 +67,9 @@ module.exports = (App, sn, $, _) ->
         # スクリーンショットが撮影された時のイベントリスナー
         App.vent.on "connectUpdateLandscape", @_updateLandscapeHandler.bind @
         # WebSocket の接続状態が変わった時に実行される
-        @listenTo @, "change:isConnected", @_changeIsConnectedHandler.bind(@)
+        @listenTo @, "change:isConnected", @_changeIsConnectedHandler.bind @
+
+        # @_connect()
 
       # --------------------------------------------------------------
       # /**
@@ -73,6 +81,7 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] SocketModel -> _connect", debug.style
 
         @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
+        # @socket = io("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
 
         @socket.on "connect", @_connectHandler.bind(@) # WebSocket が接続された時
         @socket.on "error", @_socketErrorHandler.bind(@)
@@ -83,8 +92,11 @@ module.exports = (App, sn, $, _) ->
         @socket.on "reconnect_error", @_reconnectErrorHandler.bind(@)
         @socket.on "reconnect_failed", @_reconnectFailedHandler.bind(@)
 
-        # # 同じRoom に所属するユーザーのSocket ID の配列を受信する
-        @socket.on "checkIn", @_receiveCheckInHandler.bind(@)
+        # 同じRoom に所属するユーザーのSocket ID の配列を受信する
+        # @socket.on "checkIn", @_receiveCheckInHandler.bind(@)
+
+        @socket.on "addUser", @_receiveAddUserHandler.bind(@)
+
         # 同じRoom に所属していたユーザーのSocket ID を受信する
         @socket.on "checkOut", @_receiveCheckOutHandler.bind(@)
         # 同じRoom に所属するユーザーのポインター座標を受信する
@@ -101,8 +113,47 @@ module.exports = (App, sn, $, _) ->
       _join: () ->
         console.log "%c[Socket] SocketModel -> join", debug.style
 
-        @socket.emit "join"
-        # @socket.emit "join", { roomId: "000000" }, (e) -> console.log e
+        @socket.emit "join", {}, () ->
+          console.log "%c[Socket] SocketModel -> jointed", debug.style
+          # socketJointed イベントを発火する
+          App.vent.trigger "socketJointed"
+
+          # 先にroom に入室していたユーザー情報の取得
+          # 先にroom に入室していたユーザーに情報を通知
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_initializeUserHandler
+      #  * 接続時の初期値をsocket サーバーに送信する
+      #  * @param {Object}
+      #  * @prop {number} position.x - 接続ユーザーのポインター x座標
+      #  * @prop {number} position.y - 接続ユーザーのポインター y座標
+      #  * @prop {number} window.width - 接続ユーザーのwindow の幅
+      #  * @prop {number} window.height - 接続ユーザーのwindow の高さ
+      #  * @prop {string} link - 接続ユーザーが閲覧していたページのURL
+      #  * @prop {string} landscape - スクリーンショット（base64）
+      #  */
+      # ------------------------------------------------------------
+      _initializeUserHandler: (data) ->
+        console.log "%c[Socket] SocketModel -> _initializeUserHandler", debug.style, data
+        @socket.emit "initializeUser", data
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_initializeResidentHandler
+      #  * Roomにjoinした新規ユーザーに対してloverの初期化に必要な値をsoketサーバーに発信する
+      #  * @prop {string} toSoketId - 送信先のsocketID
+      #  * @prop {number} position.x - ポインターx座標
+      #  * @prop {number} position.y - ポインターy座標
+      #  * @prop {number} window.width - windowの幅
+      #  * @prop {number} window.height - windowの高さ
+      #  * @prop {string} link - 閲覧しているページのURL
+      #  * @prop {string} landscape - スクリーンショット（base64）
+      #  */
+      # ------------------------------------------------------------
+      _initializeResidentHandler: (data) ->
+        console.log "%c[Socket] SocketModel -> _initializeResidentHandler", debug.style, data
+        @socket.emit "initializeResident", data        
 
       # ------------------------------------------------------------
       # /**
@@ -166,6 +217,7 @@ module.exports = (App, sn, $, _) ->
 
           # socket の再接続と切断をするイベントリスナーを定義
           App.vent.on "stageChangeIsRun", @_toggleIsRunHandler.bind @
+
 
       # ------------------------------------------------------------
       # /**
@@ -253,6 +305,27 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       _reconnectFailedHandler: () ->
         console.log "%c[Socket] SocketModel -> _reconnectFailedHandler", debug.style
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_receiveAddUserHandler
+      #  * 所属するroom に新たなユーザーが入室した時に呼び出される
+      #  * socketAddUser イベントを発火する
+      #  * @param {Object} data
+      #  * @prop {string} id - 発信元のsocket.id
+      #  * @prop {number} position.x - 接続ユーザーのポインター x座標
+      #  * @prop {number} position.y - 接続ユーザーのポインター y座標
+      #  * @prop {number} window.width - 接続ユーザーのwindow の幅
+      #  * @prop {number} window.height - 接続ユーザーのwindow の高さ
+      #  * @prop {string} link - 接続ユーザーが閲覧していたページのURL
+      #  * @prop {string} landscape - スクリーンショット（base64）
+      #  */
+      # ------------------------------------------------------------
+      _receiveAddUserHandler: (data) ->
+        console.log "%c[Socket] SocketModel -> _receiveAddUserHandler", debug.style, data
+        App.vent.trigger "socketAddUser", data
+
+        # 自分の情報を新規ユーザーに通知する
 
       # ------------------------------------------------------------
       # /**

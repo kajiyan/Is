@@ -1,4 +1,4 @@
-# I"s - eternal me
+# I"s
 
 * [Roomについて](#room_section)
 * [REST_API](#rest_api)
@@ -17,102 +17,110 @@
 
 ### RoomIDの取り回し方
 1. 新規起動時
-	- `join`をid無し、またはRandom Joinでemitするとサーバー側で新規RoomIDが割り当てられる
-	- ~~割り当てられたRoomIDを`localStorage.roomId`に保存する~~
+  - `join`をid無し、またはRandom Joinでemitするとサーバー側で新規RoomIDが割り当てられる
+  - ~~割り当てられたRoomIDを`localStorage.roomId`に保存する~~
 
 2. ~~2回め以降の起動時~~
-	- ~~localStorageに保存したRoomIDをパラメータとして`join`をemit~~
-	- ~~当該idが期限切れになっていたら場合は新規RoomIDが返されるのでlocalStorageに保存する~~
-	- ~~Room（Space）からログアウトするとlocalStorageに保存してあるRoomIDを破棄する~~
-	- ~~Roomが期限切れになるとRoomIDを破棄する~~
+  - ~~localStorageに保存したRoomIDをパラメータとして`join`をemit~~
+  - ~~当該idが期限切れになっていたら場合は新規RoomIDが返されるのでlocalStorageに保存する~~
+  - ~~Room（Space）からログアウトするとlocalStorageに保存してあるRoomIDを破棄する~~
+  - ~~Roomが期限切れになるとRoomIDを破棄する~~
 
+***
 
-- Day object
+- Day object 
 
-		{
-			"_id": "1234567890abcdfegh"
-			"dayId": "20150712",
-			"manualRooms": [
-				(Manual Room ObjectId),
-				(Manual Room ObjectId),
-				...
-			],
-			"automaticRooms": [
-				(Automatic Room ObjectId),
-				(Automatic Room ObjectId),
-				...
-			],
-			"memorys": [
-				(Memory ObjectId),
-				(Memory ObjectId),
-				...
-			]
-			"createAt": "2015-07-07T12:00:00.024Z"
-		}
+  {Object}
+
+    {
+      "_id": "1234567890abcdfegh"
+      "dayId": "20150712",
+      "manualRooms": [
+        (Manual Room ObjectId),
+        (Manual Room ObjectId),
+        ...
+      ],
+      "automaticRooms": [
+        (Automatic Room ObjectId),
+        (Automatic Room ObjectId),
+        ...
+      ],
+      "memorys": [
+        (Memory ObjectId),
+        (Memory ObjectId),
+        ...
+      ]
+      "createAt": "2015-07-07T12:00:00.024Z"
+    }
+
 
 - Manual Room object
 
-		{
-			"_id": "1234567890abcdfegh",
-			"dayId": "20150713", 
-			"roomId": "123456",
-			"capacity": 6,
-			"lastModified": "2015-07-07T12:00:00.024Z",
-		}
+  {Object}
+
+    {
+      "_id": "1234567890abcdfegh",
+      "dayId": "20150713", 
+      "roomId": "123456",
+      "capacity": 6,
+      "lastModified": "2015-07-07T12:00:00.024Z"
+    }
 
 - Automatic Room object
 
-		{
-			"_id": "1234567890abcdfegh",
-			"dayId": "20150713", 
-			"roomId": "123456",
-			"capacity": 6,
-			"lastModified": "2015-07-07T12:00:00.024Z",
-		}
+  {Object}
+
+    {
+      "_id": "1234567890abcdfegh",
+      "dayId": "20150713", 
+      "roomId": "123456",
+      "capacity": 6,
+      "lastModified": "2015-07-07T12:00:00.024Z"
+    }
 
 - Memory object
 
-	APIから取得する場合のMemory Object
+  APIから取得する場合のMemory Object
 
-		{
-			"_id": "1234567890abcdfegh",
-			"dayId": "20150712",
-			"url": "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
-			"link": "https://www.google.co.jp/",
-			"window": {
-				"width": 1920,
-				"height": 1080
-			},
-			"ext": ".jpeg",
-			"imgSrc": "//is-eternal.me/memorys/20150712/1234567890abcdfegh.jpeg", (virtual)
-			"positions": [
-		      	{ x: 0, y: 0 },
-		      	{ x: 0, y: 0 },
-		        ...
-		    ],
-			"random": [0.1, 0],
-			"createAt": "2015-07-07T12:00:00.024Z"
-		}
+    {
+      "_id": "1234567890abcdfegh",
+      "dayId": "20150712",
+      "url": "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
+      "link": "https://www.google.co.jp/",
+      "window": {
+        "width": 1920,
+        "height": 1080
+      },
+      "ext": ".jpeg",
+      "imgSrc": "//is-eternal.me/memorys/20150712/1234567890abcdfegh.jpeg", (virtual)
+      "positions": [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            ...
+        ],
+      "random": [0.1, 0],
+      "createAt": "2015-07-07T12:00:00.024Z"
+    }
 
-	- data[0]._id (int): 登録されている軌跡のID
-	- data[0].dayId (string): 登録時のDayID
-	- data[0].roomId (string): 登録時に入室していたRoomID
-	- data[0].roomType (number): 0 = "Manual" or 1 = "Automatic"
-	- data[0].url (string): 個別のリンク  
-	- data[0].link (string): 登録時に閲覧していたサイトのURL  
-	- date[0].positions.window: 登録時のブラウザWindowサイズ  
-		- width: Window 幅
-		- height: Window 高さ
-	- date[0].positions.image: 登録時閲覧していたサイトのスクリーンショット
-		- filename: 画像ファイル名    
-		- width: スクリーンショット 幅
-		- height: スクリーンショット 高さ
-	- date[0].positions: 軌跡
-		- x: x座標
-		- y: y座標
-		- ※ 軌跡の記録時間は最大6秒、時間はランダムに決まる
-	- date[0].room (Object ID): 関係するRoomのObject ID
-	- data[0].createDate (string): 登録時の時間  
+  - data[0]._id (int): 登録されている軌跡のID
+  - data[0].dayId (string): 登録時のDayID
+  - data[0].roomId (string): 登録時に入室していたRoomID
+  - data[0].roomType (number): 0 = "Manual" or 1 = "Automatic"
+  - data[0].url (string): 個別のリンク  
+  - data[0].link (string): 登録時に閲覧していたサイトのURL  
+  - date[0].positions.window: 登録時のブラウザWindowサイズ  
+    - width: Window 幅
+    - height: Window 高さ
+  - date[0].positions.image: 登録時閲覧していたサイトのスクリーンショット
+    - filename: 画像ファイル名    
+    - width: スクリーンショット 幅
+    - height: スクリーンショット 高さ
+  - date[0].positions: 軌跡
+    - x: x座標
+    - y: y座標
+    - ※ 軌跡の記録時間は最大6秒、時間はランダムに決まる
+  - date[0].room (Object ID): 関係するRoomのObject ID
+  - data[0].createDate (string): 登録時の時間  
 
 <a name="rest_api"></a>
 # REST API
@@ -148,13 +156,13 @@ GET
 取得する件数
 
 #### ■ 成功時戻り値
-		{
-			"results": [
-				(Memory Object),
-				(Memory Object),
-				...
-			]
-		}
+    {
+      "results": [
+        (Memory Object),
+        (Memory Object),
+        ...
+      ]
+    }
 
 
 #### エラーパターン
@@ -181,41 +189,41 @@ GET
 
 #### ■ 成功時戻り値
     {
-		"status": 1,
-		"data": [
-				{
-					"id": 0,
-					"uri": "http://xxxxxx",
-					"image": "http://is-eternal.me/images/screen/xxxxx.jpg",
-					"date": "Sunday 30 November 2014 13:59:56",
-					"positions": [
-						{
-							x: 0,
-							y: 0
-						},
-						{
-							x: 0,
-							y: 0
-						}
-					]
-				},
-				{
-					"id": 1,
-					"uri": "http://xxxxxx",
-					"date": "Sunday 30 November 2014 13:59:56",
-					"image": "http://is-eternal.me/images/screen/xxxxx.jpg",
-					"positions": [
-						{
-							x: 0,
-							y: 0
-						},
-						{
-							x: 0,
-							y: 0
-						}
-					]
-				}
-			]
+    "status": 1,
+    "data": [
+        {
+          "id": 0,
+          "uri": "http://xxxxxx",
+          "image": "http://is-eternal.me/images/screen/xxxxx.jpg",
+          "date": "Sunday 30 November 2014 13:59:56",
+          "positions": [
+            {
+              x: 0,
+              y: 0
+            },
+            {
+              x: 0,
+              y: 0
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "uri": "http://xxxxxx",
+          "date": "Sunday 30 November 2014 13:59:56",
+          "image": "http://is-eternal.me/images/screen/xxxxx.jpg",
+          "positions": [
+            {
+              x: 0,
+              y: 0
+            },
+            {
+              x: 0,
+              y: 0
+            }
+          ]
+        }
+      ]
     }
 
 data[0].id (int): 登録されている軌跡のID  
@@ -245,24 +253,24 @@ GET
 
 #### ■ 成功時戻り値
     {
-		"status": 1,
-		"data": 
-			{
-				"id": 0
-				"uri": "http://xxxxxx",
-				"image" "http://is-eternal.me/images/screen/xxxxx.jpg",
-				"date": "Sunday 30 November 2014 13:59:56",
-				"positions": [
-					{
-						x: 0,
-						y: 0
-					},
-					{
-						x: 0,
-						y: 0
-					}
-				]
-			}				
+    "status": 1,
+    "data": 
+      {
+        "id": 0
+        "uri": "http://xxxxxx",
+        "image" "http://is-eternal.me/images/screen/xxxxx.jpg",
+        "date": "Sunday 30 November 2014 13:59:56",
+        "positions": [
+          {
+            x: 0,
+            y: 0
+          },
+          {
+            x: 0,
+            y: 0
+          }
+        ]
+      }       
     }
 
 data[0].id (int): 登録されている軌跡のID  
@@ -298,9 +306,11 @@ JPEG画像を base64 エンコードした文字列
 軌跡の座標 `{ [x: (int), y: (int)] }`
 
 #### ■ 成功時戻り値（ログイン）
-    {
-		"status": 1
-    }
+```js
+{
+  status: 1
+}
+```
 
 #### エラーパターン
 * 500: Internal Server Error
@@ -319,23 +329,19 @@ JPEG画像を base64 エンコードした文字列
 999: その他原因不明なエラー  
 
 #### ■ エラーレスポンス定義
-
-    {
-		"status": 0,
-		"data": {
-			"error_code": 400,
-			"error_message": "validation error."
-			"validation": {
-				"id": [
-					"idを指定してください"
-				]
-			}
-		}
-    }
-
-	// error_code (int): エラーコード
-	// error_message (string): エラーメッセージ
-	// validation (object): バリデーション内容を収めたオブジェクト
+```js
+/**
+ * @param {Object}
+ * @prop {number} status       - 0 or 1
+ * @prop {number} errorCode    - エラーコード  
+ * @prop {string} errorMessage - エラーメッセージ  
+ */
+{
+  status: 0,
+  errorCode: 400,
+  errorMessage: "Error."
+}
+``` 
 
 
 
@@ -343,315 +349,450 @@ JPEG画像を base64 エンコードした文字列
 <a name="socket_api"></a>
 # socket.io 系
 
-* [connect](#connect)
-* [disconnect](#disconnect)
-* [join](#join)
-* [windowResize](#windowResize)
-* [pointerMove](#pointerMove)
-* [shootLandscape](#shootLandscape)
-
-### port: 80
-
+### Namespace `Extension` : port `80`
 下記のルールでアクセス可能とする  
 エクステンション用 Name Space  
 http://api.is-eternal.me/extension
 
-## Namespace `Extension`
+#### `Client -> API`  
+* [connect](#io-connect)
+* [disconnect](#io-disconnect)
+* [join](#io-join)
+* [initializeUser](#io-initializeUser)
+* [initializeResident](#io-initializeResident)
+* [changeLocation](#io-changeLocation)
+* [windowResize](#io-windowResize)
+* [pointerMove](#io-pointerMove)
+* [shootLandscape](#io-shootLandscape)
+
+#### `API -> Client`  
+* [addUser](#io-addUser)
+* [addResident](#io-addResident)
+* [checkOut](#io-checkOut)
+* [updateLocation](#io-updateLocation)
+* [updateWindowSize](#io-updateWindowSize)
+* [updatePointer](#io-updatePointer)
+* [updateLandscape](#io-updateLandscape)
 
 
-<a name="connect"></a>
+
+***
+
+
+
+<a name="io-connect"></a>
 ### 【connect】
-ユーザーの追加通知
 
 #### Overview
 `Client -> API`  
-ユーザーがWebSocketサーバーとの接続が成功した時に通知される  
-Socket接続を開始する
+新規ユーザーがWebSocketサーバーとの接続が成功した時に通知される  
+Socket通信を開始する
 
 ##### Parameters
+```js
+```
 
-##### Callback
+##### Response (Emit Callback) 
+```js
+```
 
 ###### Server
-
 ```js
 socketIo.on( 'connection', function( socket ){});
 ```
 
 ###### Client
-
 ```js
 var socket = io.connect( 'http://api.is-eternal.me/extension' );
 ```
 
+
+
 ***
 
 
-<a name="disconnect"></a>
+
+<a name="io-disconnect"></a>
 ### 【disconnect】
 
 #### Overview
 `Client -> API`  
-ユーザーがWebSocketサーバーとの接続が切断した時に受信する    
-Socket接続を終了し、それまで所属していたroom のcapacity をデクリメントする  
+ユーザーがWebSocketサーバーとの接続を切断した時に受信する    
+Socket通信を終了し、それまで所属していたroomのcapacityをインクリメントする  
 [checkOut](#io-checkOut) を発信する
 
 ##### Request Parameters
+```js
+```
 
-##### Callback
+##### Response (Emit Callback) 
+```js
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
+
+
 
 ***
 
 
-<a name="join"></a>
+
+<a name="io-join"></a>
 ### 【join】
-ユーザーの追加通知  
-[checkIn](#io-checkIn) を発信する
+新規ユーザーのRoomへの追加依頼を受信する    
+Manual Roomへの入室処理をする場合はRequest ParametersにroomIdを指定する。  
+roomIdが指定されていなければAutomatic Roomへの入室処理をする。
 
 #### Overview
 `Client -> API`  
 
 ##### Request Parameters
-- data
+```js
+/**
+ * @param {Object}
+ * @prop {string} [roomId] - 接続するRoomID
+ */
+{
+  roomId: "000000"
+}
+```
 
-		@param {Object}
-		@prop {String} [roomId] - 接続するRoomID
-
-		{
-			"roomId": "000000"
-		}
-
-##### Response 
+##### Response (Emit Callback) 
+```js
+/**
+ * @callback Function
+ */
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
 
 
+
 ***
+
 
 
 <a name="io-initializeUser"></a>
 ### 【initializeUser】
-join したユーザーの初期設定を受信する  
-[addUser](#io-addUser) を発信する
+Roomにjoinした新規ユーザーの初期値を受信する  
+先に同じ空間に入室していたユーザーに[addUser](#io-addUser)を発信する
 
 #### Overview
 `Client -> API`  
 
 ##### Request Parameters
-- data
+```js
+/**
+ * @param {Object}
+ * @prop {number} position.x - 接続ユーザーのポインター x座標
+ * @prop {number} position.y - 接続ユーザーのポインター y座標
+ * @prop {number} window.width - 接続ユーザーのwindow の幅
+ * @prop {number} window.height - 接続ユーザーのwindow の高さ
+ * @prop {string} link - 接続ユーザーが閲覧していたページのURL
+ * @prop {string} landscape - スクリーンショット（base64）
+ */
+{
+  position: {
+    x: 265,
+    y: 246
+  },
+  window: {
+    width: 1920,
+    height: 1080
+  },
+  link: "https://www.google.co.jp/",
+  landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+}
+```
 
-		@param {Object}
-		@prop {number} x - 接続ユーザーのポインター x座標
-		@prop {number} y - 接続ユーザーのポインター y座標
-		@prop {number} width - 接続ユーザーのwindow の幅
-		@prop {number} height - 接続ユーザーのwindow の高さ
-		@prop {string} link - 接続ユーザーが閲覧していたページのURL
-		@prop {string} dataUrl - スクリーンショット（base64）
-
-		{
-			x: 265,
-			y: 246,
-			width: 1920,
-			height: 1080,
-			link: "https://www.google.co.jp/",
-			dataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
-		}
-
-##### Response 
+##### Response (Emit Callback) 
+```js
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
+
 
 
 ***
 
 
-<a name="windowResize"></a>
+
+<a name="io-initializeResident"></a>
+### 【initializeResident】
+Roomにjoinした新規ユーザーに対して先に入室していたユーザーの初期化に必要な値を受信する  
+新規ユーザーに対して[addResident](#io-addResident)を発信する
+
+#### Overview
+`Client -> API`  
+
+##### Request Parameters
+```js
+/**
+ * @param {Object}
+ * @prop {string} toSoketId - 送信先のsocketID
+ * @prop {number} position.x - 接続ユーザーのポインター x座標
+ * @prop {number} position.y - 接続ユーザーのポインター y座標
+ * @prop {number} window.width - 接続ユーザーのwindow の幅
+ * @prop {number} window.height - 接続ユーザーのwindow の高さ
+ * @prop {string} link - 接続ユーザーが閲覧していたページのURL
+ * @prop {string} landscape - スクリーンショット（base64）
+ */
+{
+  toSoketId: "T16ontoFZG1fx7OpAAAH",
+  position: {
+    x: 265,
+    y: 246
+  },
+  window: {
+    width: 1920,
+    height: 1080
+  },
+  link: "https://www.google.co.jp/",
+  landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+}
+```
+
+##### Response (Emit Callback) 
+```js
+```
+
+###### Server
+```js
+```
+
+###### Client
+```js
+```
+
+
+
+***
+
+
+
+<a name="io-changeLocation"></a>
+### 【changeLocation】
+Roomにjoinしているユーザーの閲覧しているURLを受信する  
+受信した値を元に同じRoomにjoinしているユーザーに[updateLocation](#io-updateLocation)を発信する
+
+#### Overview
+`Client -> API`  
+
+##### Request Parameters
+```js
+/**
+ * @param {Object}
+ * @prop {string} link - 接続ユーザーの閲覧しているURL
+ */
+{
+  link: "https://www.google.co.jp/"
+}
+```
+
+##### Response (Emit Callback) 
+```js
+```
+
+###### Server
+```js
+```
+
+###### Client
+```js
+```
+
+
+
+***
+
+
+
+<a name="io-windowResize"></a>
 ### 【windowResize】
-ユーザーのwindow サイズを受信する  
-受信した値を元に[updateWindowSize](#io-updateWindowSize) を発信する
+Roomにjoinしているユーザーのwindowサイズを受信する  
+受信した値を元に同じRoomにjoinしているユーザーに[updateWindowSize](#io-updateWindowSize)を発信する
 
 #### Overview
 `Client -> API`  
 
 ##### Request Parameters
-- data
+```js
+/**
+ * @param {Object}
+ * @prop {number} width - 接続ユーザーのwindow の幅
+ * @prop {number} height - 接続ユーザーのwindow の高さ
+ */
+{
+  width: 1920,
+  height: 1080
+}
+```
 
-		@param {Object}
-		@prop {number} [width] - 接続ユーザーのwindow の幅
-		@prop {number} [height] - 接続ユーザーのwindow の高さ
-
-		{
-			"width": 1920
-			"height": 1080
-		}
-
-##### Response 
+##### Response (Emit Callback) 
+```js
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
+
 
 
 ***
 
 
-<a name="pointerMove"></a>
+
+<a name="io-pointerMove"></a>
 ### 【pointerMove】
-ポインターが移動した時に通知される  
-同じRoom にJoin しているユーザーに [updatePointer](#io-updatePointer) を発信する
+Roomにjoinしているユーザーのポインターが移動した時に通知される  
+受信した値を元に同じRoomにjoinしているユーザーに[updatePointer](#io-updatePointer)を発信する
 
 #### Overview
 `Client -> API`  
 
 ##### Request Parameters
-- data
+```js
+/**
+ * @param {Object}
+ * @prop {number} x - 発信者のポインターのx座標
+ * @prop {number} y - 発信者のポインターのy座標
+ */
+{
+  x: 265,
+  y: 246
+}
+```
 
-		@param {Object}
-		@prop {number} x - 発信者のポインターのx座標
-		@prop {number} y - 発信者のポインターのy座標
-
-		{
-			x: 265,
-			y: 246
-		}
-
-##### Response
+##### Response (Emit Callback) 
+```js
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
+
+
 
 ***
 
 
-<a name="shootLandscape"></a>
+
+<a name="io-shootLandscape"></a>
 ### 【shootLandscape】
-スクリーンショットが更新されたタイミングで通知される  
-同じRoom にJoin しているユーザーに [updateLandscape](#io-updateLandscape) を発信する
+スクリーンショットが撮影されたタイミングで通知される  
+受信した値を元に同じRoomにjoinしているユーザーに[updateLandscape](#io-updateLandscape)を発信する
 
 #### Overview
 `Client -> API`  
 
 ##### Request Parameters
-- data
+```js
+/**
+ * @param {Object}
+ * @prop {string} dataUrl - スクリーンショット（base64）
+ */
+{
+  landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+}
+```
 
-		@param {Object}
-		@prop {number} devicePixelRatio - ピクセル比
-		@prop {string} dataUrl - スクリーンショット（base64）
-
-		{
-			devicePixelRatio: 1,
-			dataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
-		}
-
-
-##### Response
+##### Response (Emit Callback) 
+```js
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
 
+
+
 ***
+
 
 
 # socket.io event
 以下のように受信可能  
-
-	socket.on('userAdded', function(data) {
-		var image_path = data.image_path;
-	})
-
+```js
+socket.on('addUser', function(data) {
+  console.log(data);
+});
+```
 ***
 
 
 <a name="io-addUser"></a>
 ### 【addUser】
-新規にjoin したユーザーの情報をそれまでログインしていたユーザーにを通知する  
+新規にjoinしたユーザーの情報をそれまでログインしていたユーザーにを通知する  
 
 #### Overview
-`API -> Client`    
+`API -> Client (送信先: roomId | 送信方法: broadcast)`
 
 ##### Request Parameters
-- data
-
-		@param {Object}
-
-		{
-			@param {Object}
-			@prop {string} id - 接続ユーザーのsocket.id
-			@prop {number} x - 接続ユーザーのポインター x座標
-			@prop {number} y - 接続ユーザーのポインター y座標
-			@prop {number} width - 接続ユーザーのwindow の幅
-			@prop {number} height - 接続ユーザーのwindow の高さ
-			@prop {string} link - 接続ユーザーが閲覧していたページのURL
-			@prop {string} landscape - スクリーンショット（base64）
-
-			{
-				id: "T16ontoFZG1fx7OpAAAH",
-				position: {
-					x: 265,
-					y: 246
-				},
-				width: 1920,
-				height: 1080,
-				link: "https://www.google.co.jp/",
-				landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
-			}
-		}
+```js
+```
 
 ##### Response 
+```js
+/**
+ * @param {Object}
+ * @prop {string} id - 新規ユーザーのsocket.id
+ * @prop {number} position.x - 新規ユーザーのポインター x座標
+ * @prop {number} position.y - 新規ユーザーのポインター y座標
+ * @prop {number} window.width - 新規ユーザーのwindow の幅
+ * @prop {number} window.height - 新規ユーザーのwindow の高さ
+ * @prop {string} link - 新規ユーザーが閲覧していたページのURL
+ * @prop {string} landscape - スクリーンショット（base64）
+ */
+{
+  id: "T16ontoFZG1fx7OpAAAH",
+  position: {
+    x: 265,
+    y: 246
+  },
+  window: {
+    width: 1920,
+    height: 1080
+  },
+  link: "https://www.google.co.jp/",
+  landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+}
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
 
@@ -659,50 +800,49 @@ join したユーザーの初期設定を受信する
 ***
 
 
-<a name="io-initializeSpace"></a>
-### 【initializeSpace】
-新規にjoin したユーザーに対してそれまでログインしていたユーザーの情報を通知する  
+<a name="io-addResident"></a>
+### 【addResident】
+新規にjoinしたユーザーに対してそれまでに入室していたユーザーの情報を通知する  
 
 #### Overview
-`API -> Client`    
+`API -> Client (送信先: toSocketId)`    
 
 ##### Request Parameters
-- data
-
-		@param {Object}
-
-		{
-			@param {Object}
-			@prop {string} id - 接続済ユーザーのsocket.id
-			@prop {number} x - 接続済ユーザーのポインター x座標
-			@prop {number} y - 接続済ユーザーのポインター y座標
-			@prop {number} width - 接続済ユーザーのwindow の幅
-			@prop {number} height - 接続済ユーザーのwindow の高さ
-			@prop {string} link - 接続済ユーザーが閲覧していたページのURL
-			@prop {string} landscape - スクリーンショット（base64）
-
-			{
-				id: "T16ontoFZG1fx7OpAAAH",
-				position: {
-					x: 265,
-					y: 246
-				},
-				width: 1920,
-				height: 1080,
-				link: "https://www.google.co.jp/",
-				landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
-			}
-		}
+```js
+```
 
 ##### Response 
+```js
+/**
+ * @param {Object}
+ * @prop {string} id - 接続済ユーザーのsocket.id
+ * @prop {number} position.x - 接続済ユーザーのポインター x座標
+ * @prop {number} position.y - 接続済ユーザーのポインター y座標
+ * @prop {number} window.width - 接続済ユーザーのwindow の幅
+ * @prop {number} window.height - 接続済ユーザーのwindow の高さ
+ * @prop {string} link - 接続済ユーザーが閲覧していたページのURL
+ * @prop {string} landscape - スクリーンショット（base64）
+ */
+{
+  id: "T16ontoFZG1fx7OpAAAH",
+  position: {
+    x: 265,
+    y: 246
+  },
+  window: {
+    width: 1920,
+    height: 1080
+  },
+  link: "https://www.google.co.jp/",
+  landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+}
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
 
@@ -710,268 +850,254 @@ join したユーザーの初期設定を受信する
 ***
 
 
-<a name="io-checkIn"></a>
-### 【checkIn】
-同じRoom に所属するユーザーのSocket ID の配列を受信する  
-room へのjoin が完了したタイミングで発信される 
-
-#### Overview
-`API -> Client`  
-
-##### Request Parameters
-
-##### Response 
-- data
-
-		@return {Object}
-		@prop {[string]} [users] - 同じRoom に所属するユーザーのSocket ID の配列
-
-		{
-			"users": [
-				"T16ontoFZG1fx7OpAAAH",
-				"3fKlmlfGtKBXtnw-AAAD",
-				"WPFZdXhEwrgstuB0AAAG"
-			]
-		}
-
-###### Server
-
-```js
-```
-
-###### Client
-
-```js
-```
-
-***
 
 <a name="io-checkOut"></a>
 ### 【checkOut】
-同じRoom に所属していたユーザーのSocket ID を受信する  
-socket サーバーからのdisconnect が完了したタイミングで発信される 
+同じRoomに所属していたユーザーのSocket IDをClientへ発信する  
+socketサーバーからのdisconnectが完了したタイミングで発信される 
 
 #### Overview
-`API -> Client`  
+`API -> Client (送信先: roomId | 送信方法: broadcast)`   
 
 ##### Request Parameters
+```js
+```
 
 ##### Response 
-- data
-
-		@return {string} 同じRoom に所属していたユーザーのSocket ID
-
-		"T16ontoFZG1fx7OpAAAH"
+```js
+/**
+ * @param {Object}
+ * @prop {string} id - 同じRoomに所属していたユーザーのSocketID
+ */
+{
+  id: "T16ontoFZG1fx7OpAAAH"
+}
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
 
 
 ***
+
+
+
+<a name="io-updateLocation"></a>
+### 【updateLocation】
+同じRoom に所属するユーザーの閲覧しているURLをClientへ発信する  
+
+#### Overview
+`Client -> API (送信先: roomId | 送信方法: broadcast)`  
+
+##### Request Parameters
+```js
+```
+
+##### Response (Emit Callback) 
+```js
+/**
+ * @param {Object}
+ * @prop {string} id - 発信者のsocket.id
+ * @prop {string} link - 接続ユーザーの閲覧しているURL
+ */
+{
+  id: "T16ontoFZG1fx7OpAAAH",
+  link: "https://www.google.co.jp/"
+}
+```
+
+###### Server
+```js
+```
+
+###### Client
+```js
+```
+
+
+
+***
+
 
 
 <a name="io-updateWindowSize"></a>
 ### 【updateWindowSize】
-同じRoom に所属するユーザーのwindow サイズを受信する  
+同じRoom に所属するユーザーのwindowサイズをClientへ発信する  
 
 #### Overview
-`API -> Client `  
+`API -> Client (送信先: roomId | 送信方法: broadcast)`  
 
 ##### Request Parameters
+```js
+```
 
 ##### Response 
-- data
-
-		@param {Object}
-		@prop {string} socketId - 発信元のsocket.id
-		@prop {number} [width] - 接続ユーザーのwindow の幅
-		@prop {number} [height] - 接続ユーザーのwindow の高さ
-
-
-		{
-			socketId: "T16ontoFZG1fx7OpAAAH",
-			width: 1920,
-			height: 1080
-		}
+```js
+/**
+ * @param {Object}
+ * @prop {string} id - 発信者のsocket.id
+ * @prop {number} window.width - 発信者のwindowの幅
+ * @prop {number} window.height - 発信者のwindowの高さ
+ */
+{
+  id: "T16ontoFZG1fx7OpAAAH",
+  window: {
+    width: 1920,
+    height: 1080
+  }
+}
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
+
 
 ***
 
-<a name="io-updateWindowSize"></a>
-### 【updateWindowSize】
-同じRoom に所属するユーザーのwindow サイズを受信する  
-
-#### Overview
-`API -> Client `  
-
-##### Request Parameters
-
-##### Response 
-- data
-
-		@param {Object}
-		@prop {string} socketId - 発信元のsocket.id
-		@prop {number} [width] - 接続ユーザーのwindow の幅
-		@prop {number} [height] - 接続ユーザーのwindow の高さ
-
-
-		{
-			socketId: "T16ontoFZG1fx7OpAAAH",
-			width: 1920,
-			height: 1080
-		}
-
-###### Server
-
-```js
-```
-
-###### Client
-
-```js
-```
-
-***
 
 
 <a name="io-updatePointer"></a>
 ### 【updatePointer】
-同じRoom に所属するユーザーのポインターの座標を受信する  
+同じRoomに所属するユーザーのポインターの座標をClientへ発信する  
 
 #### Overview
 `API -> Client `  
 
 ##### Request Parameters
+```js
+```
 
 ##### Response 
-- data
-
-		@param {Object}
-		@prop {string} socketId - 発信元のsocket.id
-		@prop {number} x - 発信者のポインターのx座標
-		@prop {number} y - 発信者のポインターのy座標
-
-		{
-			socketId: "T16ontoFZG1fx7OpAAAH",
-			x: 265,
-			y: 246
-		}
+```js
+/**
+ * @param {Object}
+ * @prop {string} id - 発信者のsocket.id
+ * @prop {number} position.x - 発信者のポインターのx座標
+ * @prop {number} position.y - 発信者のポインターのy座標
+ */
+{
+  id: "T16ontoFZG1fx7OpAAAH",
+  position: {
+    x: 265,
+    y: 246
+  }
+}
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
 
+
+
 ***
+
+
 
 <a name="io-updateLandscape"></a>
 ### 【updateLandscape】
-同じRoom に所属するユーザーのスクリーンショットをBase64 で受信する  
+同じRoomに所属するユーザーのスクリーンショットをBase64でClientへ発信する  
 
 #### Overview
 `API -> Client `  
 
 ##### Request Parameters
+```js
+```
 
 ##### Response 
-- data
-
-		@param {Object}
-		@prop {string} socketId - 発信元のsocket.id
-		@prop {number} devicePixelRatio - ピクセル比
-		@prop {string} dataUrl - スクリーンショット（base64）
-
-		{
-			socketId: "T16ontoFZG1fx7OpAAAH",
-			devicePixelRatio: 1,
-			landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
-		}
+```js
+/**
+ * @param {Object}
+ * @prop {string} id - 発信元のsocket.id
+ * @prop {string} landscape - スクリーンショット（base64）
+ */
+{
+  id: "T16ontoFZG1fx7OpAAAH",
+  landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+}
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
+
+
 
 ***
 
+
+
 <a name="io-receiveMemorys"></a>
 ### 【receiveMemorys】
-データベースのMemorys からランダムにMemory Document を返す  
+データベースのMemorys CollectionからランダムにMemory Documentを返す  
 
 #### Overview
 `API -> Client `  
 
 ##### Request Parameters
+```js
+```
 
 ##### Response 
-- data
-
-		@param {Object}
-		@prop {[Memory]} memorys - Memory Document の配列
-
-
-		- Memory object
-		{
-			memorys: {
-				[
-					{
-						"_id": "1234567890abcdfegh",
-						"dayId": "20150712",
-						"url": "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
-						"link": "https://www.google.co.jp/",
-						"window": {
-							"width": 1920,
-							"height": 1080
-						},
-						"ext": ".jpeg",
-						"imgSrc": "//is-eternal.me/memorys/20150712/1234567890abcdfegh.jpeg", (virtual)
-						"positions": [
-					      	{ x: 0, y: 0 },
-					      	{ x: 0, y: 0 },
-					        ...
-					    ],
-						"random": [0.1, 0],
-						"createAt": "2015-07-07T12:00:00.024Z"
-					},
-					...
-				]
-			}
-		}
+```js
+/**
+ * @param {Object}
+ * @prop {[Memory]} memorys - Memory Documentの配列
+ */
+{
+  memorys: {
+    [
+      {
+        _id: "1234567890abcdfegh",
+        dayId: "20150712",
+        url: "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
+        link: "https://www.google.co.jp/",
+        window: {
+          width: 1920,
+          height: 1080
+        },
+        ext: ".jpeg",
+        imgSrc: "//is-eternal.me/memorys/20150712/1234567890abcdfegh.jpeg", (virtual)
+        positions: [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          ...
+        ],
+        random: [0.1, 0],
+        createAt: "2015-07-07T12:00:00.024Z"
+      },
+      ...
+    ]
+  }
+}
+```
 
 ###### Server
-
 ```js
 ```
 
 ###### Client
-
 ```js
 ```
+
 
 ***

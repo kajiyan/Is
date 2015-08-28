@@ -104,7 +104,7 @@ Extension = (function() {
         });
 
         // --------------------------------------------------------------
-        socket.on('join', function( _keyData, callback ){
+        socket.on('join', function(_keyData, callback) {
           console.log('[Controller] Extension -> join');
 
           var keyData = _.extend({
@@ -183,12 +183,18 @@ Extension = (function() {
                       console.log('join - ' + joinRoomId);
                       socket.join(joinRoomId);
 
-                      // 同じRoom に所属するユーザーのSocket ID の配列を送信
-                      _this._extensionSocketIo
-                        .to(joinRoomId)
-                        .emit('checkIn', {
-                          'users': _.keys(_this._extensionSocketIo.adapter.rooms[joinRoomId])}
-                        );
+                      // // 同じRoom に所属するユーザーのSocket ID の配列を送信
+                      // _this._extensionSocketIo
+                      //   .to(joinRoomId)
+                      //   .emit('checkIn', {
+                      //     'users': _.keys(_this._extensionSocketIo.adapter.rooms[joinRoomId])}
+                      //   );
+
+                      // これが呼ばれるとclient 側のjoin emit 第3引数を呼び出す
+                      callback();
+                      // _this._extensionSocketIo
+                      //   .to(socket.id)
+                      //   .emit('jointed');
                     }
                   },
                   function(data) {
@@ -238,6 +244,39 @@ Extension = (function() {
         });
 
         // --------------------------------------------------------------
+        socket.on('initializeUser',
+          /**
+           * @param {Object} data
+           * @prop {string} id - 接続ユーザーのsocket.id
+           * @prop {number} position.x - 接続ユーザーのポインター x座標
+           * @prop {number} position.y - 接続ユーザーのポインター y座標
+           * @prop {number} width - 接続ユーザーのwindow の幅
+           * @prop {number} height - 接続ユーザーのwindow の高さ
+           * @prop {string} link - 接続ユーザーが閲覧していたページのURL
+           * @prop {string} landscape - スクリーンショット（base64）
+           */
+          function(data) {
+            // ポインターの初期値を送信者以外に送る
+            socket
+              .broadcast
+              .to(joinRoomId)
+              .emit('addUser', {
+                'id': socket.id,
+                'position': {
+                  'x': data.position.x,
+                  'y': data.position.y
+                },
+                'window': {
+                  'width': data.window.width,
+                  'height': data.window.height
+                },
+                'link': data.link,
+                'landscape': data.landscape
+              });
+          }
+        );
+
+        // --------------------------------------------------------------
         socket.on('pointerMove', function(pointerPosition) {
           // console.log(pointerPosition);
 
@@ -258,7 +297,7 @@ Extension = (function() {
          * 接続ユーザーのスクリーンショットが更新されたタイミングで通知される
          * 同じRoom にJoin しているユーザーに updateLandscape を発信する
          * @param {Object} data
-         * @prop {string} data.landscape - スクリーンショット（base64）
+         * @prop {string} landscape - スクリーンショット（base64）
          */
         // --------------------------------------------------------------
         socket.on('shootLandscape', function(data) {
@@ -269,9 +308,8 @@ Extension = (function() {
             .broadcast
             .to(joinRoomId)
             .emit('updateLandscape', {
-              'socketId': socket.id,
-              'devicePixelRatio': data.devicePixelRatio,
-              'dataUrl': data.dataUrl
+              'id': socket.id,
+              'landscape': data.landscape
             });
         });
       });

@@ -58,6 +58,9 @@ module.exports = (App, sn, $, _) ->
         # 初回は起動時のtab idが設定される
         @listenTo @, "change:selsectedTabId", @_changeSectedTabIdHandler
 
+        # chrome.tabs.onCreated.addListener (tab) -> console.log "onCreated", tab
+        # chrome.tabs.onUpdated.addListener (tabId, changeInfo, tab) -> console.log "onUpdated", tabId, changeInfo, tab
+
         # アクティブなタブが変わった時に呼び出される
         chrome.tabs.onActivated.addListener @_onActivatedHandler.bind(@)
 
@@ -115,15 +118,21 @@ module.exports = (App, sn, $, _) ->
       # ============================================================
       # COMMANDS
       App.commands.setHandler "stageAppRun", () =>
-        console.log "%c[Socket] SocketModel | stageAppRun", debug.style
+        console.log "%c[Stage] StageModel | stageAppRun", debug.style
         @models.stage.set "isRun", true
 
 
       App.commands.setHandler "stopAppRun", (isRun) =>
-        console.log "%c[Socket] SocketModel | stopAppRun", debug.style
+        console.log "%c[Stage] SocketModel | stopAppRun", debug.style
         @models.stage.set "isRun", false
 
       # App.execute "stageAppRun"
+
+      # ============================================================
+      # REQUEST RESPONSE
+      App.reqres.setHandler "stageGetSelsectedTabId", () =>
+        console.log "%c[Stage] Request Response | stageGetSelsectedTabId", debug.style
+        return @models.stage.get "selsectedTabId"
 
 
     # ============================================================

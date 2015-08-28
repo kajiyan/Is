@@ -24914,14 +24914,20 @@
 	      };
 	      App.commands.setHandler("stageAppRun", (function(_this) {
 	        return function() {
-	          console.log("%c[Socket] SocketModel | stageAppRun", debug.style);
+	          console.log("%c[Stage] StageModel | stageAppRun", debug.style);
 	          return _this.models.stage.set("isRun", true);
 	        };
 	      })(this));
-	      return App.commands.setHandler("stopAppRun", (function(_this) {
+	      App.commands.setHandler("stopAppRun", (function(_this) {
 	        return function(isRun) {
-	          console.log("%c[Socket] SocketModel | stopAppRun", debug.style);
+	          console.log("%c[Stage] SocketModel | stopAppRun", debug.style);
 	          return _this.models.stage.set("isRun", false);
+	        };
+	      })(this));
+	      return App.reqres.setHandler("stageGetSelsectedTabId", (function(_this) {
+	        return function() {
+	          console.log("%c[Stage] Request Response | stageGetSelsectedTabId", debug.style);
+	          return _this.models.stage.get("selsectedTabId");
 	        };
 	      })(this));
 	    });
@@ -24953,15 +24959,21 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeIsRunHandler, sendCheckInHandler, sendCheckOutHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, windowId;
+	            var changeIsRunHandler, link, sendAddUser, sendCheckInHandler, sendCheckOutHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, tabId, windowId;
+	            tabId = port.sender.tab.id;
 	            windowId = port.sender.tab.windowId;
+	            link = port.sender.tab.url;
 	            changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
+	            sendJointedHandler = _this._sendJointedHandler.bind(_this)(port);
+	            sendAddUser = _this._sendAddUser.bind(_this)(port);
 	            sendCheckInHandler = _this._sendCheckInHandler.bind(_this)(port);
 	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
 	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
 	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
 	            port.onDisconnect.addListener(function() {
 	              App.vent.off("stageChangeIsRun", changeIsRunHandler);
+	              App.vent.off("socketJointed", sendJointedHandler);
+	              App.vent.off("socketAddUser", sendAddUser);
 	              App.vent.off("socketCheckIn", sendCheckInHandler);
 	              App.vent.off("socketCheckOut", sendCheckOutHandler);
 	              App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
@@ -24972,12 +24984,14 @@
 	            if (port.name === "contentScript") {
 	              console.log("%c[Connect] ConnectModel | onConnect", debug.style);
 	              App.vent.on("stageChangeIsRun", changeIsRunHandler);
+	              App.vent.on("socketJointed", sendJointedHandler);
+	              App.vent.on("socketAddUser", sendAddUser);
 	              App.vent.on("socketCheckIn", sendCheckInHandler);
 	              App.vent.on("socketCheckOut", sendCheckOutHandler);
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              return port.onMessage.addListener(function(message) {
-	                var _sendCheckInHandler;
+	                var _sendCheckInHandler, selsectedTabId;
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
 	                  switch (message.type) {
 	                    case "setup":
@@ -24994,6 +25008,43 @@
 	                          isRun: _this.get("isRun")
 	                        }
 	                      });
+	                    case "initializeUser":
+	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message);
+	                      return chrome.tabs.captureVisibleTab(windowId, {
+	                        format: "jpeg",
+	                        quality: 80
+	                      }, function(dataUrl) {
+	                        return App.vent.trigger("connectInitializeUser", {
+	                          position: {
+	                            x: message.body.position.x,
+	                            y: message.body.position.y
+	                          },
+	                          window: {
+	                            width: message.body.window.width,
+	                            height: message.body.window.height
+	                          },
+	                          link: link,
+	                          landscape: dataUrl
+	                        });
+	                      });
+	                    case "initializeResident":
+	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message);
+	                      selsectedTabId = App.reqres.request("stageGetSelsectedTabId");
+	                      if (tabId === selsectedTabId) {
+	                        return chrome.tabs.captureVisibleTab(windowId, {
+	                          format: "jpeg",
+	                          quality: 80
+	                        }, function(dataUrl) {
+	                          return App.vent.trigger("connectInitializeResident", {
+	                            toSocketId: message.body.toSocketId,
+	                            position: message.body.position,
+	                            window: message.body.window,
+	                            link: link,
+	                            landscape: dataUrl
+	                          });
+	                        });
+	                      }
+	                      break;
 	                    case "windowResize":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | windowResize", debug.style, message);
 	                      return App.vent.trigger("connectWindowResize", message.body);
@@ -25004,10 +25055,9 @@
 	                      return chrome.tabs.captureVisibleTab(windowId, {
 	                        format: "jpeg",
 	                        quality: 80
-	                      }, function(_dataUrl) {
+	                      }, function(dataUrl) {
 	                        return App.vent.trigger("connectUpdateLandscape", {
-	                          devicePixelRatio: message.body.devicePixelRatio,
-	                          dataUrl: _dataUrl
+	                          landscape: dataUrl
 	                        });
 	                      });
 	                  }
@@ -25028,6 +25078,40 @@
 	              type: "changeIsRun",
 	              body: {
 	                isRun: isRun
+	              }
+	            });
+	          };
+	        })(this);
+	      },
+	      _sendJointedHandler: function(port) {
+	        return (function(_this) {
+	          return function() {
+	            console.log("%c[Connect] ConnectModel -> _sendJointedHandler", debug.style);
+	            return port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "jointed",
+	              body: {}
+	            });
+	          };
+	        })(this);
+	      },
+	      _sendAddUser: function(port) {
+	        return (function(_this) {
+	          return function(data) {
+	            console.log("%c[Connect] ConnectModel -> _sendAddUser", debug.style, data);
+	            port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "addUser",
+	              body: data
+	            });
+	            return port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "initializeResident",
+	              body: {
+	                toSocketId: data.id
 	              }
 	            });
 	          };
@@ -25126,6 +25210,8 @@
 	        console.log("%c[Socket] SocketModel -> initialize", debug.style);
 	        this.changeIsRunHandler = this._changeIsRunHandler.bind(this);
 	        App.vent.on("stageChangeIsRun", this.changeIsRunHandler);
+	        App.vent.on("connectInitializeUser", this._initializeUserHandler.bind(this));
+	        App.vent.on("connectInitializeResident", this._initializeResidentHandler.bind(this));
 	        App.vent.on("connectWindowResize", this._windowResizeHandler.bind(this));
 	        App.vent.on("connectPointerMove", this._pointerMoveHandler.bind(this));
 	        App.vent.on("connectUpdateLandscape", this._updateLandscapeHandler.bind(this));
@@ -25142,14 +25228,25 @@
 	        this.socket.on("reconnecting", this._reconnectingHandler.bind(this));
 	        this.socket.on("reconnect_error", this._reconnectErrorHandler.bind(this));
 	        this.socket.on("reconnect_failed", this._reconnectFailedHandler.bind(this));
-	        this.socket.on("checkIn", this._receiveCheckInHandler.bind(this));
+	        this.socket.on("addUser", this._receiveAddUserHandler.bind(this));
 	        this.socket.on("checkOut", this._receiveCheckOutHandler.bind(this));
 	        this.socket.on("updatePointer", this._receiveUpdatePointerHandler.bind(this));
 	        return this.socket.on("updateLandscape", this._receiveUpdateLandscapeHandler.bind(this));
 	      },
 	      _join: function() {
 	        console.log("%c[Socket] SocketModel -> join", debug.style);
-	        return this.socket.emit("join");
+	        return this.socket.emit("join", {}, function() {
+	          console.log("%c[Socket] SocketModel -> jointed", debug.style);
+	          return App.vent.trigger("socketJointed");
+	        });
+	      },
+	      _initializeUserHandler: function(data) {
+	        console.log("%c[Socket] SocketModel -> _initializeUserHandler", debug.style, data);
+	        return this.socket.emit("initializeUser", data);
+	      },
+	      _initializeResidentHandler: function(data) {
+	        console.log("%c[Socket] SocketModel -> _initializeResidentHandler", debug.style, data);
+	        return this.socket.emit("initializeResident", data);
 	      },
 	      _windowResizeHandler: function() {
 	        return console.log("%c[Socket] SocketModel -> _windowResizeHandler", debug.style);
@@ -25205,6 +25302,10 @@
 	      },
 	      _reconnectFailedHandler: function() {
 	        return console.log("%c[Socket] SocketModel -> _reconnectFailedHandler", debug.style);
+	      },
+	      _receiveAddUserHandler: function(data) {
+	        console.log("%c[Socket] SocketModel -> _receiveAddUserHandler", debug.style, data);
+	        return App.vent.trigger("socketAddUser", data);
 	      },
 	      _receiveCheckInHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _receiveCheckInHandler", debug.style, data);
