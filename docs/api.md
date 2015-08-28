@@ -447,6 +447,50 @@ Socket接続を終了し、それまで所属していたroom のcapacity をデ
 ***
 
 
+<a name="io-initializeUser"></a>
+### 【initializeUser】
+join したユーザーの初期設定を受信する  
+[addUser](#io-addUser) を発信する
+
+#### Overview
+`Client -> API`  
+
+##### Request Parameters
+- data
+
+		@param {Object}
+		@prop {number} x - 接続ユーザーのポインター x座標
+		@prop {number} y - 接続ユーザーのポインター y座標
+		@prop {number} width - 接続ユーザーのwindow の幅
+		@prop {number} height - 接続ユーザーのwindow の高さ
+		@prop {string} link - 接続ユーザーが閲覧していたページのURL
+		@prop {string} dataUrl - スクリーンショット（base64）
+
+		{
+			x: 265,
+			y: 246,
+			width: 1920,
+			height: 1080,
+			link: "https://www.google.co.jp/",
+			dataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+		}
+
+##### Response 
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+
+***
+
+
 <a name="windowResize"></a>
 ### 【windowResize】
 ユーザーのwindow サイズを受信する  
@@ -563,6 +607,109 @@ Socket接続を終了し、それまで所属していたroom のcapacity をデ
 
 ***
 
+
+<a name="io-addUser"></a>
+### 【addUser】
+新規にjoin したユーザーの情報をそれまでログインしていたユーザーにを通知する  
+
+#### Overview
+`API -> Client`    
+
+##### Request Parameters
+- data
+
+		@param {Object}
+
+		{
+			@param {Object}
+			@prop {string} id - 接続ユーザーのsocket.id
+			@prop {number} x - 接続ユーザーのポインター x座標
+			@prop {number} y - 接続ユーザーのポインター y座標
+			@prop {number} width - 接続ユーザーのwindow の幅
+			@prop {number} height - 接続ユーザーのwindow の高さ
+			@prop {string} link - 接続ユーザーが閲覧していたページのURL
+			@prop {string} landscape - スクリーンショット（base64）
+
+			{
+				id: "T16ontoFZG1fx7OpAAAH",
+				position: {
+					x: 265,
+					y: 246
+				},
+				width: 1920,
+				height: 1080,
+				link: "https://www.google.co.jp/",
+				landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+			}
+		}
+
+##### Response 
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+
+***
+
+
+<a name="io-initializeSpace"></a>
+### 【initializeSpace】
+新規にjoin したユーザーに対してそれまでログインしていたユーザーの情報を通知する  
+
+#### Overview
+`API -> Client`    
+
+##### Request Parameters
+- data
+
+		@param {Object}
+
+		{
+			@param {Object}
+			@prop {string} id - 接続済ユーザーのsocket.id
+			@prop {number} x - 接続済ユーザーのポインター x座標
+			@prop {number} y - 接続済ユーザーのポインター y座標
+			@prop {number} width - 接続済ユーザーのwindow の幅
+			@prop {number} height - 接続済ユーザーのwindow の高さ
+			@prop {string} link - 接続済ユーザーが閲覧していたページのURL
+			@prop {string} landscape - スクリーンショット（base64）
+
+			{
+				id: "T16ontoFZG1fx7OpAAAH",
+				position: {
+					x: 265,
+					y: 246
+				},
+				width: 1920,
+				height: 1080,
+				link: "https://www.google.co.jp/",
+				landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+			}
+		}
+
+##### Response 
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+
+***
+
+
 <a name="io-checkIn"></a>
 ### 【checkIn】
 同じRoom に所属するユーザーのSocket ID の配列を受信する  
@@ -666,6 +813,42 @@ socket サーバーからのdisconnect が完了したタイミングで発信�
 
 ***
 
+<a name="io-updateWindowSize"></a>
+### 【updateWindowSize】
+同じRoom に所属するユーザーのwindow サイズを受信する  
+
+#### Overview
+`API -> Client `  
+
+##### Request Parameters
+
+##### Response 
+- data
+
+		@param {Object}
+		@prop {string} socketId - 発信元のsocket.id
+		@prop {number} [width] - 接続ユーザーのwindow の幅
+		@prop {number} [height] - 接続ユーザーのwindow の高さ
+
+
+		{
+			socketId: "T16ontoFZG1fx7OpAAAH",
+			width: 1920,
+			height: 1080
+		}
+
+###### Server
+
+```js
+```
+
+###### Client
+
+```js
+```
+
+***
+
 
 <a name="io-updatePointer"></a>
 ### 【updatePointer】
@@ -722,7 +905,7 @@ socket サーバーからのdisconnect が完了したタイミングで発信�
 		{
 			socketId: "T16ontoFZG1fx7OpAAAH",
 			devicePixelRatio: 1,
-			dataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+			landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
 		}
 
 ###### Server
