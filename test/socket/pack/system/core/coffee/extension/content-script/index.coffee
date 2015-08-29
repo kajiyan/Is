@@ -262,7 +262,6 @@ do (window=window, document=document, $=jQuery) ->
           # --------------------------------------------------------------
           _addUserHandler: (data) ->
             console.log "%c[Extension] LoversCollection -> _addUserHandler", debug.style, data
-            
             @add data
 
           # --------------------------------------------------------------

@@ -121,7 +121,7 @@ module.exports = (App, sn, $, _) ->
               if (message.from? and message.from is "contentScript") and message.type?
                 switch message.type
                   when "setup"
-                    console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message
+                    console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup | #{tabId}", debug.style, message
 
                     # エクステンションがすでに起動している場合の処理
                     if @get "isRun"
@@ -226,8 +226,24 @@ module.exports = (App, sn, $, _) ->
       # --------------------------------------------------------------
       _changeSelsectedTabIdHandler: (port, initializedResidents) ->
         return (tabId) =>
-          console.log "%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, port.sender.tab.id, tabId, initializedResidents
+          console.log "%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:#{port.sender.tab.id} | ACTIVE TabID:#{tabId}", initializedResidents
 
+          if port.sender.tab.id is tabId
+            # 同じroomIdにjoinしているResidentsを取得する
+            residents = App.reqres.request "socketGetResidents"
+
+            for resident, index in residents
+              # 表示リストに表示されていないResidentがあるか調べる
+              if _.indexOf(initializedResidents, resident.id) is -1
+                # content script にResidentの表示依頼をする
+                port.postMessage
+                  to: "contentScript"
+                  from: "background"
+                  type: "addResident"
+                  body: resident
+            
+                # 表示リストに加える
+                initializedResidents.push resident.id
 
       # # --------------------------------------------------------------
       # # /**
@@ -328,6 +344,7 @@ module.exports = (App, sn, $, _) ->
       #  * ConnectModel#_sendAddResident
       #  * 同じRoomに所属するユーザーの初期化に必要なデータを受信したときのイベントハンドラー
       #  * content script に既存ユーザーの表示依頼(addResident)を発信する
+      #  * portに紐づけて表示中のResidentのIDを保存する
       #  * @param {Array} initializedResidents - 初期化済みのResident IDの配列
       #  */
       # -------------------------------------------------------------
@@ -345,13 +362,11 @@ module.exports = (App, sn, $, _) ->
         return (data) =>
           console.log "%c[Connect] ConnectModel -> _sendAddResident | #{port.sender.tab.id}", debug.style, data
 
-          # # このポートが接続しているtabId
-          # tabId = port.sender.tab.id
-          # # 現在選択されているTabのIDを取得する
-          # selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
+          # 現在選択されているTabのIDを取得する
+          selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
 
-          # if tabId is selsectedTabId
-          #   initializedResidents.push data.id
+          # if port.sender.tab.id is selsectedTabId
+          initializedResidents.push data.id
 
           port.postMessage
             to: "contentScript"

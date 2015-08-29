@@ -25001,7 +25001,7 @@
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
 	                  switch (message.type) {
 	                    case "setup":
-	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message);
+	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | setup | " + tabId, debug.style, message);
 	                      if (_this.get("isRun")) {
 	                        residents = App.reqres.request("socketGetResidents");
 	                      }
@@ -25087,7 +25087,27 @@
 	      _changeSelsectedTabIdHandler: function(port, initializedResidents) {
 	        return (function(_this) {
 	          return function(tabId) {
-	            return console.log("%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, port.sender.tab.id, tabId, initializedResidents);
+	            var i, index, len, resident, residents, results;
+	            console.log("%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:" + port.sender.tab.id + " | ACTIVE TabID:" + tabId, initializedResidents);
+	            if (port.sender.tab.id === tabId) {
+	              residents = App.reqres.request("socketGetResidents");
+	              results = [];
+	              for (index = i = 0, len = residents.length; i < len; index = ++i) {
+	                resident = residents[index];
+	                if (_.indexOf(initializedResidents, resident.id) === -1) {
+	                  port.postMessage({
+	                    to: "contentScript",
+	                    from: "background",
+	                    type: "addResident",
+	                    body: resident
+	                  });
+	                  results.push(initializedResidents.push(resident.id));
+	                } else {
+	                  results.push(void 0);
+	                }
+	              }
+	              return results;
+	            }
 	          };
 	        })(this);
 	      },
@@ -25150,7 +25170,10 @@
 	      _sendAddResident: function(port, initializedResidents) {
 	        return (function(_this) {
 	          return function(data) {
+	            var selsectedTabId;
 	            console.log("%c[Connect] ConnectModel -> _sendAddResident | " + port.sender.tab.id, debug.style, data);
+	            selsectedTabId = App.reqres.request("stageGetSelsectedTabId");
+	            initializedResidents.push(data.id);
 	            return port.postMessage({
 	              to: "contentScript",
 	              from: "background",
