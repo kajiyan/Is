@@ -2,6 +2,7 @@
 # Socket
 # 
 # EVENT
+#   - socketDisconnect
 #   - socketJointed
 #   - socketAddUser
 #   - socketCheckIn
@@ -36,13 +37,14 @@ module.exports = (App, sn, $, _) ->
       #  * @type {Object}
       #  * @prop {boolean} isRun - エクステンションの起動状態
       #  * @prop {boolean} isConnected - webSocketの接続状態
-      #  * @prop {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
+      #  * @prop {Object} residents - 同じRoomに所属するユーザーの初期化に必要な値が入った配列
       #  */
       # ------------------------------------------------------------
       defaults:
         isRun: false
         isConnected: false
-        users: []
+        residents: []
+        # user: []
 
       # --------------------------------------------------------------
       # /**
@@ -104,6 +106,23 @@ module.exports = (App, sn, $, _) ->
         @socket.on "updatePointer", @_receiveUpdatePointerHandler.bind(@)
         # 同じRoom に所属するユーザーのスクリーンショットを受信する
         @socket.on "updateLandscape", @_receiveUpdateLandscapeHandler.bind(@)
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_disconnectHandler
+      #  * Socket サーバーとの接続が切断された時に実行される
+      #  * socketDisconnectイベントを発火させる
+      #  */
+      # ------------------------------------------------------------
+      _disconnectHandler: () ->
+        console.log "%c[Socket] SocketModel -> _disconnectHandler", debug.style
+        # 接続状態を変更
+        @set "isConnected", false
+
+        # 接続ユーザーを空にする
+        @set "residents", []
+
+        App.vent.trigger "socketDisconnect"
 
       # ------------------------------------------------------------
       # /**
@@ -251,19 +270,6 @@ module.exports = (App, sn, $, _) ->
 
       # ------------------------------------------------------------
       # /**
-      #  * SocketModel#_disconnectHandler
-      #  * Socket サーバーとの接続が切断された時に実行される
-      #  */
-      # ------------------------------------------------------------
-      _disconnectHandler: () ->
-        console.log "%c[Socket] SocketModel -> _disconnectHandler", debug.style
-        # 接続状態を変更
-        @set "isConnected", false
-        # 接続ユーザーを空にする
-        @set "users", []
-
-      # ------------------------------------------------------------
-      # /**
       #  * SocketModel#_reconnectHandler
       #  * @param {number} reconnection - 再接続試行回数 
       #  */
@@ -330,7 +336,7 @@ module.exports = (App, sn, $, _) ->
       # /**
       #  * SocketModel#_receiveAddResidentHandler
       #  * 同じRoomに所属するユーザーの初期化に必要なデータを受信したときのイベントハンドラー
-      #  * socketAddResidentイベントを発火する
+      #  * ユーザー情報を配列に保存し、socketAddResidentイベントを発火させる
       #  * @param {Object} data
       #  * @prop {string} id - 接続済ユーザーのsocket.id
       #  * @prop {number} position.x - 接続済ユーザーのポインター x座標
@@ -343,35 +349,40 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       _receiveAddResidentHandler: (data) ->
         console.log "%c[Socket] SocketModel -> _receiveAddResidentHandler", debug.style, data
+
+        residents = @get "residents"
+        residents.push data
+        @set "residents", residents
+
         App.vent.trigger "socketAddResident", data
 
-      # ------------------------------------------------------------
-      # /**
-      #  * SocketModel#_receiveCheckInHandler
-      #  * @param {Object} data
-      #  * @param {[string]} data.users - 同じRoom に所属するユーザーのSocket ID の配列
-      #  */
-      # ------------------------------------------------------------
-      _receiveCheckInHandler: (data) ->
-        console.log "%c[Socket] SocketModel -> _receiveCheckInHandler", debug.style, data
-        # 自身のsocket.id を除外する
-        data.users = _.without(data.users, @socket.id)
+      # # ------------------------------------------------------------
+      # # /**
+      # #  * SocketModel#_receiveCheckInHandler
+      # #  * @param {Object} data
+      # #  * @param {[string]} data.users - 同じRoom に所属するユーザーのSocket ID の配列
+      # #  */
+      # # ------------------------------------------------------------
+      # _receiveCheckInHandler: (data) ->
+      #   console.log "%c[Socket] SocketModel -> _receiveCheckInHandler", debug.style, data
+      #   # 自身のsocket.id を除外する
+      #   data.users = _.without(data.users, @socket.id)
         
-        @set "users", data.users 
-        # socketCheckIn イベントを発火する | connect がlisten
-        App.vent.trigger "socketCheckIn", data.users
+      #   @set "users", data.users 
+      #   # socketCheckIn イベントを発火する | connect がlisten
+      #   App.vent.trigger "socketCheckIn", data.users
 
       # ------------------------------------------------------------
       # /**
       #  * SocketModel#_receiveCheckOutHandler
-      #  * @param {string} user - 同じRoom に所属していたユーザーのSocket ID
+      #  * @param {Object} data
+      #  * @prop {string} id - 同じRoomに所属していたユーザーのSocketID
       #  */
       # ------------------------------------------------------------
-      _receiveCheckOutHandler: (user) ->
-        console.log "%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, user
-
+      _receiveCheckOutHandler: (data) ->
+        console.log "%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, data
         # socketCheckOut イベントを発火する | connect がlisten
-        App.vent.trigger "socketCheckOut", user
+        App.vent.trigger "socketCheckOut", data
 
       # ------------------------------------------------------------
       # /**
@@ -431,9 +442,13 @@ module.exports = (App, sn, $, _) ->
 
       # ============================================================
       # REQUEST RESPONSE
-      App.reqres.setHandler "socketGetUsers", () =>
-        console.log "%c[Socket] Request Response | socketGetUsers", debug.style
-        return @models.socket.get "users"
+      App.reqres.setHandler "socketGetResidents", () =>
+        console.log "%c[Socket] Request Response | socketGetResidents", debug.style
+        return @models.socket.get "residents"
+
+      # App.reqres.setHandler "socketGetUsers", () =>
+      #   console.log "%c[Socket] Request Response | socketGetUsers", debug.style
+      #   return @models.socket.get "users"
 
 
     # ============================================================

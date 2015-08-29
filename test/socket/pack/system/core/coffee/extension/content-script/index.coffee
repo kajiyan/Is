@@ -232,8 +232,10 @@ do (window=window, document=document, $=jQuery) ->
           # --------------------------------------------------------------
           initialize: () ->
             console.log "%c[Extension] LoversCollection -> initialize", debug.style
+            Extension.vent.on "connectDisconnect", @_resetUserHandler.bind @
             Extension.vent.on "connectAddUser", @_addUserHandler.bind @
             Extension.vent.on "connectAddResident", @_addUserHandler.bind @
+            Extension.vent.on "connectCheckOut", @_removeUserHandler.bind @
             # Extension.vent.on "connectChangeUsers", @_changeUsersHandler.bind @
             # Extension.vent.on "connectUpdatePointer", @_updatePointerHandler.bind @
             # Extension.vent.on "connectUpdateLandscape", @_updateLandscapeHandler.bind @
@@ -265,6 +267,26 @@ do (window=window, document=document, $=jQuery) ->
 
           # --------------------------------------------------------------
           # /**
+          #  * LoversCollection#_removeUserHandler
+          #  * @param {Object} data
+          #  * @prop {string} id - 同じRoomに所属していたユーザーのSocketID
+          #  */
+          # --------------------------------------------------------------
+          _removeUserHandler: (data) ->
+            console.log "%c[Extension] LoversCollection -> _removeUserHandler", debug.style, data
+            @remove id: data.id
+
+          # --------------------------------------------------------------
+          # /**
+          #  * LoversCollection#_resetUserHandler
+          #  */
+          # --------------------------------------------------------------
+          _resetUserHandler: () ->
+            console.log "%c[Extension] LoversCollection -> _removeUserHandler", debug.style
+            @reset()
+
+          # --------------------------------------------------------------
+          # /**
           #  * LoversCollection#_changeUsersHandler
           #  */
           # --------------------------------------------------------------
@@ -277,6 +299,7 @@ do (window=window, document=document, $=jQuery) ->
             for user, index in users
               @add
                 id: user
+
 
           # --------------------------------------------------------------
           # /**

@@ -133,7 +133,7 @@ module.exports = (App, sn, $, _) ->
       App.reqres.setHandler "stageGetSelsectedTabId", () =>
         console.log "%c[Stage] Request Response | stageGetSelsectedTabId", debug.style
         return @models.stage.get "selsectedTabId"
-
+      # App.reqres.request
 
     # ============================================================
     StageModule.addFinalizer (options) ->

@@ -111,13 +111,25 @@
 	        LoversCollection = Backbone.Collection.extend({
 	          initialize: function() {
 	            console.log("%c[Extension] LoversCollection -> initialize", debug.style);
+	            Extension.vent.on("connectDisconnect", this._resetUserHandler.bind(this));
 	            Extension.vent.on("connectAddUser", this._addUserHandler.bind(this));
-	            return Extension.vent.on("connectAddResident", this._addUserHandler.bind(this));
+	            Extension.vent.on("connectAddResident", this._addUserHandler.bind(this));
+	            return Extension.vent.on("connectCheckOut", this._removeUserHandler.bind(this));
 	          },
 	          model: LoverModel,
 	          _addUserHandler: function(data) {
 	            console.log("%c[Extension] LoversCollection -> _addUserHandler", debug.style, data);
 	            return this.add(data);
+	          },
+	          _removeUserHandler: function(data) {
+	            console.log("%c[Extension] LoversCollection -> _removeUserHandler", debug.style, data);
+	            return this.remove({
+	              id: data.id
+	            });
+	          },
+	          _resetUserHandler: function() {
+	            console.log("%c[Extension] LoversCollection -> _removeUserHandler", debug.style);
+	            return this.reset();
 	          },
 	          _changeUsersHandler: function(users) {
 	            var i, index, len, results, user;
@@ -25368,6 +25380,9 @@
 	                case "jointed":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | jointed", debug.style, message.body);
 	                  return App.vent.trigger("connectJointed");
+	                case "disconnect":
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | disconnect", debug.style, message.body);
+	                  return App.vent.trigger("connectDisconnect");
 	                case "addUser":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | addUser", debug.style, message.body);
 	                  return App.vent.trigger("connectAddUser", message.body);
@@ -25377,11 +25392,9 @@
 	                case "initializeResident":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message.body);
 	                  return App.vent.trigger("connectInitializeResident", message.body);
-	                case "checkIn":
-	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | checkIn", debug.style, message.body);
-	                  return _this.set("users", message.body.users);
 	                case "checkOut":
-	                  return console.log("%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body);
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body);
+	                  return App.vent.trigger("connectCheckOut", message.body);
 	                case "updatePointer":
 	                  return App.vent.trigger("connectUpdatePointer", message.body);
 	                case "updateLandscape":

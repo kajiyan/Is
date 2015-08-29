@@ -85,10 +85,11 @@ Extension = (function() {
           // 同じRoom に所属するユーザーにSocket ID を送信する
           _this._extensionSocketIo
             .to(joinRoomId)
-            .emit('checkOut', socket.id);
+            .emit('checkOut', {
+              'id': socket.id
+            });
 
-          // disconnect が発生したらそれまでユーザーが所属していたRoom の
-          // capacity をインクリメントする
+          // それまでユーザーが所属していたRoomのcapacity をインクリメントする
           _this._dayModel.updateAutomaticRoom({
             'query': {
               'conditions': {

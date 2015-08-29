@@ -41,7 +41,6 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       defaults:
         isRun: false
-        landscape: ""
 
       # --------------------------------------------------------------
       # /**
@@ -57,22 +56,22 @@ module.exports = (App, sn, $, _) ->
         # TEST
         # content script からのLong-lived 接続
         # chrome.extension.onConnect.addListener (port) =>
-        chrome.runtime.onConnect.addListener (port) =>
+        chrome.runtime.onConnect.addListener (port) =>          
+          # 初期化済みのResident IDの配列
+          initializedResidents = []
 
-          # chrome.tabs.query
-          #   currentWindow: true
-          #   active: true
-          #   ,
-          #   (tabs) ->
-          #     console.log tabs
           tabId = port.sender.tab.id
           windowId = port.sender.tab.windowId
           link = port.sender.tab.url
 
+          # socketDisconnect
+
           changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
+          changeSelsectedTabIdHandler = @_changeSelsectedTabIdHandler.bind(@)(port, initializedResidents)
           sendJointedHandler = @_sendJointedHandler.bind(@)(port)
+          sendDisconnectHandler = @_sendDisconnectHandler.bind(@)(port)
           sendAddUser = @_sendAddUser.bind(@)(port)
-          sendAddResident = @_sendAddResident.bind(@)(port)
+          sendAddResident = @_sendAddResident.bind(@)(port, initializedResidents)
           sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
           sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
           sendUpdateLandscapeHandler = @_sendUpdateLandscapeHandler.bind(@)(port)
@@ -80,7 +79,9 @@ module.exports = (App, sn, $, _) ->
           # Long-lived 接続 切断時の処理を登録する
           port.onDisconnect.addListener =>
             App.vent.off "stageChangeIsRun", changeIsRunHandler
+            App.vent.off "stageSelsectedTabId", changeSelsectedTabIdHandler
             App.vent.off "socketJointed", sendJointedHandler
+            App.vent.off "socketDisconnect", sendDisconnectHandler 
             App.vent.off "socketAddUser", sendAddUser
             App.vent.off "socketAddResident", sendAddResident
             App.vent.off "socketCheckOut", sendCheckOutHandler
@@ -95,8 +96,12 @@ module.exports = (App, sn, $, _) ->
 
             # エクステンションの起動状態に変化があった時のイベントリスナー
             App.vent.on "stageChangeIsRun", changeIsRunHandler
+            # タブが切り替わった時のイベントリスナー
+            App.vent.on "stageSelsectedTabId", changeSelsectedTabIdHandler
             # socketサーバーの特定のRoomへの入室が完了した時に呼び出される
             App.vent.on "socketJointed", sendJointedHandler
+            # socketサーバーsocketサーバーとの通信が切断された時に呼び出される
+            App.vent.on "socketDisconnect", sendDisconnectHandler 
             # socketサーバーから所属するroomに新規ユーザーが追加された時に呼び出される
             App.vent.on "socketAddUser", sendAddUser
             # socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出される
@@ -118,11 +123,18 @@ module.exports = (App, sn, $, _) ->
                   when "setup"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message
 
-                    # # エクステンションがすでに起動している場合の処理
-                    # if @get "isRun"
-                    #   # CheckInしているユーザーを取得する
-                    #   _sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
-                    #   _sendCheckInHandler App.reqres.request "socketGetUsers"
+                    # エクステンションがすでに起動している場合の処理
+                    if @get "isRun"
+                      # 同じroomIdにjoinしているユーザーを取得する
+                      residents = App.reqres.request "socketGetResidents"
+
+                      # for resident, index in residents
+                      #   sendAddResident resident
+                      #   initializedResidents.push sendAddResident.id
+                      #   # console.log resident, index
+
+                      # # _sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
+                      # # _sendCheckInHandler App.reqres.request "socketGetUsers"
 
                     port.postMessage
                       to: "contentScript"
@@ -207,6 +219,16 @@ module.exports = (App, sn, $, _) ->
             body:
               isRun: isRun
 
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_changeSelsectedTabIdHandler
+      #  */
+      # --------------------------------------------------------------
+      _changeSelsectedTabIdHandler: (port, initializedResidents) ->
+        return (tabId) =>
+          console.log "%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, port.sender.tab.id, tabId, initializedResidents
+
+
       # # --------------------------------------------------------------
       # # /**
       # #  * ConnectModel#_changeSelsectedTabIdHandler
@@ -232,10 +254,31 @@ module.exports = (App, sn, $, _) ->
         return () =>
           console.log "%c[Connect] ConnectModel -> _sendJointedHandler", debug.style
 
+          # 現在選択されているTabのIDを取得する
+          selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
+
+          # アクティブなタブだけにメッセージを送る
+          if port.sender.tab.id is selsectedTabId
+            port.postMessage
+              to: "contentScript"
+              from: "background"
+              type: "jointed"
+              body: {}
+
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_sendDisconnectHandler
+      #  * socketサーバーとの通信が切断された時のイベントハンドラー
+      #  */
+      # -------------------------------------------------------------
+      _sendDisconnectHandler: (port) ->
+        return () =>
+          console.log "%c[Connect] ConnectModel -> _sendDisconnectHandler", debug.style
+
           port.postMessage
             to: "contentScript"
             from: "background"
-            type: "jointed"
+            type: "disconnect"
             body: {}
 
       # --------------------------------------------------------------
@@ -285,9 +328,10 @@ module.exports = (App, sn, $, _) ->
       #  * ConnectModel#_sendAddResident
       #  * 同じRoomに所属するユーザーの初期化に必要なデータを受信したときのイベントハンドラー
       #  * content script に既存ユーザーの表示依頼(addResident)を発信する
+      #  * @param {Array} initializedResidents - 初期化済みのResident IDの配列
       #  */
       # -------------------------------------------------------------
-      _sendAddResident: (port) ->
+      _sendAddResident: (port, initializedResidents) ->
         # /**
         #  * @param {Object} data
         #  * @prop {string} id - 発信元のsocket.id
@@ -299,7 +343,15 @@ module.exports = (App, sn, $, _) ->
         #  * @prop {string} landscape - スクリーンショット（base64）
         #  */
         return (data) =>
-          console.log "%c[Connect] ConnectModel -> _sendAddResident", debug.style, data
+          console.log "%c[Connect] ConnectModel -> _sendAddResident | #{port.sender.tab.id}", debug.style, data
+
+          # # このポートが接続しているtabId
+          # tabId = port.sender.tab.id
+          # # 現在選択されているTabのIDを取得する
+          # selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
+
+          # if tabId is selsectedTabId
+          #   initializedResidents.push data.id
 
           port.postMessage
             to: "contentScript"
@@ -332,19 +384,21 @@ module.exports = (App, sn, $, _) ->
       #  * ConnectModel#_receiveCheckOutHandler
       #  * 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出されるイベントハンドラー
       #  * アクティブなタブのcontent script に切断したユーザーのSocket IDを通知する
-      #  * @param {string} user - 同じRoom に所属していたユーザーのSocket ID
       #  */
       # ------------------------------------------------------------
       _sendCheckOutHandler: (port) ->
-        (user) =>
-          console.log "%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, user
+        # /**
+        #  * @param {Object} data
+        #  * @param {string} id - 同じRoomに所属していたユーザーのSocketID
+        #  */
+        (data) =>
+          console.log "%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, data
 
           port.postMessage
             to: "contentScript"
             from: "background"
             type: "checkOut"
-            body:
-              user: user
+            body: data
 
       # ------------------------------------------------------------
       # /**

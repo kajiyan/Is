@@ -4,7 +4,9 @@
 # EVENT
 #   - connectChangeIsRun
 #   - connectChangeUsers
+#   - connectCheckOut
 #   - connectJointed
+#   - connectDisconnect
 #   - connectAddUser
 #   - connectAddResident
 #
@@ -78,6 +80,10 @@ module.exports = (App, sn, $, _) ->
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | jointed", debug.style, message.body
                 App.vent.trigger "connectJointed"
 
+              when "disconnect"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | disconnect", debug.style, message.body
+                App.vent.trigger "connectDisconnect"
+
               when "addUser"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | addUser", debug.style, message.body
                 App.vent.trigger "connectAddUser", message.body
@@ -90,12 +96,13 @@ module.exports = (App, sn, $, _) ->
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message.body
                 App.vent.trigger "connectInitializeResident", message.body
 
-              when "checkIn"
-                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | checkIn", debug.style, message.body
-                @set "users", message.body.users
+              # when "checkIn"
+              #   console.log "%c[Connect] ConnectModel | Long-lived Receive Message | checkIn", debug.style, message.body
+              #   @set "users", message.body.users
 
               when "checkOut"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body
+                App.vent.trigger "connectCheckOut", message.body
 
               when "updatePointer"
                 # console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updatePointer", debug.style, message.body

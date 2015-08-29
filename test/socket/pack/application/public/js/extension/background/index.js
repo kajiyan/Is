@@ -24952,27 +24952,31 @@
 	    console.log("%c[Connect] ConnectModule", debug.style);
 	    ConnectModel = Backbone.Model.extend({
 	      defaults: {
-	        isRun: false,
-	        landscape: ""
+	        isRun: false
 	      },
 	      initialize: function() {
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeIsRunHandler, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, tabId, windowId;
+	            var changeIsRunHandler, changeSelsectedTabIdHandler, initializedResidents, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, tabId, windowId;
+	            initializedResidents = [];
 	            tabId = port.sender.tab.id;
 	            windowId = port.sender.tab.windowId;
 	            link = port.sender.tab.url;
 	            changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
+	            changeSelsectedTabIdHandler = _this._changeSelsectedTabIdHandler.bind(_this)(port, initializedResidents);
 	            sendJointedHandler = _this._sendJointedHandler.bind(_this)(port);
+	            sendDisconnectHandler = _this._sendDisconnectHandler.bind(_this)(port);
 	            sendAddUser = _this._sendAddUser.bind(_this)(port);
-	            sendAddResident = _this._sendAddResident.bind(_this)(port);
+	            sendAddResident = _this._sendAddResident.bind(_this)(port, initializedResidents);
 	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
 	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
 	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
 	            port.onDisconnect.addListener(function() {
 	              App.vent.off("stageChangeIsRun", changeIsRunHandler);
+	              App.vent.off("stageSelsectedTabId", changeSelsectedTabIdHandler);
 	              App.vent.off("socketJointed", sendJointedHandler);
+	              App.vent.off("socketDisconnect", sendDisconnectHandler);
 	              App.vent.off("socketAddUser", sendAddUser);
 	              App.vent.off("socketAddResident", sendAddResident);
 	              App.vent.off("socketCheckOut", sendCheckOutHandler);
@@ -24984,17 +24988,23 @@
 	            if (port.name === "contentScript") {
 	              console.log("%c[Connect] ConnectModel | onConnect", debug.style);
 	              App.vent.on("stageChangeIsRun", changeIsRunHandler);
+	              App.vent.on("stageSelsectedTabId", changeSelsectedTabIdHandler);
 	              App.vent.on("socketJointed", sendJointedHandler);
+	              App.vent.on("socketDisconnect", sendDisconnectHandler);
 	              App.vent.on("socketAddUser", sendAddUser);
 	              App.vent.on("socketAddResident", sendAddResident);
 	              App.vent.on("socketCheckOut", sendCheckOutHandler);
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              return port.onMessage.addListener(function(message) {
+	                var residents;
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
 	                  switch (message.type) {
 	                    case "setup":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message);
+	                      if (_this.get("isRun")) {
+	                        residents = App.reqres.request("socketGetResidents");
+	                      }
 	                      return port.postMessage({
 	                        to: "contentScript",
 	                        from: "background",
@@ -25074,14 +25084,38 @@
 	          };
 	        })(this);
 	      },
+	      _changeSelsectedTabIdHandler: function(port, initializedResidents) {
+	        return (function(_this) {
+	          return function(tabId) {
+	            return console.log("%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, port.sender.tab.id, tabId, initializedResidents);
+	          };
+	        })(this);
+	      },
 	      _sendJointedHandler: function(port) {
 	        return (function(_this) {
 	          return function() {
+	            var selsectedTabId;
 	            console.log("%c[Connect] ConnectModel -> _sendJointedHandler", debug.style);
+	            selsectedTabId = App.reqres.request("stageGetSelsectedTabId");
+	            if (port.sender.tab.id === selsectedTabId) {
+	              return port.postMessage({
+	                to: "contentScript",
+	                from: "background",
+	                type: "jointed",
+	                body: {}
+	              });
+	            }
+	          };
+	        })(this);
+	      },
+	      _sendDisconnectHandler: function(port) {
+	        return (function(_this) {
+	          return function() {
+	            console.log("%c[Connect] ConnectModel -> _sendDisconnectHandler", debug.style);
 	            return port.postMessage({
 	              to: "contentScript",
 	              from: "background",
-	              type: "jointed",
+	              type: "disconnect",
 	              body: {}
 	            });
 	          };
@@ -25113,10 +25147,10 @@
 	          };
 	        })(this);
 	      },
-	      _sendAddResident: function(port) {
+	      _sendAddResident: function(port, initializedResidents) {
 	        return (function(_this) {
 	          return function(data) {
-	            console.log("%c[Connect] ConnectModel -> _sendAddResident", debug.style, data);
+	            console.log("%c[Connect] ConnectModel -> _sendAddResident | " + port.sender.tab.id, debug.style, data);
 	            return port.postMessage({
 	              to: "contentScript",
 	              from: "background",
@@ -25128,15 +25162,13 @@
 	      },
 	      _sendCheckOutHandler: function(port) {
 	        return (function(_this) {
-	          return function(user) {
-	            console.log("%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, user);
+	          return function(data) {
+	            console.log("%c[Connect] ConnectModel -> _sendCheckOutHandler", debug.style, data);
 	            return port.postMessage({
 	              to: "contentScript",
 	              from: "background",
 	              type: "checkOut",
-	              body: {
-	                user: user
-	              }
+	              body: data
 	            });
 	          };
 	        })(this);
@@ -25198,7 +25230,7 @@
 	      defaults: {
 	        isRun: false,
 	        isConnected: false,
-	        users: []
+	        residents: []
 	      },
 	      initialize: function() {
 	        console.log("%c[Socket] SocketModel -> initialize", debug.style);
@@ -25227,6 +25259,12 @@
 	        this.socket.on("checkOut", this._receiveCheckOutHandler.bind(this));
 	        this.socket.on("updatePointer", this._receiveUpdatePointerHandler.bind(this));
 	        return this.socket.on("updateLandscape", this._receiveUpdateLandscapeHandler.bind(this));
+	      },
+	      _disconnectHandler: function() {
+	        console.log("%c[Socket] SocketModel -> _disconnectHandler", debug.style);
+	        this.set("isConnected", false);
+	        this.set("residents", []);
+	        return App.vent.trigger("socketDisconnect");
 	      },
 	      _join: function() {
 	        console.log("%c[Socket] SocketModel -> join", debug.style);
@@ -25278,11 +25316,6 @@
 	      _socketErrorHandler: function(error) {
 	        return console.log("%c[Socket] SocketModel -> _socketErrorHandler", debug.style, error);
 	      },
-	      _disconnectHandler: function() {
-	        console.log("%c[Socket] SocketModel -> _disconnectHandler", debug.style);
-	        this.set("isConnected", false);
-	        return this.set("users", []);
-	      },
 	      _reconnectHandler: function(reconnection) {
 	        return console.log("%c[Socket] SocketModel -> _reconnectHandler", debug.style, reconnection);
 	      },
@@ -25303,18 +25336,16 @@
 	        return App.vent.trigger("socketAddUser", data);
 	      },
 	      _receiveAddResidentHandler: function(data) {
+	        var residents;
 	        console.log("%c[Socket] SocketModel -> _receiveAddResidentHandler", debug.style, data);
+	        residents = this.get("residents");
+	        residents.push(data);
+	        this.set("residents", residents);
 	        return App.vent.trigger("socketAddResident", data);
 	      },
-	      _receiveCheckInHandler: function(data) {
-	        console.log("%c[Socket] SocketModel -> _receiveCheckInHandler", debug.style, data);
-	        data.users = _.without(data.users, this.socket.id);
-	        this.set("users", data.users);
-	        return App.vent.trigger("socketCheckIn", data.users);
-	      },
-	      _receiveCheckOutHandler: function(user) {
-	        console.log("%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, user);
-	        return App.vent.trigger("socketCheckOut", user);
+	      _receiveCheckOutHandler: function(data) {
+	        console.log("%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, data);
+	        return App.vent.trigger("socketCheckOut", data);
 	      },
 	      _receiveUpdatePointerHandler: function(data) {
 	        console.log("%c[Socket] Socket -> _receiveUpdatePointerHandler", debug.style, data);
@@ -25336,10 +25367,10 @@
 	      this.models = {
 	        socket: new SocketModel()
 	      };
-	      return App.reqres.setHandler("socketGetUsers", (function(_this) {
+	      return App.reqres.setHandler("socketGetResidents", (function(_this) {
 	        return function() {
-	          console.log("%c[Socket] Request Response | socketGetUsers", debug.style);
-	          return _this.models.socket.get("users");
+	          console.log("%c[Socket] Request Response | socketGetResidents", debug.style);
+	          return _this.models.socket.get("residents");
 	        };
 	      })(this));
 	    });
