@@ -24997,15 +24997,12 @@
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              return port.onMessage.addListener(function(message) {
-	                var residents;
+	                var i, index, len, resident, residents, results;
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
 	                  switch (message.type) {
 	                    case "setup":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | setup | " + tabId, debug.style, message);
-	                      if (_this.get("isRun")) {
-	                        residents = App.reqres.request("socketGetResidents");
-	                      }
-	                      return port.postMessage({
+	                      port.postMessage({
 	                        to: "contentScript",
 	                        from: "background",
 	                        type: "setup",
@@ -25013,6 +25010,26 @@
 	                          isRun: _this.get("isRun")
 	                        }
 	                      });
+	                      if (_this.get("isRun")) {
+	                        residents = App.reqres.request("socketGetResidents");
+	                        results = [];
+	                        for (index = i = 0, len = residents.length; i < len; index = ++i) {
+	                          resident = residents[index];
+	                          if (_.indexOf(initializedResidents, resident.id) === -1) {
+	                            port.postMessage({
+	                              to: "contentScript",
+	                              from: "background",
+	                              type: "addResident",
+	                              body: resident
+	                            });
+	                            results.push(initializedResidents.push(resident.id));
+	                          } else {
+	                            results.push(void 0);
+	                          }
+	                        }
+	                        return results;
+	                      }
+	                      break;
 	                    case "initializeUser":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message);
 	                      return chrome.tabs.captureVisibleTab(windowId, {
@@ -25199,7 +25216,6 @@
 	      _sendUpdatePointerHandler: function(port) {
 	        return (function(_this) {
 	          return function(data) {
-	            console.log("%c[Connect] ConnectModel -> _sendUpdatePointerHandler", debug.style, data);
 	            return port.postMessage({
 	              to: "contentScript",
 	              from: "background",
@@ -25304,11 +25320,12 @@
 	        console.log("%c[Socket] SocketModel -> _initializeResidentHandler", debug.style, data);
 	        return this.socket.emit("initializeResident", data);
 	      },
-	      _windowResizeHandler: function() {
-	        return console.log("%c[Socket] SocketModel -> _windowResizeHandler", debug.style);
+	      _windowResizeHandler: function(windowSize) {
+	        console.log("%c[Socket] SocketModel -> _windowResizeHandler", debug.style, windowSize);
+	        return this.socket.emit("windowResize", windowSize);
 	      },
-	      _pointerMoveHandler: function(pointerPosition) {
-	        return this.socket.emit("pointerMove", pointerPosition);
+	      _pointerMoveHandler: function(position) {
+	        return this.socket.emit("pointerMove", position);
 	      },
 	      _updateLandscapeHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _updateLandscapeHandler", debug.style, data);
@@ -25371,7 +25388,6 @@
 	        return App.vent.trigger("socketCheckOut", data);
 	      },
 	      _receiveUpdatePointerHandler: function(data) {
-	        console.log("%c[Socket] Socket -> _receiveUpdatePointerHandler", debug.style, data);
 	        return App.vent.trigger("socketUpdatePointer", data);
 	      },
 	      _receiveUpdateLandscapeHandler: function(data) {

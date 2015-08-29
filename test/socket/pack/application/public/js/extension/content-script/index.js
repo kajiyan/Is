@@ -114,7 +114,8 @@
 	            Extension.vent.on("connectDisconnect", this._resetUserHandler.bind(this));
 	            Extension.vent.on("connectAddUser", this._addUserHandler.bind(this));
 	            Extension.vent.on("connectAddResident", this._addUserHandler.bind(this));
-	            return Extension.vent.on("connectCheckOut", this._removeUserHandler.bind(this));
+	            Extension.vent.on("connectCheckOut", this._removeUserHandler.bind(this));
+	            return Extension.vent.on("connectUpdatePointer", this._updatePointerHandler.bind(this));
 	          },
 	          model: LoverModel,
 	          _addUserHandler: function(data) {
@@ -144,15 +145,12 @@
 	            return results;
 	          },
 	          _updatePointerHandler: function(data) {
-	            var lover;
-	            lover = this.findWhere({
-	              id: data.socketId
+	            var loverModel;
+	            loverModel = this.findWhere({
+	              id: data.id
 	            });
-	            return lover.set({
-	              position: {
-	                x: data.x,
-	                y: data.y
-	              }
+	            return loverModel.set({
+	              position: data.position
 	            });
 	          },
 	          _updateLandscapeHandler: function(data) {
@@ -25245,16 +25243,22 @@
 	        })(this), 500);
 	        return this._windowResizeDebounce = _.debounce((function(_this) {
 	          return function(e) {
+	            var windowSize;
 	            console.log("%c[Stage] StageItemView -> _windowResizeDebounce", debug.style, e);
-	            return App.vent.trigger("stageWindowResize", {
+	            windowSize = {
 	              width: _this.$el.width(),
 	              height: _this.$el.height()
-	            });
+	            };
+	            _this.model.set("window", windowSize);
+	            return App.vent.trigger("stageWindowResize", windowSize);
 	          };
 	        })(this), 500);
 	      },
 	      el: window,
-	      events: {},
+	      events: {
+	        resize: "_windowResizeHandler",
+	        pointermove: "_pointerMoveHandler"
+	      },
 	      setup: function() {
 	        return console.log("%c[Stage] StageItemView -> setup", debug.style);
 	      },
@@ -25263,18 +25267,16 @@
 	        return this._windowScrollDebounce(e);
 	      },
 	      _windowResizeHandler: function(e) {
-	        console.log("%c[Stage] StageItemView -> _windowResizeHandler", debug.style);
 	        return this._windowResizeDebounce(e);
 	      },
 	      _pointerMoveHandler: function(e) {
-	        this.model.set({
-	          "x": e.clientX,
-	          "y": e.clientY
-	        });
-	        return App.vent.trigger("stagePointerMove", {
-	          "x": e.clientX,
-	          "y": e.clientY
-	        });
+	        var position;
+	        position = {
+	          x: e.clientX,
+	          y: e.clientY
+	        };
+	        this.model.set("position", position);
+	        return App.vent.trigger("stagePointerMove", position);
 	      },
 	      _changeIsRunHandler: function(isRun) {
 	        return console.log("%c[Stage] StageItemView -> _changeIsRunHandler", debug.style, isRun);
@@ -25282,37 +25284,29 @@
 	      _jointedHandler: function() {
 	        console.log("%c[Stage] StageItemView -> _jointedHandler", debug.style);
 	        return App.vent.trigger("stageInitializeUser", {
-	          position: {
-	            x: this.model.get("x"),
-	            y: this.model.get("y")
-	          },
-	          window: {
-	            width: this.model.get("width"),
-	            height: this.model.get("height")
-	          }
+	          position: this.model.get("position"),
+	          window: this.model.get("window")
 	        });
 	      },
 	      _initializeResidentHandler: function(data) {
 	        console.log("%c[Stage] StageItemView -> _initializeResidentHandler", debug.style);
 	        return App.vent.trigger("stageInitializeResident", {
 	          toSocketId: data.toSocketId,
-	          position: {
-	            x: this.model.get("x"),
-	            y: this.model.get("y")
-	          },
-	          window: {
-	            width: this.model.get("width"),
-	            height: this.model.get("height")
-	          }
+	          position: this.model.get("position"),
+	          window: this.model.get("window")
 	        });
 	      }
 	    });
 	    StageModel = Backbone.Model.extend({
 	      defaults: {
-	        x: 0,
-	        y: 0,
-	        width: 0,
-	        height: 0
+	        position: {
+	          x: 0,
+	          y: 0
+	        },
+	        window: {
+	          width: 0,
+	          height: 0
+	        }
 	      },
 	      initialize: function() {
 	        return console.log("%c[Stage] StageModel -> initialize", debug.style);
@@ -25479,12 +25473,12 @@
 	        };
 	      },
 	      _pointerMoveHandler: function(port) {
-	        return function(pointerPosition) {
+	        return function(position) {
 	          return port.postMessage({
 	            to: "background",
 	            from: "contentScript",
 	            type: "pointerMove",
-	            body: pointerPosition
+	            body: position
 	          });
 	        };
 	      }

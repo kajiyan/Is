@@ -237,7 +237,7 @@ do (window=window, document=document, $=jQuery) ->
             Extension.vent.on "connectAddResident", @_addUserHandler.bind @
             Extension.vent.on "connectCheckOut", @_removeUserHandler.bind @
             # Extension.vent.on "connectChangeUsers", @_changeUsersHandler.bind @
-            # Extension.vent.on "connectUpdatePointer", @_updatePointerHandler.bind @
+            Extension.vent.on "connectUpdatePointer", @_updatePointerHandler.bind @
             # Extension.vent.on "connectUpdateLandscape", @_updateLandscapeHandler.bind @
 
           # --------------------------------------------------------------
@@ -305,19 +305,16 @@ do (window=window, document=document, $=jQuery) ->
           #  * LoversCollection#_updatePointerHandler
           #  * 同じRoom に所属していたユーザーのポインターの座標の変化をsoketが受信した時に呼び出されるイベントハンドラー
           #  * @param {Object} data
-          #  * @prop {string} socketId - 発信元のsocket.id
-          #  * @prop {number} x - 発信者のポインターのx座標
-          #  * @prop {number} y - 発信者のポインターのy座標
+          #  * @prop {string} id - 発信元のsocket.id
+          #  * @prop {number} position.x - 発信者のポインターのx座標
+          #  * @prop {number} position.y - 発信者のポインターのy座標
           #  */
           # --------------------------------------------------------------
           _updatePointerHandler: (data) ->
             # console.log "%c[Extension] LoversCollection -> _updatePointerHandler", debug.style, data
 
-            lover = @findWhere id: data.socketId
-            lover.set
-              position:
-                x: data.x
-                y: data.y
+            loverModel = @findWhere id: data.id
+            loverModel.set position: data.position
 
           # --------------------------------------------------------------
           # /**

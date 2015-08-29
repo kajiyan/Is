@@ -71,30 +71,25 @@ module.exports = (App, sn, $, _) ->
         #  * stageWindowResize イベントを発火させる
         #  */
         # --------------------------------------------------------------
-        # @triggerWindowResize = =>
-        #   App.vent.trigger "stageWindowResize",
-        #     width: @$el.width()
-        #     height: @$el.height()
-
         @_windowResizeDebounce = _.debounce (e) =>
           console.log "%c[Stage] StageItemView -> _windowResizeDebounce", debug.style, e
 
-          App.vent.trigger "stageWindowResize",
+          windowSize =
             width: @$el.width()
             height: @$el.height()
-        , 500
 
-        # App.vent.on "stagePointerMove", (e) -> console.log e
-        # App.vent.off "stagePointerMove"
+          @model.set "window", windowSize
+          App.vent.trigger "stageWindowResize", windowSize
+        , 500
 
       # ------------------------------------------------------------
       el: window
 
       # ------------------------------------------------------------
-      events: {}
-        # "scroll": "_windowScrollHandler"
-        # "resize": "_windowResizeHandler"
-        # "pointermove": "_pointerMoveHandler"
+      events: 
+        # scroll: "_windowScrollHandler"
+        resize: "_windowResizeHandler"
+        pointermove: "_pointerMoveHandler"
 
       # --------------------------------------------------------------
       setup: () ->
@@ -125,7 +120,7 @@ module.exports = (App, sn, $, _) ->
       #  */
       # --------------------------------------------------------------
       _windowResizeHandler: (e) ->
-        console.log "%c[Stage] StageItemView -> _windowResizeHandler", debug.style
+        # console.log "%c[Stage] StageItemView -> _windowResizeHandler", debug.style
         @_windowResizeDebounce(e)
 
       # --------------------------------------------------------------
@@ -137,13 +132,14 @@ module.exports = (App, sn, $, _) ->
       # --------------------------------------------------------------
       _pointerMoveHandler: (e) ->
         # console.log "%c[Stage] StageItemView -> _pointerMoveHandler", debug.style
-        @model.set
-          "x": e.clientX
-          "y": e.clientY
+        
+        position =
+          x: e.clientX
+          y: e.clientY
 
-        App.vent.trigger "stagePointerMove",
-          "x": e.clientX
-          "y": e.clientY
+        @model.set "position", position
+        App.vent.trigger "stagePointerMove", position
+
 
       # --------------------------------------------------------------
       # /**
@@ -171,18 +167,14 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Stage] StageItemView -> _jointedHandler", debug.style
 
         App.vent.trigger "stageInitializeUser",
-          position:
-            x: @model.get "x"
-            y: @model.get "y"
-          window:
-            width: @model.get "width"
-            height: @model.get "height"
+          position: @model.get "position"
+          window: @model.get "window"
       
       # --------------------------------------------------------------
       # /**
       #  * StageItemView#_initializeResidentHandler
       #  * background scriptの socket.io がaddUser を受信した時のイベントハンドラー
-      #  * room にjoin した新規ユーザーに送信するイベントオブジェクトを持つ
+      #  * room にjoin した新規ユーザーに送信するイベントオブジェクトを持つ、
       #  * stageInitializeSpace イベントを発火させる
       #  * @param {Object} data
       #  * @prop {string} toSocketId
@@ -193,12 +185,8 @@ module.exports = (App, sn, $, _) ->
         
         App.vent.trigger "stageInitializeResident",
           toSocketId: data.toSocketId
-          position:
-            x: @model.get "x"
-            y: @model.get "y"
-          window:
-            width: @model.get "width"
-            height: @model.get "height"
+          position: @model.get "position"
+          window: @model.get "window"
     )
 
 
@@ -208,16 +196,18 @@ module.exports = (App, sn, $, _) ->
     StageModel = Backbone.Model.extend
       # /** 
       #  * @type {Object}
-      #  * @prop {number} x - ポインター x座標
-      #  * @prop {number} y - ポインター y座標
+      #  * @prop {number} position.x - ポインター x座標
+      #  * @prop {number} position.y - ポインター y座標
       #  * @prop {number} width - window の幅
       #  * @prop {number} height - window の高さ
       #  */
       defaults:
-        x: 0
-        y: 0
-        width: 0
-        height: 0
+        position:
+          x: 0
+          y: 0
+        window:
+          width: 0
+          height: 0
 
       # ------------------------------------------------------------
       initialize: () ->

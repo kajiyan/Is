@@ -178,23 +178,28 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       # /**
       #  * SocketModel#_windowResizeHandler
+      #  * windowサイズに変化があった時のイベントハンドラー
+      #  * @param {Object}　windowSize
+      #  * @prop {number} windowSize.width - 接続ユーザーのwindowの幅
+      #  * @prop {number} windowSize.height - 接続ユーザーのwindowの高さ
       #  */
       # ------------------------------------------------------------
-      _windowResizeHandler: () ->
-        console.log "%c[Socket] SocketModel -> _windowResizeHandler", debug.style
-        
+      _windowResizeHandler: (windowSize) ->
+        console.log "%c[Socket] SocketModel -> _windowResizeHandler", debug.style, windowSize
+        @socket.emit "windowResize", windowSize
+
       # ------------------------------------------------------------
       # /**
       #  * SocketModel#_pointerMoveHandler
       #  * ポインターの座標に変化があった時のイベントハンドラー
-      #  * @param {Object}　pointerPosition
-      #  * @prop {number} pointerPosition.x - ポインターのx座標
-      #  * @prop {number} pointerPosition.y - ポインターのy座標
+      #  * @param {Object}　position
+      #  * @prop {number} position.x - ポインターのx座標
+      #  * @prop {number} position.y - ポインターのy座標
       #  */
       # ------------------------------------------------------------
-      _pointerMoveHandler: (pointerPosition) ->
-        # console.log "%c[Socket] SocketModel -> _pointerMoveHandler", debug.style, pointerPosition
-        @socket.emit "pointerMove", pointerPosition
+      _pointerMoveHandler: (position) ->
+        # console.log "%c[Socket] SocketModel -> _pointerMoveHandler", debug.style, position
+        @socket.emit "pointerMove", position
 
       # ------------------------------------------------------------
       # /**
@@ -388,14 +393,13 @@ module.exports = (App, sn, $, _) ->
       # /**
       #  * SocketModel#_receiveUpdatePointerHandler
       #  * @param {Object} data
-      #  * @prop {string} socketId - 発信元のsocket.id
-      #  * @prop {number} x - 発信者のポインターのx座標
-      #  * @prop {number} y - 発信者のポインターのy座標
+      #  * @prop {string} id - 発信者のsocket.id
+      #  * @prop {number} position.x - 発信者のポインターのx座標
+      #  * @prop {number} position.y - 発信者のポインターのy座標
       #  */
       # ------------------------------------------------------------
       _receiveUpdatePointerHandler: (data) ->
-        console.log "%c[Socket] Socket -> _receiveUpdatePointerHandler", debug.style, data
-
+        # console.log "%c[Socket] Socket -> _receiveUpdatePointerHandler", debug.style, data
         # socketUpdatePointer イベントを発火する | connect がlisten
         App.vent.trigger "socketUpdatePointer", data
 

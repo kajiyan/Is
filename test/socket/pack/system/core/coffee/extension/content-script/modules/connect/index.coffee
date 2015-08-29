@@ -271,8 +271,8 @@ module.exports = (App, sn, $, _) ->
       _windowResizeHandler: (port) ->
         # /**
         #  * @param {Object} windowSize
-        #  * @prop {number} width - window の幅
-        #  * @prop {number} height - window の高さ
+        #  * @prop {number} windowSize.width - 発信者のwindowの幅
+        #  * @prop {number} windowSize.height - 発信者のwindowの高さ
         #  */
         return (windowSize) ->
           console.log "%c[Connect] ConnectModel | _windowResizeHandler", debug.style, windowSize
@@ -293,17 +293,23 @@ module.exports = (App, sn, $, _) ->
       # /**
       #  * ConnectModel#_pointerMoveHandler
       #  * ポインターの座標に変化があった時のイベントハンドラー
+      #  * @param {Object} port - Chrome Extentions Port Object
       #  */
       # --------------------------------------------------------------
       _pointerMoveHandler: (port) ->
-        return (pointerPosition) ->
-          # console.log "%c[Connect] ConnectModel | _pointerMoveHandler", debug.style, pointerPosition, port
+        # /**
+        #  * @param {Object} position
+        #  * @prop {number} position.x - 発信者のポインターのx座標
+        #  * @prop {number} position.y - 発信者のポインターのy座標
+        #  */
+        return (position) ->
+          # console.log "%c[Connect] ConnectModel | _pointerMoveHandler", debug.style, position
 
           port.postMessage
             to: "background"
             from: "contentScript"
             type: "pointerMove"
-            body: pointerPosition
+            body: position
     )
 
 

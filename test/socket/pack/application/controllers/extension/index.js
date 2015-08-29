@@ -306,9 +306,13 @@ Extension = (function() {
           }
         );
 
+        socket.on('windowResize', function(windowSize) {
+          console.log(windowSize);
+        });
+
         // --------------------------------------------------------------
-        socket.on('pointerMove', function(pointerPosition) {
-          // console.log(pointerPosition);
+        socket.on('pointerMove', function(position) {
+          // console.log(position);
 
           // ポインターの座標を送信者以外に送る
           // _this._extensionSocketIo
@@ -316,10 +320,18 @@ Extension = (function() {
             .broadcast
             .to(joinRoomId)
             .emit('updatePointer', {
-              'socketId': socket.id,
-              'x': pointerPosition.x,
-              'y': pointerPosition.y
+              'id': socket.id,
+              'position': position
             });
+
+          // socket
+          //   .broadcast
+          //   .to(joinRoomId)
+          //   .emit('updatePointer', {
+          //     'socketId': socket.id,
+          //     'x': pointerPosition.x,
+          //     'y': pointerPosition.y
+          //   });
         });
 
         // --------------------------------------------------------------

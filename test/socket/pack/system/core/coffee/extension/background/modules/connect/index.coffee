@@ -123,25 +123,31 @@ module.exports = (App, sn, $, _) ->
                   when "setup"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup | #{tabId}", debug.style, message
 
-                    # エクステンションがすでに起動している場合の処理
-                    if @get "isRun"
-                      # 同じroomIdにjoinしているユーザーを取得する
-                      residents = App.reqres.request "socketGetResidents"
-
-                      # for resident, index in residents
-                      #   sendAddResident resident
-                      #   initializedResidents.push sendAddResident.id
-                      #   # console.log resident, index
-
-                      # # _sendCheckInHandler = @_sendCheckInHandler.bind(@)(port)
-                      # # _sendCheckInHandler App.reqres.request "socketGetUsers"
-
                     port.postMessage
                       to: "contentScript"
                       from: "background"
                       type: "setup"
                       body:
                         isRun: @get "isRun"
+
+                    # エクステンションがすでに起動している場合の処理
+                    if @get "isRun"
+                      # 同じroomIdにjoinしているユーザーを取得する
+                      residents = App.reqres.request "socketGetResidents"
+
+                      for resident, index in residents
+                        # 表示リストに表示されていないResidentがあるか調べる
+                        if _.indexOf(initializedResidents, resident.id) is -1
+                          # content script にResidentの表示依頼をする
+                          port.postMessage
+                            to: "contentScript"
+                            from: "background"
+                            type: "addResident"
+                            body: resident
+                      
+                          # 表示リストに加える
+                          initializedResidents.push resident.id
+
 
                   when "initializeUser"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message
@@ -227,6 +233,10 @@ module.exports = (App, sn, $, _) ->
       _changeSelsectedTabIdHandler: (port, initializedResidents) ->
         return (tabId) =>
           console.log "%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:#{port.sender.tab.id} | ACTIVE TabID:#{tabId}", initializedResidents
+
+          # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          # リンク、ランドスケープのアップデートもする
+          # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
           if port.sender.tab.id is tabId
             # 同じroomIdにjoinしているResidentsを取得する
@@ -420,15 +430,17 @@ module.exports = (App, sn, $, _) ->
       #  * ConnectModel#_sendUpdatePointerHandler
       #  * 同じRoom に所属していたユーザーのポインターの座標の変化をsoketが受信した時に呼び出されるイベントハンドラー
       #  * アクティブなタブのcontent script にポインター座標の情報を通知する
-      #  * @param {Object} data
-      #  * @prop {string} socketId - 発信元のsocket.id
-      #  * @prop {number} x - 発信者のポインターのx座標
-      #  * @prop {number} y - 発信者のポインターのy座標
       #  */
       # ------------------------------------------------------------
       _sendUpdatePointerHandler: (port) ->
+        # /**
+        #  * @param {Object} data
+        #  * @prop {string} id - 発信元のsocket.id
+        #  * @prop {number} position.x - 発信者のポインターのx座標
+        #  * @prop {number} position.y - 発信者のポインターのy座標
+        #  */
         (data) =>
-          console.log "%c[Connect] ConnectModel -> _sendUpdatePointerHandler", debug.style, data
+          # console.log "%c[Connect] ConnectModel -> _sendUpdatePointerHandler", debug.style, data
 
           port.postMessage
             to: "contentScript"
