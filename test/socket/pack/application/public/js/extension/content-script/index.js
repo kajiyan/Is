@@ -116,7 +116,8 @@
 	            Extension.vent.on("connectAddResident", this._addUserHandler.bind(this));
 	            Extension.vent.on("connectCheckOut", this._removeUserHandler.bind(this));
 	            Extension.vent.on("connectUpdateWindowSize", this._updateWindowSizeHandler.bind(this));
-	            return Extension.vent.on("connectUpdatePointer", this._updatePointerHandler.bind(this));
+	            Extension.vent.on("connectUpdatePointer", this._updatePointerHandler.bind(this));
+	            return Extension.vent.on("connectUpdateLandscape", this._updateLandscapeHandler.bind(this));
 	          },
 	          model: LoverModel,
 	          _addUserHandler: function(data) {
@@ -153,16 +154,13 @@
 	            });
 	          },
 	          _updateLandscapeHandler: function(data) {
-	            var lover;
+	            var loverModel;
 	            console.log("%c[Extension] LoversCollection -> _updateLandscapeHandler", debug.style, data);
-	            lover = this.findWhere({
-	              id: data.socketId
+	            loverModel = this.findWhere({
+	              id: data.id
 	            });
-	            return lover.set({
-	              landscape: {
-	                devicePixelRatio: data.devicePixelRatio,
-	                dataUrl: data.dataUrl
-	              }
+	            return loverModel.set({
+	              landscape: data.landscape
 	            });
 	          }
 	        });
@@ -201,7 +199,7 @@
 	          _changeLandscapeHandler: function(model, landscape) {
 	            console.log("%c[Extension] LoverItemView -> _changeLandscapeHandler", debug.style, landscape);
 	            return this.ui.landscape.css({
-	              "background-image": "url(" + landscape.dataUrl + ")"
+	              "background-image": "url(" + landscape + ")"
 	            });
 	          },
 	          _bodyMouseenterHandler: function() {
@@ -25232,7 +25230,7 @@
 	        App.vent.on("connectChangeIsRun", this._changeIsRunHandler.bind(this));
 	        App.vent.on("connectJointed", this._jointedHandler.bind(this));
 	        App.vent.on("connectInitializeResident", this._initializeResidentHandler.bind(this));
-	        this.model.set({
+	        this.model.set("window", {
 	          width: this.$el.width(),
 	          height: this.$el.height()
 	        });
@@ -25262,6 +25260,7 @@
 	      },
 	      el: window,
 	      events: {
+	        scroll: "_windowScrollHandler",
 	        resize: "_windowResizeHandler",
 	        pointermove: "_pointerMoveHandler"
 	      },
@@ -25269,7 +25268,6 @@
 	        return console.log("%c[Stage] StageItemView -> setup", debug.style);
 	      },
 	      _windowScrollHandler: function(e) {
-	        console.log("%c[Stage] StageItemView -> _windowScrollHandler", debug.style);
 	        return this._windowScrollDebounce(e);
 	      },
 	      _windowResizeHandler: function(e) {
@@ -25458,9 +25456,7 @@
 	            to: "background",
 	            from: "contentScript",
 	            type: "updateLandscape",
-	            body: {
-	              devicePixelRatio: window.devicePixelRatio
-	            }
+	            body: {}
 	          });
 	        };
 	      },
@@ -25471,7 +25467,7 @@
 	            to: "background",
 	            from: "contentScript",
 	            type: "updateLandscape",
-	            body: null
+	            body: {}
 	          });
 	          return port.postMessage({
 	            to: "background",

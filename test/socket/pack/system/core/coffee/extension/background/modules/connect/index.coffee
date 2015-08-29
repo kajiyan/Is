@@ -56,7 +56,9 @@ module.exports = (App, sn, $, _) ->
         # TEST
         # content script からのLong-lived 接続
         # chrome.extension.onConnect.addListener (port) =>
-        chrome.runtime.onConnect.addListener (port) =>          
+        chrome.runtime.onConnect.addListener (port) =>
+          console.log port
+
           # 初期化済みのResident IDの配列
           initializedResidents = []
 
@@ -156,6 +158,12 @@ module.exports = (App, sn, $, _) ->
                   when "initializeUser"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message
                     
+                    #
+                    # アクティブなウインドウIDを取得
+                    # portに紐付いたウインドウIDと照合
+                    # 一致した場合アクティブなタブIDのスクリーンショットを撮影 
+                    #
+
                     # スクリーンショットを撮影する
                     chrome.tabs.captureVisibleTab windowId,
                       format: "jpeg"

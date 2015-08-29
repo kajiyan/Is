@@ -24959,6 +24959,7 @@
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
 	            var changeIsRunHandler, changeSelsectedTabIdHandler, initializedResidents, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
+	            console.log(port);
 	            initializedResidents = [];
 	            tabId = port.sender.tab.id;
 	            windowId = port.sender.tab.windowId;

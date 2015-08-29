@@ -38,7 +38,7 @@ module.exports = (App, sn, $, _) ->
         App.vent.on "connectInitializeResident", @_initializeResidentHandler.bind @
 
 
-        @model.set
+        @model.set "window",
           width: @$el.width()
           height: @$el.height()
 
@@ -87,7 +87,7 @@ module.exports = (App, sn, $, _) ->
 
       # ------------------------------------------------------------
       events: 
-        # scroll: "_windowScrollHandler"
+        scroll: "_windowScrollHandler"
         resize: "_windowResizeHandler"
         pointermove: "_pointerMoveHandler"
 
@@ -109,7 +109,7 @@ module.exports = (App, sn, $, _) ->
       #  */
       # --------------------------------------------------------------
       _windowScrollHandler: (e) ->
-        console.log "%c[Stage] StageItemView -> _windowScrollHandler", debug.style
+        # console.log "%c[Stage] StageItemView -> _windowScrollHandler", debug.style
         @_windowScrollDebounce(e)
 
       # --------------------------------------------------------------

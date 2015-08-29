@@ -238,7 +238,7 @@ do (window=window, document=document, $=jQuery) ->
             Extension.vent.on "connectCheckOut", @_removeUserHandler.bind @
             Extension.vent.on "connectUpdateWindowSize", @_updateWindowSizeHandler.bind @
             Extension.vent.on "connectUpdatePointer", @_updatePointerHandler.bind @
-            # Extension.vent.on "connectUpdateLandscape", @_updateLandscapeHandler.bind @
+            Extension.vent.on "connectUpdateLandscape", @_updateLandscapeHandler.bind @
 
           # --------------------------------------------------------------
           # /**
@@ -319,21 +319,17 @@ do (window=window, document=document, $=jQuery) ->
           #  * LoversCollection#_updateLandscapeHandler
           #  * 同じRoom に所属しているユーザーのスクリーンショットが更新されたことを
           #  * 通知された時に呼び出されるイベントハンドラー
-          #  * LoverModel にdevicePixelRatio, landscape をセットする
+          #  * LoverModel にlandscape をセットする
           #  * @param {Object} data
-          #  * @prop {string} socketId - 発信元のsocket.id
-          #  * @prop {number} devicePixelRatio - 発信元のデバイスピクセル比
+          #  * @prop {string} id - 発信元のsocket.id
           #  * @prop {string} landscape - スクリーンショット（base64）
           #  */
           # --------------------------------------------------------------
           _updateLandscapeHandler: (data) ->
             console.log "%c[Extension] LoversCollection -> _updateLandscapeHandler", debug.style, data
 
-            lover = @findWhere id: data.socketId
-            lover.set
-              landscape:
-                devicePixelRatio: data.devicePixelRatio
-                dataUrl: data.dataUrl
+            loverModel = @findWhere id: data.id
+            loverModel.set landscape: data.landscape
 
 
         # End. COLLECTION - LOVERS
@@ -422,20 +418,14 @@ do (window=window, document=document, $=jQuery) ->
           #  * （同じRoom に所属していたユーザーのスクリーンショットが更新された時）
           #  * 引数に渡されたdataUrl を背景画像として設定する
           #  * @param {Object} loverModel - BackBone Model Object
-          #  * @param {Object} landscape - 
-          #  * @prop {number} devicePixelRatio - 発信元のデバイスピクセル比
-          #  * @prop {string} dataUrl - スクリーンショット（base64）
+          #  * @param {Object} landscape - スクリーンショット（base64）
           #  */
           # --------------------------------------------------------------
           _changeLandscapeHandler: (model, landscape) ->
             console.log "%c[Extension] LoverItemView -> _changeLandscapeHandler", debug.style, landscape
 
-            # 画面サイズを取得して それを元に計算するひつようがある
-            # backgroundSize = "#{100 / landscape.devicePixelRatio}%"
-
             @ui.landscape.css
-              # "background-size": backgroundSize
-              "background-image": "url(#{landscape.dataUrl})"
+              "background-image": "url(#{landscape})"
 
           # --------------------------------------------------------------
           # /**
