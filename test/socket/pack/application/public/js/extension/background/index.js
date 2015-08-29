@@ -24958,7 +24958,7 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeIsRunHandler, changeSelsectedTabIdHandler, initializedResidents, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, tabId, windowId;
+	            var changeIsRunHandler, changeSelsectedTabIdHandler, initializedResidents, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
 	            initializedResidents = [];
 	            tabId = port.sender.tab.id;
 	            windowId = port.sender.tab.windowId;
@@ -24970,6 +24970,7 @@
 	            sendAddUser = _this._sendAddUser.bind(_this)(port);
 	            sendAddResident = _this._sendAddResident.bind(_this)(port, initializedResidents);
 	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
+	            sendUpdateWindowSize = _this._sendUpdateWindowSize.bind(_this)(port);
 	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
 	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
 	            port.onDisconnect.addListener(function() {
@@ -24980,6 +24981,7 @@
 	              App.vent.off("socketAddUser", sendAddUser);
 	              App.vent.off("socketAddResident", sendAddResident);
 	              App.vent.off("socketCheckOut", sendCheckOutHandler);
+	              App.vent.off("socketUpdateWindowSize", sendUpdateWindowSize);
 	              App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.off("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              port.disconnect();
@@ -24994,6 +24996,7 @@
 	              App.vent.on("socketAddUser", sendAddUser);
 	              App.vent.on("socketAddResident", sendAddResident);
 	              App.vent.on("socketCheckOut", sendCheckOutHandler);
+	              App.vent.on("socketUpdateWindowSize", sendUpdateWindowSize);
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              return port.onMessage.addListener(function(message) {
@@ -25213,6 +25216,19 @@
 	          };
 	        })(this);
 	      },
+	      _sendUpdateWindowSize: function(port) {
+	        return (function(_this) {
+	          return function(data) {
+	            console.log("%c[Connect] ConnectModel -> _sendUpdateWindowSize", debug.style, data);
+	            return port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "updateWindowSize",
+	              body: data
+	            });
+	          };
+	        })(this);
+	      },
 	      _sendUpdatePointerHandler: function(port) {
 	        return (function(_this) {
 	          return function(data) {
@@ -25296,6 +25312,7 @@
 	        this.socket.on("addUser", this._receiveAddUserHandler.bind(this));
 	        this.socket.on("addResident", this._receiveAddResidentHandler.bind(this));
 	        this.socket.on("checkOut", this._receiveCheckOutHandler.bind(this));
+	        this.socket.on("updateWindowSize", this._receiveWindowSizeHandler.bind(this));
 	        this.socket.on("updatePointer", this._receiveUpdatePointerHandler.bind(this));
 	        return this.socket.on("updateLandscape", this._receiveUpdateLandscapeHandler.bind(this));
 	      },
@@ -25386,6 +25403,10 @@
 	      _receiveCheckOutHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, data);
 	        return App.vent.trigger("socketCheckOut", data);
+	      },
+	      _receiveWindowSizeHandler: function(data) {
+	        console.log("%c[Socket] SocketModel -> _receiveWindowSizeHandler", debug.style, data);
+	        return App.vent.trigger("socketUpdateWindowSize", data);
 	      },
 	      _receiveUpdatePointerHandler: function(data) {
 	        return App.vent.trigger("socketUpdatePointer", data);

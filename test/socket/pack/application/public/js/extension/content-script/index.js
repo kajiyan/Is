@@ -115,6 +115,7 @@
 	            Extension.vent.on("connectAddUser", this._addUserHandler.bind(this));
 	            Extension.vent.on("connectAddResident", this._addUserHandler.bind(this));
 	            Extension.vent.on("connectCheckOut", this._removeUserHandler.bind(this));
+	            Extension.vent.on("connectUpdateWindowSize", this._updateWindowSizeHandler.bind(this));
 	            return Extension.vent.on("connectUpdatePointer", this._updatePointerHandler.bind(this));
 	          },
 	          model: LoverModel,
@@ -132,17 +133,15 @@
 	            console.log("%c[Extension] LoversCollection -> _removeUserHandler", debug.style);
 	            return this.reset();
 	          },
-	          _changeUsersHandler: function(users) {
-	            var i, index, len, results, user;
-	            console.log("%c[Extension] LoversCollection -> _changeUsersHandler", debug.style, users);
-	            results = [];
-	            for (index = i = 0, len = users.length; i < len; index = ++i) {
-	              user = users[index];
-	              results.push(this.add({
-	                id: user
-	              }));
-	            }
-	            return results;
+	          _updateWindowSizeHandler: function(data) {
+	            var loverModel;
+	            console.log("%c[Extension] LoversCollection -> _updateWindowSizeHandler", debug.style, data);
+	            loverModel = this.findWhere({
+	              id: data.id
+	            });
+	            return loverModel.set({
+	              "window": data.window
+	            });
 	          },
 	          _updatePointerHandler: function(data) {
 	            var loverModel;
@@ -174,6 +173,7 @@
 	          initialize: function() {
 	            console.log("[ExtensionModule] LoverItemView -> initialize");
 	            this.listenTo(this.model, "change:position", this._changePositionHandler);
+	            this.listenTo(this.model, "change:window", this._changeWindowHandler);
 	            return this.listenTo(this.model, "change:landscape", this._changeLandscapeHandler);
 	          },
 	          tagName: "div",
@@ -187,6 +187,12 @@
 	            "mouseenter @ui.body": "_bodyMouseenterHandler"
 	          },
 	          onRender: function() {},
+	          _changeWindowHandler: function(model, windowSize) {
+	            console.log("%c[Extension] LoverItemView -> _changeWindowHandler", debug.style, windowSize);
+	            return this.ui.landscape.css({
+	              "background-size": windowSize.width + "px " + windowSize.height + "px"
+	            });
+	          },
 	          _changePositionHandler: function(model, position) {
 	            return this.ui.body.css({
 	              transform: "translate(" + position.x + "px, " + position.y + "px)"
@@ -25389,6 +25395,9 @@
 	                case "checkOut":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body);
 	                  return App.vent.trigger("connectCheckOut", message.body);
+	                case "updateWindowSize":
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | updateWindowSize", debug.style, message.body);
+	                  return App.vent.trigger("connectUpdateWindowSize", message.body);
 	                case "updatePointer":
 	                  return App.vent.trigger("connectUpdatePointer", message.body);
 	                case "updateLandscape":

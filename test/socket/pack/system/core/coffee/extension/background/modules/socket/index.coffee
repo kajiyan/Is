@@ -100,8 +100,10 @@ module.exports = (App, sn, $, _) ->
         @socket.on "addUser", @_receiveAddUserHandler.bind(@)
         # 同じRoom に所属するユーザーの初期化に必要なデータを受信する
         @socket.on "addResident", @_receiveAddResidentHandler.bind(@)
-        # 同じRoom に所属していたユーザーのSocket ID を受信する
+        # 同じRoom に所属していたユーザーのSocketIDを受信する
         @socket.on "checkOut", @_receiveCheckOutHandler.bind(@)
+        # 同じRoom に所属するユーザーのwindowサイズの変化を受信する
+        @socket.on "updateWindowSize", @_receiveWindowSizeHandler.bind(@)
         # 同じRoom に所属するユーザーのポインター座標を受信する
         @socket.on "updatePointer", @_receiveUpdatePointerHandler.bind(@)
         # 同じRoom に所属するユーザーのスクリーンショットを受信する
@@ -388,6 +390,20 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, data
         # socketCheckOut イベントを発火する | connect がlisten
         App.vent.trigger "socketCheckOut", data
+
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_receiveWindowSizeHandler
+      #  * @param {Object} data
+      #  * @prop {string} id - 発信者のsocket.id
+      #  * @prop {number} window.width - 発信者のwindowの幅
+      #  * @prop {number} window.height - 発信者のwindowの高さ
+      #  */
+      # ------------------------------------------------------------
+      _receiveWindowSizeHandler: (data) ->
+        console.log "%c[Socket] SocketModel -> _receiveWindowSizeHandler", debug.style, data
+        App.vent.trigger "socketUpdateWindowSize", data
 
       # ------------------------------------------------------------
       # /**

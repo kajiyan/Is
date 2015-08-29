@@ -306,9 +306,25 @@ Extension = (function() {
           }
         );
 
-        socket.on('windowResize', function(windowSize) {
-          console.log(windowSize);
-        });
+        // --------------------------------------------------------------
+        socket.on('windowResize',
+          /**
+           * @param {Object} windowSize
+           * @prop {number} windowSize.width - 発信者のwindowの幅
+           * @prop {number} windowSize.height - 発信者のwindowの高さ
+           */
+          function(windowSize) {
+            console.log('[Controller] Extension -> Socket Receive Message | windowResize');
+
+            socket
+              .broadcast
+              .to(joinRoomId)
+              .emit('updateWindowSize', {
+                'id': socket.id,
+                'window': windowSize
+              });
+          }
+        );
 
         // --------------------------------------------------------------
         socket.on('pointerMove', function(position) {
@@ -343,7 +359,7 @@ Extension = (function() {
          */
         // --------------------------------------------------------------
         socket.on('shootLandscape', function(data) {
-          console.log('[Controller] Extension -> Socket Receive Message | pointerPosition');
+          console.log('[Controller] Extension -> Socket Receive Message | shootLandscape');
           
           // 同じRoom に所属するユーザーにスクリーンショットをBase64 で発信する
           socket

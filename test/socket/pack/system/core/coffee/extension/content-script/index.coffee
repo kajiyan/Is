@@ -236,7 +236,7 @@ do (window=window, document=document, $=jQuery) ->
             Extension.vent.on "connectAddUser", @_addUserHandler.bind @
             Extension.vent.on "connectAddResident", @_addUserHandler.bind @
             Extension.vent.on "connectCheckOut", @_removeUserHandler.bind @
-            # Extension.vent.on "connectChangeUsers", @_changeUsersHandler.bind @
+            Extension.vent.on "connectUpdateWindowSize", @_updateWindowSizeHandler.bind @
             Extension.vent.on "connectUpdatePointer", @_updatePointerHandler.bind @
             # Extension.vent.on "connectUpdateLandscape", @_updateLandscapeHandler.bind @
 
@@ -286,19 +286,18 @@ do (window=window, document=document, $=jQuery) ->
 
           # --------------------------------------------------------------
           # /**
-          #  * LoversCollection#_changeUsersHandler
+          #  * LoversCollection#_updateWindowSizeHandler
+          #  * 同じRoom に所属していたユーザーのウインドウサイズの変化をsoketが受信した時に呼び出されるイベントハンドラー
+          #  * @param {Object} data
+          #  * @prop {string} id - 発信者のsocket.id
+          #  * @prop {number} window.width - 発信者のwindowの幅
+          #  * @prop {number} window.height - 発信者のwindowの高さ
           #  */
           # --------------------------------------------------------------
-          _changeUsersHandler: (users) ->
-            console.log "%c[Extension] LoversCollection -> _changeUsersHandler", debug.style, users
-
-            # socket.id をベースにデータを追加する
-
-            # Todo チェックアウト作る
-            for user, index in users
-              @add
-                id: user
-
+          _updateWindowSizeHandler: (data) ->
+            console.log "%c[Extension] LoversCollection -> _updateWindowSizeHandler", debug.style, data
+            loverModel = @findWhere id: data.id
+            loverModel.set "window": data.window
 
           # --------------------------------------------------------------
           # /**
@@ -312,7 +311,6 @@ do (window=window, document=document, $=jQuery) ->
           # --------------------------------------------------------------
           _updatePointerHandler: (data) ->
             # console.log "%c[Extension] LoversCollection -> _updatePointerHandler", debug.style, data
-
             loverModel = @findWhere id: data.id
             loverModel.set position: data.position
 
@@ -359,6 +357,7 @@ do (window=window, document=document, $=jQuery) ->
           initialize: () ->
             console.log "[ExtensionModule] LoverItemView -> initialize"
             @listenTo @model, "change:position", @_changePositionHandler
+            @listenTo @model, "change:window", @_changeWindowHandler
             @listenTo @model, "change:landscape", @_changeLandscapeHandler
 
           # ------------------------------------------------------------
@@ -385,10 +384,25 @@ do (window=window, document=document, $=jQuery) ->
 
           # --------------------------------------------------------------
           # /**
+          #  * LoverItemView#_changeWindowHandler
+          #  * loverModel のwindow の値が変化した時に呼び出される
+          #  * @param {Object} model - BackBone Model Object
+          #  * @param {Object} windowSize
+          #  * @prop {number} windowSize.width - 発信者のwindowの幅
+          #  * @prop {number} windowSize.height - 発信者のwindowの高さ
+          #  */
+          # --------------------------------------------------------------
+          _changeWindowHandler: (model, windowSize) ->
+            console.log "%c[Extension] LoverItemView -> _changeWindowHandler", debug.style, windowSize
+            @ui.landscape.css
+              "background-size": "#{windowSize.width}px #{windowSize.height}px"
+
+          # --------------------------------------------------------------
+          # /**
           #  * LoverItemView#_changePositionHandler
           #  * loverModel のposition の値が変化した時に呼び出される
           #  * （同じRoom に所属していたユーザーのポインターの座標の変化した時）
-          #  * @param {Object} loverModel - BackBone Model Object
+          #  * @param {Object} model - BackBone Model Object
           #  * @param {Object} position
           #  * @prop {number} x - ポインターのx座標
           #  * @prop {number} y - ポインターのy座標

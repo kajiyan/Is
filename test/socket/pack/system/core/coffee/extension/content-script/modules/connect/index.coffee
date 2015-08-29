@@ -104,6 +104,10 @@ module.exports = (App, sn, $, _) ->
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body
                 App.vent.trigger "connectCheckOut", message.body
 
+              when "updateWindowSize"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updateWindowSize", debug.style, message.body
+                App.vent.trigger "connectUpdateWindowSize", message.body
+                
               when "updatePointer"
                 # console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updatePointer", debug.style, message.body
                 # マウス座標の変化を検知したらconnectUpdatePointer イベントを発火させる

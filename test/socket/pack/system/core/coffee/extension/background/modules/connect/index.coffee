@@ -73,6 +73,7 @@ module.exports = (App, sn, $, _) ->
           sendAddUser = @_sendAddUser.bind(@)(port)
           sendAddResident = @_sendAddResident.bind(@)(port, initializedResidents)
           sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
+          sendUpdateWindowSize = @_sendUpdateWindowSize.bind(@)(port)
           sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
           sendUpdateLandscapeHandler = @_sendUpdateLandscapeHandler.bind(@)(port)
 
@@ -85,6 +86,7 @@ module.exports = (App, sn, $, _) ->
             App.vent.off "socketAddUser", sendAddUser
             App.vent.off "socketAddResident", sendAddResident
             App.vent.off "socketCheckOut", sendCheckOutHandler
+            App.vent.off "socketUpdateWindowSize", sendUpdateWindowSize
             App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
             App.vent.off "socketUpdateLandscape", sendUpdateLandscapeHandler
             port.disconnect()
@@ -108,6 +110,8 @@ module.exports = (App, sn, $, _) ->
             App.vent.on "socketAddResident", sendAddResident
             # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
             App.vent.on "socketCheckOut", sendCheckOutHandler
+            # 同じRoom に所属しているユーザーのウインドウサイズに変化があった時に呼び出される
+            App.vent.on "socketUpdateWindowSize", sendUpdateWindowSize
             # 同じRoom に所属しているユーザーのポインター座標に変化があった時に呼び出される
             App.vent.on "socketUpdatePointer", sendUpdatePointerHandler
             # 同じRoom に所属しているユーザーのスクリーンショットが更新された時に呼び出される
@@ -423,6 +427,29 @@ module.exports = (App, sn, $, _) ->
             to: "contentScript"
             from: "background"
             type: "checkOut"
+            body: data
+
+      # ------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_sendUpdateWindowSize
+      #  * 同じRoom に所属していたユーザーのウインドウサイズの変化をsoketが受信した時に呼び出されるイベントハンドラー
+      #  * @param {Object} port - Chrome Extentions Port Object
+      #  */
+      # ------------------------------------------------------------
+      _sendUpdateWindowSize: (port)->
+        # /**
+        #  * @param {Object} data
+        #  * @prop {string} id - 発信者のsocket.id
+        #  * @prop {number} window.width - 発信者のwindowの幅
+        #  * @prop {number} window.height - 発信者のwindowの高さ
+        #  */
+        (data) =>
+          console.log "%c[Connect] ConnectModel -> _sendUpdateWindowSize", debug.style, data
+
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "updateWindowSize"
             body: data
 
       # ------------------------------------------------------------
