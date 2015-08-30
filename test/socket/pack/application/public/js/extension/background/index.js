@@ -24879,12 +24879,16 @@
 	    StageModel = Backbone.Model.extend({
 	      defaults: {
 	        isRun: false,
-	        selsectedTabId: null
+	        activeInfo: {
+	          tabId: null,
+	          windowId: null
+	        }
 	      },
 	      initialize: function() {
 	        console.log("%c[Stage] StageModel -> initialize", debug.style);
 	        this.listenTo(this, "change:isRun", this._changeIsRunHandler);
-	        this.listenTo(this, "change:selsectedTabId", this._changeSectedTabIdHandler);
+	        this.listenTo(this, "change:activeInfo", this._changeActiveInfoHandler);
+	        chrome.windows.onFocusChanged.addListener(this._onFocusChangedHandler.bind(this));
 	        return chrome.tabs.onActivated.addListener(this._onActivatedHandler.bind(this));
 	      },
 	      _changeIsRunHandler: function(stageModel, isRun) {
@@ -24893,18 +24897,34 @@
 	        if (isRun) {
 	          return chrome.tabs.getSelected((function(_this) {
 	            return function(tab) {
-	              return _this.set("selsectedTabId", tab.id);
+	              return _this.set("activeInfo", {
+	                tabId: tab.id,
+	                windowId: tab.windowId
+	              });
 	            };
 	          })(this));
 	        }
 	      },
-	      _changeSectedTabIdHandler: function(stageModel, selsectedTabId) {
-	        console.log("%c[Stage] StageModel -> _changeSectedTabIdHandler", debug.style, selsectedTabId);
-	        return App.vent.trigger("stageSelsectedTabId", selsectedTabId);
+	      _onFocusChangedHandler: function(windowId) {
+	        console.log("%c[Stage] StageModel -> _onFocusChangedHandler", debug.style, windowId);
+	        return chrome.tabs.getSelected((function(_this) {
+	          return function(tab) {
+	            return _this.set("activeInfo", {
+	              tabId: tab.id,
+	              windowId: tab.windowId
+	            });
+	          };
+	        })(this));
+	      },
+	      _changeActiveInfoHandler: function(stageModel, activeInfo) {
+	        console.log("%c[Stage] StageModel -> _changeActiveInfoHandler", debug.style, activeInfo);
+	        return App.vent.trigger("stageChangeActiveInfo", activeInfo);
 	      },
 	      _onActivatedHandler: function(activeInfo) {
 	        console.log("%c[Stage] StageModel -> _onActivatedHandler", debug.style, activeInfo);
-	        return this.set("selsectedTabId", activeInfo.tabId);
+	        return this.set({
+	          "activeInfo": activeInfo
+	        });
 	      }
 	    });
 	    StageModule.addInitializer(function(options) {
@@ -24924,10 +24944,10 @@
 	          return _this.models.stage.set("isRun", false);
 	        };
 	      })(this));
-	      return App.reqres.setHandler("stageGetSelsectedTabId", (function(_this) {
+	      return App.reqres.setHandler("stageGetActiveInfo", (function(_this) {
 	        return function() {
-	          console.log("%c[Stage] Request Response | stageGetSelsectedTabId", debug.style);
-	          return _this.models.stage.get("selsectedTabId");
+	          console.log("%c[Stage] Request Response | stageGetActiveInfo", debug.style);
+	          return _this.models.stage.get("activeInfo");
 	        };
 	      })(this));
 	    });
@@ -24958,14 +24978,14 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeIsRunHandler, changeSelsectedTabIdHandler, initializedResidents, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
+	            var changeChangeActiveInfoHandler, changeIsRunHandler, initializedResidents, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
 	            console.log(port);
 	            initializedResidents = [];
 	            tabId = port.sender.tab.id;
 	            windowId = port.sender.tab.windowId;
 	            link = port.sender.tab.url;
 	            changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
-	            changeSelsectedTabIdHandler = _this._changeSelsectedTabIdHandler.bind(_this)(port, initializedResidents);
+	            changeChangeActiveInfoHandler = _this._changeChangeActiveInfoHandler.bind(_this)(port, initializedResidents);
 	            sendJointedHandler = _this._sendJointedHandler.bind(_this)(port);
 	            sendDisconnectHandler = _this._sendDisconnectHandler.bind(_this)(port);
 	            sendAddUser = _this._sendAddUser.bind(_this)(port);
@@ -24976,7 +24996,7 @@
 	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
 	            port.onDisconnect.addListener(function() {
 	              App.vent.off("stageChangeIsRun", changeIsRunHandler);
-	              App.vent.off("stageSelsectedTabId", changeSelsectedTabIdHandler);
+	              App.vent.off("stageChangeActiveInfo", changeChangeActiveInfoHandler);
 	              App.vent.off("socketJointed", sendJointedHandler);
 	              App.vent.off("socketDisconnect", sendDisconnectHandler);
 	              App.vent.off("socketAddUser", sendAddUser);
@@ -24991,7 +25011,7 @@
 	            if (port.name === "contentScript") {
 	              console.log("%c[Connect] ConnectModel | onConnect", debug.style);
 	              App.vent.on("stageChangeIsRun", changeIsRunHandler);
-	              App.vent.on("stageSelsectedTabId", changeSelsectedTabIdHandler);
+	              App.vent.on("stageChangeActiveInfo", changeChangeActiveInfoHandler);
 	              App.vent.on("socketJointed", sendJointedHandler);
 	              App.vent.on("socketDisconnect", sendDisconnectHandler);
 	              App.vent.on("socketAddUser", sendAddUser);
@@ -25001,7 +25021,7 @@
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              return port.onMessage.addListener(function(message) {
-	                var i, index, len, resident, residents, results;
+	                var activeInfo, i, index, len, resident, residents, results;
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
 	                  switch (message.type) {
 	                    case "setup":
@@ -25036,37 +25056,45 @@
 	                      break;
 	                    case "initializeUser":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message);
-	                      return chrome.tabs.captureVisibleTab(windowId, {
-	                        format: "jpeg",
-	                        quality: 80
-	                      }, function(dataUrl) {
-	                        return App.vent.trigger("connectInitializeUser", {
-	                          position: {
-	                            x: message.body.position.x,
-	                            y: message.body.position.y
-	                          },
-	                          window: {
-	                            width: message.body.window.width,
-	                            height: message.body.window.height
-	                          },
-	                          link: link,
-	                          landscape: dataUrl
+	                      activeInfo = App.reqres.request("stageGetActiveInfo");
+	                      if (activeInfo.windowId === windowId) {
+	                        return chrome.tabs.captureVisibleTab(activeInfo.windowId, {
+	                          format: "jpeg",
+	                          quality: 80
+	                        }, function(dataUrl) {
+	                          return App.vent.trigger("connectInitializeUser", {
+	                            position: {
+	                              x: message.body.position.x,
+	                              y: message.body.position.y
+	                            },
+	                            window: {
+	                              width: message.body.window.width,
+	                              height: message.body.window.height
+	                            },
+	                            link: link,
+	                            landscape: dataUrl
+	                          });
 	                        });
-	                      });
+	                      }
+	                      break;
 	                    case "initializeResident":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message);
-	                      return chrome.tabs.captureVisibleTab(windowId, {
-	                        format: "jpeg",
-	                        quality: 80
-	                      }, function(dataUrl) {
-	                        return App.vent.trigger("connectInitializeResident", {
-	                          toSocketId: message.body.toSocketId,
-	                          position: message.body.position,
-	                          window: message.body.window,
-	                          link: link,
-	                          landscape: dataUrl
+	                      activeInfo = App.reqres.request("stageGetActiveInfo");
+	                      if (activeInfo.windowId === windowId) {
+	                        return chrome.tabs.captureVisibleTab(activeInfo.windowId, {
+	                          format: "jpeg",
+	                          quality: 80
+	                        }, function(dataUrl) {
+	                          return App.vent.trigger("connectInitializeResident", {
+	                            toSocketId: message.body.toSocketId,
+	                            position: message.body.position,
+	                            window: message.body.window,
+	                            link: link,
+	                            landscape: dataUrl
+	                          });
 	                        });
-	                      });
+	                      }
+	                      break;
 	                    case "windowResize":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | windowResize", debug.style, message);
 	                      return App.vent.trigger("connectWindowResize", message.body);
@@ -25074,14 +25102,17 @@
 	                      return App.vent.trigger("connectPointerMove", message.body);
 	                    case "updateLandscape":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message);
-	                      return chrome.tabs.captureVisibleTab(windowId, {
-	                        format: "jpeg",
-	                        quality: 80
-	                      }, function(dataUrl) {
-	                        return App.vent.trigger("connectUpdateLandscape", {
-	                          landscape: dataUrl
+	                      activeInfo = App.reqres.request("stageGetActiveInfo");
+	                      if (activeInfo.tabId === tabId) {
+	                        return chrome.tabs.captureVisibleTab({
+	                          format: "jpeg",
+	                          quality: 80
+	                        }, function(dataUrl) {
+	                          return App.vent.trigger("connectUpdateLandscape", {
+	                            landscape: dataUrl
+	                          });
 	                        });
-	                      });
+	                      }
 	                  }
 	                }
 	              });
@@ -25102,6 +25133,13 @@
 	                isRun: isRun
 	              }
 	            });
+	          };
+	        })(this);
+	      },
+	      _changeChangeActiveInfoHandler: function(port, initializedResidents) {
+	        return (function(_this) {
+	          return function(activeInfo) {
+	            return console.log("%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:" + port.sender.tab.id + " | ACTIVE TabID:" + activeInfo.tabId, initializedResidents);
 	          };
 	        })(this);
 	      },
@@ -25135,10 +25173,10 @@
 	      _sendJointedHandler: function(port) {
 	        return (function(_this) {
 	          return function() {
-	            var selsectedTabId;
+	            var activeInfo;
 	            console.log("%c[Connect] ConnectModel -> _sendJointedHandler", debug.style);
-	            selsectedTabId = App.reqres.request("stageGetSelsectedTabId");
-	            if (port.sender.tab.id === selsectedTabId) {
+	            activeInfo = App.reqres.request("stageGetActiveInfo");
+	            if (port.sender.tab.id === activeInfo.tabId) {
 	              return port.postMessage({
 	                to: "contentScript",
 	                from: "background",
@@ -25165,7 +25203,7 @@
 	      _sendAddUser: function(port) {
 	        return (function(_this) {
 	          return function(data) {
-	            var selsectedTabId, tabId;
+	            var activeInfo;
 	            console.log("%c[Connect] ConnectModel -> _sendAddUser", debug.style, data);
 	            port.postMessage({
 	              to: "contentScript",
@@ -25173,9 +25211,8 @@
 	              type: "addUser",
 	              body: data
 	            });
-	            tabId = port.sender.tab.id;
-	            selsectedTabId = App.reqres.request("stageGetSelsectedTabId");
-	            if (tabId === selsectedTabId) {
+	            activeInfo = App.reqres.request("stageGetActiveInfo");
+	            if (port.sender.tab.id === activeInfo.tabId) {
 	              return port.postMessage({
 	                to: "contentScript",
 	                from: "background",
@@ -25191,9 +25228,7 @@
 	      _sendAddResident: function(port, initializedResidents) {
 	        return (function(_this) {
 	          return function(data) {
-	            var selsectedTabId;
 	            console.log("%c[Connect] ConnectModel -> _sendAddResident | " + port.sender.tab.id, debug.style, data);
-	            selsectedTabId = App.reqres.request("stageGetSelsectedTabId");
 	            initializedResidents.push(data.id);
 	            return port.postMessage({
 	              to: "contentScript",

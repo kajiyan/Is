@@ -69,7 +69,8 @@ module.exports = (App, sn, $, _) ->
           # socketDisconnect
 
           changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
-          changeSelsectedTabIdHandler = @_changeSelsectedTabIdHandler.bind(@)(port, initializedResidents)
+          changeChangeActiveInfoHandler = @_changeChangeActiveInfoHandler.bind(@)(port, initializedResidents)
+          # changeSelsectedTabIdHandler = @_changeSelsectedTabIdHandler.bind(@)(port, initializedResidents)
           sendJointedHandler = @_sendJointedHandler.bind(@)(port)
           sendDisconnectHandler = @_sendDisconnectHandler.bind(@)(port)
           sendAddUser = @_sendAddUser.bind(@)(port)
@@ -82,7 +83,8 @@ module.exports = (App, sn, $, _) ->
           # Long-lived 接続 切断時の処理を登録する
           port.onDisconnect.addListener =>
             App.vent.off "stageChangeIsRun", changeIsRunHandler
-            App.vent.off "stageSelsectedTabId", changeSelsectedTabIdHandler
+            App.vent.off "stageChangeActiveInfo", changeChangeActiveInfoHandler
+            # App.vent.off "stageSelsectedTabId", changeSelsectedTabIdHandler
             App.vent.off "socketJointed", sendJointedHandler
             App.vent.off "socketDisconnect", sendDisconnectHandler 
             App.vent.off "socketAddUser", sendAddUser
@@ -101,7 +103,8 @@ module.exports = (App, sn, $, _) ->
             # エクステンションの起動状態に変化があった時のイベントリスナー
             App.vent.on "stageChangeIsRun", changeIsRunHandler
             # タブが切り替わった時のイベントリスナー
-            App.vent.on "stageSelsectedTabId", changeSelsectedTabIdHandler
+            App.vent.on "stageChangeActiveInfo", changeChangeActiveInfoHandler
+            # App.vent.on "stageSelsectedTabId", changeSelsectedTabIdHandler
             # socketサーバーの特定のRoomへの入室が完了した時に呼び出される
             App.vent.on "socketJointed", sendJointedHandler
             # socketサーバーsocketサーバーとの通信が切断された時に呼び出される
@@ -158,42 +161,55 @@ module.exports = (App, sn, $, _) ->
                   when "initializeUser"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message
                     
+                    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     #
                     # アクティブなウインドウIDを取得
                     # portに紐付いたウインドウIDと照合
                     # 一致した場合アクティブなタブIDのスクリーンショットを撮影 
                     #
+                    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-                    # スクリーンショットを撮影する
-                    chrome.tabs.captureVisibleTab windowId,
-                      format: "jpeg"
-                      quality: 80
-                      ,
-                      (dataUrl) ->
-                        App.vent.trigger "connectInitializeUser",
-                          position:
-                            x: message.body.position.x
-                            y: message.body.position.y
-                          window:
-                            width: message.body.window.width
-                            height: message.body.window.height
-                          link: link
-                          landscape: dataUrl
+                    # 現在選択されているTabの情報を取得する
+                    activeInfo = App.reqres.request "stageGetActiveInfo"
+
+                    if activeInfo.windowId is windowId
+                      # スクリーンショットを撮影する
+                      chrome.tabs.captureVisibleTab activeInfo.windowId,
+                      # chrome.tabs.captureVisibleTab windowId,
+                        format: "jpeg"
+                        quality: 80
+                        ,
+                        (dataUrl) ->
+                          App.vent.trigger "connectInitializeUser",
+                            position:
+                              x: message.body.position.x
+                              y: message.body.position.y
+                            window:
+                              width: message.body.window.width
+                              height: message.body.window.height
+                            link: link
+                            landscape: dataUrl
 
                   when "initializeResident"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message
 
-                    chrome.tabs.captureVisibleTab windowId,
-                      format: "jpeg"
-                      quality: 80
-                      ,
-                      (dataUrl) ->
-                        App.vent.trigger "connectInitializeResident",
-                          toSocketId: message.body.toSocketId
-                          position: message.body.position
-                          window: message.body.window
-                          link: link
-                          landscape: dataUrl
+                    # 現在選択されているTabの情報を取得する
+                    activeInfo = App.reqres.request "stageGetActiveInfo"
+
+                    if activeInfo.windowId is windowId
+                      # スクリーンショットを撮影する
+                      chrome.tabs.captureVisibleTab activeInfo.windowId,
+                      # chrome.tabs.captureVisibleTab windowId,
+                        format: "jpeg"
+                        quality: 80
+                        ,
+                        (dataUrl) ->
+                          App.vent.trigger "connectInitializeResident",
+                            toSocketId: message.body.toSocketId
+                            position: message.body.position
+                            window: message.body.window
+                            link: link
+                            landscape: dataUrl
 
 
                   when "windowResize"
@@ -207,14 +223,27 @@ module.exports = (App, sn, $, _) ->
                   when "updateLandscape"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message
                     
-                    # スクリーンショットを撮影する
-                    chrome.tabs.captureVisibleTab windowId,
-                      format: "jpeg"
-                      quality: 80
-                      ,
-                      (dataUrl) ->
-                        App.vent.trigger "connectUpdateLandscape",
-                          landscape: dataUrl
+                    # 現在選択されているTabの情報を取得する
+                    activeInfo = App.reqres.request "stageGetActiveInfo"
+
+                    if activeInfo.tabId is tabId
+                      # スクリーンショットを撮影する
+                      chrome.tabs.captureVisibleTab
+                        format: "jpeg"
+                        quality: 80
+                        ,
+                        (dataUrl) ->
+                          App.vent.trigger "connectUpdateLandscape",
+                            landscape: dataUrl
+
+                    # # スクリーンショットを撮影する
+                    # chrome.tabs.captureVisibleTab windowId,
+                    #   format: "jpeg"
+                    #   quality: 80
+                    #   ,
+                    #   (dataUrl) ->
+                    #     App.vent.trigger "connectUpdateLandscape",
+                    #       landscape: dataUrl
 
 
       # --------------------------------------------------------------
@@ -236,6 +265,15 @@ module.exports = (App, sn, $, _) ->
             type: "changeIsRun"
             body:
               isRun: isRun
+
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_changeChangeActiveInfoHandler
+      #  */
+      # --------------------------------------------------------------
+      _changeChangeActiveInfoHandler: (port, initializedResidents) ->
+        return (activeInfo) =>
+          console.log "%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:#{port.sender.tab.id} | ACTIVE TabID:#{activeInfo.tabId}", initializedResidents
 
       # --------------------------------------------------------------
       # /**
@@ -292,11 +330,13 @@ module.exports = (App, sn, $, _) ->
         return () =>
           console.log "%c[Connect] ConnectModel -> _sendJointedHandler", debug.style
 
-          # 現在選択されているTabのIDを取得する
-          selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
+          # 現在選択されているTabの情報を取得する
+          activeInfo = App.reqres.request "stageGetActiveInfo"
+          # selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
 
           # アクティブなタブだけにメッセージを送る
-          if port.sender.tab.id is selsectedTabId
+          if port.sender.tab.id is activeInfo.tabId
+          # if port.sender.tab.id is selsectedTabId
             port.postMessage
               to: "contentScript"
               from: "background"
@@ -347,13 +387,13 @@ module.exports = (App, sn, $, _) ->
             type: "addUser"
             body: data
 
-          # このポートが接続しているtabId
-          tabId = port.sender.tab.id
-          # 現在選択されているTabのIDを取得する
-          selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
+          # 現在選択されているTabの情報を取得する
+          activeInfo = App.reqres.request "stageGetActiveInfo"
+          # selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
 
           # アクティブなタブだけにメッセージを送る
-          if tabId is selsectedTabId
+          if port.sender.tab.id is activeInfo.tabId
+          # if port.sender.tab.id is selsectedTabId
             port.postMessage
               to: "contentScript"
               from: "background"
@@ -384,8 +424,8 @@ module.exports = (App, sn, $, _) ->
         return (data) =>
           console.log "%c[Connect] ConnectModel -> _sendAddResident | #{port.sender.tab.id}", debug.style, data
 
-          # 現在選択されているTabのIDを取得する
-          selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
+          # 現在選択されているTabの情報を取得する
+          # selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
 
           # if port.sender.tab.id is selsectedTabId
           initializedResidents.push data.id

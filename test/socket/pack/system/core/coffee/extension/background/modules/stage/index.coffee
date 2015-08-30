@@ -41,7 +41,10 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       defaults:
         isRun: false
-        selsectedTabId: null
+        activeInfo:
+          tabId: null
+          windowId: null
+        # selsectedTabId: null
 
       # --------------------------------------------------------------
       # /**
@@ -54,13 +57,17 @@ module.exports = (App, sn, $, _) ->
 
         # ブラウザアクションが発生した時に呼び出される
         @listenTo @, "change:isRun", @_changeIsRunHandler
+        @listenTo @, "change:activeInfo", @_changeActiveInfoHandler
+        #(model, activeInfo) -> console.log activeInfo
         # ブラウザアクションが発生した時に呼び出される
         # 初回は起動時のtab idが設定される
-        @listenTo @, "change:selsectedTabId", @_changeSectedTabIdHandler
+        # @listenTo @, "change:selsectedTabId", @_changeSectedTabIdHandler
 
         # chrome.tabs.onCreated.addListener (tab) -> console.log "onCreated", tab
         # chrome.tabs.onUpdated.addListener (tabId, changeInfo, tab) -> console.log "onUpdated", tabId, changeInfo, tab
 
+        # アクティブなウインドウが変わった時に呼び出される
+        chrome.windows.onFocusChanged.addListener @_onFocusChangedHandler.bind(@)
         # アクティブなタブが変わった時に呼び出される
         chrome.tabs.onActivated.addListener @_onActivatedHandler.bind(@)
 
@@ -78,19 +85,49 @@ module.exports = (App, sn, $, _) ->
 
         if isRun
           chrome.tabs.getSelected (tab) =>
-            @set "selsectedTabId", tab.id
+            @set "activeInfo",
+              tabId: tab.id
+              windowId: tab.windowId
+            # @set "selsectedTabId", tab.id
 
       # ------------------------------------------------------------
       # /**
-      #  * StageModel#_changeSectedTabIdHandler
-      #  * @param {Object} Model - BackBone Model Object
+      #  * StageModel#_changeActiveInfoHandler
+      #  * @param {number} windowId - フォーカスがあったウインドウID
       #  */
-      # ------------------------------------------------------------
-      _changeSectedTabIdHandler: (stageModel, selsectedTabId) ->
-        console.log "%c[Stage] StageModel -> _changeSectedTabIdHandler", debug.style, selsectedTabId
+      # -----------------------------------------------------------
+      _onFocusChangedHandler: (windowId) ->
+        console.log "%c[Stage] StageModel -> _onFocusChangedHandler", debug.style, windowId
 
-        # stageSelsectedTabId イベントを発火させる
-        App.vent.trigger "stageSelsectedTabId", selsectedTabId
+        chrome.tabs.getSelected (tab) =>
+          @set "activeInfo",
+            tabId: tab.id
+            windowId: tab.windowId
+
+      # ------------------------------------------------------------
+      # /**
+      #  * StageModel#_changeActiveInfoHandler
+      #  * @param {Object} stageModel - BackBone Model Object
+      #  * @param {Object} activeInfo
+      #  * @prop {number} tabId - アクティブなタブのID
+      #  * @prop {number} windowId - アクティブなウインドウのID
+      #  */
+      # -----------------------------------------------------------
+      _changeActiveInfoHandler: (stageModel, activeInfo) ->
+        console.log "%c[Stage] StageModel -> _changeActiveInfoHandler", debug.style, activeInfo
+        App.vent.trigger "stageChangeActiveInfo", activeInfo
+        # App.vent.trigger "stageSelsectedTabId", activeInfo.tabId
+
+      # # ------------------------------------------------------------
+      # # /**
+      # #  * StageModel#_changeSectedTabIdHandler
+      # #  * @param {Object} Model - BackBone Model Object
+      # #  */
+      # # ------------------------------------------------------------
+      # _changeSectedTabIdHandler: (stageModel, selsectedTabId) ->
+      #   console.log "%c[Stage] StageModel -> _changeSectedTabIdHandler", debug.style, selsectedTabId
+      #   # stageSelsectedTabId イベントを発火させる
+      #   App.vent.trigger "stageSelsectedTabId", selsectedTabId
 
 
       # ------------------------------------------------------------
@@ -102,7 +139,8 @@ module.exports = (App, sn, $, _) ->
       _onActivatedHandler: (activeInfo) ->
         console.log "%c[Stage] StageModel -> _onActivatedHandler", debug.style, activeInfo
 
-        @set "selsectedTabId", activeInfo.tabId
+        @set "activeInfo": activeInfo
+        # @set "selsectedTabId", activeInfo.tabId
 
 
 
@@ -130,9 +168,13 @@ module.exports = (App, sn, $, _) ->
 
       # ============================================================
       # REQUEST RESPONSE
-      App.reqres.setHandler "stageGetSelsectedTabId", () =>
-        console.log "%c[Stage] Request Response | stageGetSelsectedTabId", debug.style
-        return @models.stage.get "selsectedTabId"
+      App.reqres.setHandler "stageGetActiveInfo", () =>
+        console.log "%c[Stage] Request Response | stageGetActiveInfo", debug.style
+        return @models.stage.get "activeInfo"
+
+      # App.reqres.setHandler "stageGetSelsectedTabId", () =>
+      #   console.log "%c[Stage] Request Response | stageGetSelsectedTabId", debug.style
+      #   return @models.stage.get "selsectedTabId"
       # App.reqres.request
 
     # ============================================================
