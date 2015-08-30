@@ -104,6 +104,8 @@ module.exports = (App, sn, $, _) ->
         @socket.on "addResident", @_receiveAddResidentHandler.bind(@)
         # 同じRoom に所属していたユーザーのSocketIDを受信する
         @socket.on "checkOut", @_receiveCheckOutHandler.bind(@)
+        # 同じRoom に所属するユーザーの閲覧しているURLを受信する
+        @socket.on "updateLocation", (data) -> console.log data
         # 同じRoom に所属するユーザーのwindowサイズの変化を受信する
         @socket.on "updateWindowSize", @_receiveWindowSizeHandler.bind(@)
         # 同じRoom に所属するユーザーのポインター座標を受信する

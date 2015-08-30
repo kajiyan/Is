@@ -25039,45 +25039,45 @@
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              return port.onMessage.addListener(function(message) {
-	                var activeInfo, i, index, len, resident, residents, results;
+	                var activeInfo;
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
 	                  switch (message.type) {
 	                    case "setup":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | setup | " + tabId, debug.style, message);
-	                      port.postMessage({
-	                        to: "contentScript",
-	                        from: "background",
-	                        type: "setup",
-	                        body: {
-	                          isRun: _this.get("isRun")
-	                        }
-	                      });
-	                      chrome.tabs.captureVisibleTab({
+	                      return chrome.tabs.captureVisibleTab({
 	                        format: "jpeg",
 	                        quality: 80
 	                      }, function(dataUrl) {
-	                        return landscape = dataUrl;
-	                      });
-	                      if (_this.get("isRun")) {
-	                        residents = App.reqres.request("socketGetResidents");
-	                        results = [];
-	                        for (index = i = 0, len = residents.length; i < len; index = ++i) {
-	                          resident = residents[index];
-	                          if (_.indexOf(initializedResidents, resident.id) === -1) {
-	                            port.postMessage({
-	                              to: "contentScript",
-	                              from: "background",
-	                              type: "addResident",
-	                              body: resident
-	                            });
-	                            results.push(initializedResidents.push(resident.id));
-	                          } else {
-	                            results.push(void 0);
+	                        var i, index, len, resident, residents, results;
+	                        landscape = dataUrl;
+	                        port.postMessage({
+	                          to: "contentScript",
+	                          from: "background",
+	                          type: "setup",
+	                          body: {
+	                            isRun: _this.get("isRun")
 	                          }
+	                        });
+	                        if (_this.get("isRun")) {
+	                          residents = App.reqres.request("socketGetResidents");
+	                          results = [];
+	                          for (index = i = 0, len = residents.length; i < len; index = ++i) {
+	                            resident = residents[index];
+	                            if (_.indexOf(initializedResidents, resident.id) === -1) {
+	                              port.postMessage({
+	                                to: "contentScript",
+	                                from: "background",
+	                                type: "addResident",
+	                                body: resident
+	                              });
+	                              results.push(initializedResidents.push(resident.id));
+	                            } else {
+	                              results.push(void 0);
+	                            }
+	                          }
+	                          return results;
 	                        }
-	                        return results;
-	                      }
-	                      break;
+	                      });
 	                    case "initializeUser":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message);
 	                      activeInfo = App.reqres.request("stageGetActiveInfo");
@@ -25374,6 +25374,9 @@
 	        this.socket.on("addUser", this._receiveAddUserHandler.bind(this));
 	        this.socket.on("addResident", this._receiveAddResidentHandler.bind(this));
 	        this.socket.on("checkOut", this._receiveCheckOutHandler.bind(this));
+	        this.socket.on("updateLocation", function(data) {
+	          return console.log(data);
+	        });
 	        this.socket.on("updateWindowSize", this._receiveWindowSizeHandler.bind(this));
 	        this.socket.on("updatePointer", this._receiveUpdatePointerHandler.bind(this));
 	        return this.socket.on("updateLandscape", this._receiveUpdateLandscapeHandler.bind(this));

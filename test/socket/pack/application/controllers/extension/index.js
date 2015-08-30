@@ -307,6 +307,25 @@ Extension = (function() {
         );
 
         // --------------------------------------------------------------
+        socket.on('changeLocation',
+          /**
+           * @param {Object} data
+           * @prop {string} link - 接続ユーザーの閲覧しているURL
+           */
+          function(data) {
+            console.log('[Controller] Extension -> Socket Receive Message | changeLocation');
+            
+            socket
+              .broadcast
+              .to(joinRoomId)
+              .emit('updateLocation', {
+                'id': socket.id,
+                'link': data.link
+              });
+          }
+        );
+
+        // --------------------------------------------------------------
         socket.on('windowResize',
           /**
            * @param {Object} windowSize

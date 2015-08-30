@@ -145,42 +145,43 @@ module.exports = (App, sn, $, _) ->
               # content script からの通知か判別する
               if (message.from? and message.from is "contentScript") and message.type?
                 switch message.type
+                  # --------------------------------------------------------------
                   when "setup"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup | #{tabId}", debug.style, message
-
-                    port.postMessage
-                      to: "contentScript"
-                      from: "background"
-                      type: "setup"
-                      body:
-                        isRun: @get "isRun"
 
                     chrome.tabs.captureVisibleTab
                       format: "jpeg"
                       quality: 80
                       ,
-                      (dataUrl) ->
+                      (dataUrl) =>
                         landscape = dataUrl
 
-                    # エクステンションがすでに起動している場合の処理
-                    if @get "isRun"
-                      # 同じroomIdにjoinしているユーザーを取得する
-                      residents = App.reqres.request "socketGetResidents"
+                        port.postMessage
+                          to: "contentScript"
+                          from: "background"
+                          type: "setup"
+                          body:
+                            isRun: @get "isRun"
+                        
+                        # エクステンションがすでに起動している場合の処理
+                        if @get "isRun"
+                          # 同じroomIdにjoinしているユーザーを取得する
+                          residents = App.reqres.request "socketGetResidents"
 
-                      for resident, index in residents
-                        # 表示リストに表示されていないResidentがあるか調べる
-                        if _.indexOf(initializedResidents, resident.id) is -1
-                          # content script にResidentの表示依頼をする
-                          port.postMessage
-                            to: "contentScript"
-                            from: "background"
-                            type: "addResident"
-                            body: resident
-                      
-                          # 表示リストに加える
-                          initializedResidents.push resident.id
+                          for resident, index in residents
+                            # 表示リストに表示されていないResidentがあるか調べる
+                            if _.indexOf(initializedResidents, resident.id) is -1
+                              # content script にResidentの表示依頼をする
+                              port.postMessage
+                                to: "contentScript"
+                                from: "background"
+                                type: "addResident"
+                                body: resident
+                          
+                              # 表示リストに加える
+                              initializedResidents.push resident.id
 
-
+                  # --------------------------------------------------------------
                   when "initializeUser"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message
 
@@ -206,6 +207,7 @@ module.exports = (App, sn, $, _) ->
                             link: link
                             landscape: landscape
 
+                  # --------------------------------------------------------------
                   when "initializeResident"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message
 
@@ -227,7 +229,7 @@ module.exports = (App, sn, $, _) ->
                             link: link
                             landscape: landscape
 
-
+                  # --------------------------------------------------------------
                   when "windowResize"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | windowResize", debug.style, message
                     App.vent.trigger "connectWindowResize", message.body
