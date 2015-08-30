@@ -3,11 +3,14 @@
 # 
 # EVENT
 #   - stageChangeIsRun
-#   - stageSelsectedTabId
+#   - stageChangeActiveInfo
 # 
 # COMMANDS
 #   - stageAppRun
 #   - stopAppRun
+#
+# REQUEST RESPONSE
+#   - stageGetActiveInfo
 #
 # ============================================================
 module.exports = (App, sn, $, _) ->
@@ -23,8 +26,6 @@ module.exports = (App, sn, $, _) ->
     # Controller
     # ============================================================
 
-
-
     # ============================================================
     # Model
     # ============================================================
@@ -36,7 +37,9 @@ module.exports = (App, sn, $, _) ->
       #  * オブジェクトのキーと同じものを指定すると、その値で上書きされる。 
       #  * @type {Object}
       #  * @prop {boolean} isRun - エクステンションの起動状態
-      #  * @prop {number} selsectedTabId - 選択されているタブのID
+      #  * @prop {Object} activeInfo - 選択されているタブのID
+      #  * @prop {number} tabId - 選択されているタブID
+      #  * @prop {number} windowId - 選択されているウインドウID
       #  */
       # ------------------------------------------------------------
       defaults:
@@ -44,7 +47,6 @@ module.exports = (App, sn, $, _) ->
         activeInfo:
           tabId: null
           windowId: null
-        # selsectedTabId: null
 
       # --------------------------------------------------------------
       # /**
@@ -57,12 +59,10 @@ module.exports = (App, sn, $, _) ->
 
         # ブラウザアクションが発生した時に呼び出される
         @listenTo @, "change:isRun", @_changeIsRunHandler
+        # ブラウザアクションが発生した時にも呼び出される
+        # 初回は起動時のtabId, windowIdが設定される
         @listenTo @, "change:activeInfo", @_changeActiveInfoHandler
-        #(model, activeInfo) -> console.log activeInfo
-        # ブラウザアクションが発生した時に呼び出される
-        # 初回は起動時のtab idが設定される
-        # @listenTo @, "change:selsectedTabId", @_changeSectedTabIdHandler
-
+        
         # chrome.tabs.onCreated.addListener (tab) -> console.log "onCreated", tab
         # chrome.tabs.onUpdated.addListener (tabId, changeInfo, tab) -> console.log "onUpdated", tabId, changeInfo, tab
 
@@ -88,7 +88,6 @@ module.exports = (App, sn, $, _) ->
             @set "activeInfo",
               tabId: tab.id
               windowId: tab.windowId
-            # @set "selsectedTabId", tab.id
 
       # ------------------------------------------------------------
       # /**
@@ -116,19 +115,6 @@ module.exports = (App, sn, $, _) ->
       _changeActiveInfoHandler: (stageModel, activeInfo) ->
         console.log "%c[Stage] StageModel -> _changeActiveInfoHandler", debug.style, activeInfo
         App.vent.trigger "stageChangeActiveInfo", activeInfo
-        # App.vent.trigger "stageSelsectedTabId", activeInfo.tabId
-
-      # # ------------------------------------------------------------
-      # # /**
-      # #  * StageModel#_changeSectedTabIdHandler
-      # #  * @param {Object} Model - BackBone Model Object
-      # #  */
-      # # ------------------------------------------------------------
-      # _changeSectedTabIdHandler: (stageModel, selsectedTabId) ->
-      #   console.log "%c[Stage] StageModel -> _changeSectedTabIdHandler", debug.style, selsectedTabId
-      #   # stageSelsectedTabId イベントを発火させる
-      #   App.vent.trigger "stageSelsectedTabId", selsectedTabId
-
 
       # ------------------------------------------------------------
       # /**
@@ -140,9 +126,6 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Stage] StageModel -> _onActivatedHandler", debug.style, activeInfo
 
         @set "activeInfo": activeInfo
-        # @set "selsectedTabId", activeInfo.tabId
-
-
 
 
 
@@ -172,10 +155,6 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Stage] Request Response | stageGetActiveInfo", debug.style
         return @models.stage.get "activeInfo"
 
-      # App.reqres.setHandler "stageGetSelsectedTabId", () =>
-      #   console.log "%c[Stage] Request Response | stageGetSelsectedTabId", debug.style
-      #   return @models.stage.get "selsectedTabId"
-      # App.reqres.request
 
     # ============================================================
     StageModule.addFinalizer (options) ->

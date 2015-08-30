@@ -24978,8 +24978,8 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeChangeActiveInfoHandler, changeIsRunHandler, initializedResidents, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
-	            console.log(port);
+	            var changeChangeActiveInfoHandler, changeIsRunHandler, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
+	            landscape = "";
 	            initializedResidents = [];
 	            tabId = port.sender.tab.id;
 	            windowId = port.sender.tab.windowId;
@@ -25057,8 +25057,8 @@
 	                    case "initializeUser":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message);
 	                      activeInfo = App.reqres.request("stageGetActiveInfo");
-	                      if (activeInfo.windowId === windowId) {
-	                        return chrome.tabs.captureVisibleTab(activeInfo.windowId, {
+	                      if (activeInfo.tabId === tabId) {
+	                        return chrome.tabs.captureVisibleTab({
 	                          format: "jpeg",
 	                          quality: 80
 	                        }, function(dataUrl) {
@@ -25080,8 +25080,8 @@
 	                    case "initializeResident":
 	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message);
 	                      activeInfo = App.reqres.request("stageGetActiveInfo");
-	                      if (activeInfo.windowId === windowId) {
-	                        return chrome.tabs.captureVisibleTab(activeInfo.windowId, {
+	                      if (activeInfo.tabId === tabId) {
+	                        return chrome.tabs.captureVisibleTab({
 	                          format: "jpeg",
 	                          quality: 80
 	                        }, function(dataUrl) {
@@ -25139,18 +25139,10 @@
 	      _changeChangeActiveInfoHandler: function(port, initializedResidents) {
 	        return (function(_this) {
 	          return function(activeInfo) {
-	            return console.log("%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:" + port.sender.tab.id + " | ACTIVE TabID:" + activeInfo.tabId, initializedResidents);
-	          };
-	        })(this);
-	      },
-	      _changeSelsectedTabIdHandler: function(port, initializedResidents) {
-	        return (function(_this) {
-	          return function(tabId) {
-	            var i, index, len, resident, residents, results;
-	            console.log("%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:" + port.sender.tab.id + " | ACTIVE TabID:" + tabId, initializedResidents);
-	            if (port.sender.tab.id === tabId) {
+	            var i, index, len, resident, residents;
+	            console.log("%c[Connect] ConnectModel -> _changeChangeActiveInfoHandler", debug.style, "PORT TabID:" + port.sender.tab.id + " | ACTIVE TabID:" + activeInfo.tabId, initializedResidents);
+	            if (port.sender.tab.id === activeInfo.tabId) {
 	              residents = App.reqres.request("socketGetResidents");
-	              results = [];
 	              for (index = i = 0, len = residents.length; i < len; index = ++i) {
 	                resident = residents[index];
 	                if (_.indexOf(initializedResidents, resident.id) === -1) {
@@ -25160,12 +25152,20 @@
 	                    type: "addResident",
 	                    body: resident
 	                  });
-	                  results.push(initializedResidents.push(resident.id));
-	                } else {
-	                  results.push(void 0);
+	                  initializedResidents.push(resident.id);
 	                }
 	              }
-	              return results;
+	              App.vent.trigger("connectChangeLocation", {
+	                link: port.sender.tab.url
+	              });
+	              return chrome.tabs.captureVisibleTab({
+	                format: "jpeg",
+	                quality: 80
+	              }, function(dataUrl) {
+	                return App.vent.trigger("connectUpdateLandscape", {
+	                  landscape: dataUrl
+	                });
+	              });
 	            }
 	          };
 	        })(this);
@@ -25329,6 +25329,7 @@
 	        App.vent.on("stageChangeIsRun", this.changeIsRunHandler);
 	        App.vent.on("connectInitializeUser", this._initializeUserHandler.bind(this));
 	        App.vent.on("connectInitializeResident", this._initializeResidentHandler.bind(this));
+	        App.vent.on("connectChangeLocation", this._changeLocationHandler.bind(this));
 	        App.vent.on("connectWindowResize", this._windowResizeHandler.bind(this));
 	        App.vent.on("connectPointerMove", this._pointerMoveHandler.bind(this));
 	        App.vent.on("connectUpdateLandscape", this._updateLandscapeHandler.bind(this));
@@ -25373,6 +25374,12 @@
 	        console.log("%c[Socket] SocketModel -> _initializeResidentHandler", debug.style, data);
 	        return this.socket.emit("initializeResident", data);
 	      },
+	      _changeLocationHandler: function(data) {
+	        console.log("%c[Socket] SocketModel -> _changeLocationHandler", debug.style, data);
+	        if (this.get("isConnected")) {
+	          return this.socket.emit("changeLocation", data);
+	        }
+	      },
 	      _windowResizeHandler: function(windowSize) {
 	        console.log("%c[Socket] SocketModel -> _windowResizeHandler", debug.style, windowSize);
 	        return this.socket.emit("windowResize", windowSize);
@@ -25382,7 +25389,9 @@
 	      },
 	      _updateLandscapeHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _updateLandscapeHandler", debug.style, data);
-	        return this.socket.emit("shootLandscape", data);
+	        if (this.get("isConnected")) {
+	          return this.socket.emit("shootLandscape", data);
+	        }
 	      },
 	      _connectHandler: function() {
 	        console.log("%c[Socket] SocketModel -> _connectHandler", debug.style, this.socket.id);

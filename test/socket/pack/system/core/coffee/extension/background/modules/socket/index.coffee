@@ -62,6 +62,8 @@ module.exports = (App, sn, $, _) ->
         App.vent.on "connectInitializeUser", @_initializeUserHandler.bind @
         # 新規ユーザーに通知する値が揃った時のイベントリスナー
         App.vent.on "connectInitializeResident", @_initializeResidentHandler.bind @
+        # リンクに変化があった時のイベントリスナー
+        App.vent.on "connectChangeLocation", @_changeLocationHandler.bind @
         # window のサイズに変化があった時のイベントリスナー
         App.vent.on "connectWindowResize", @_windowResizeHandler.bind @
         # ポインターの座標に変化があった時のイベントリスナー
@@ -175,7 +177,19 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       _initializeResidentHandler: (data) ->
         console.log "%c[Socket] SocketModel -> _initializeResidentHandler", debug.style, data
-        @socket.emit "initializeResident", data   
+        @socket.emit "initializeResident", data
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_changeLocationHandler
+      #  * @param {Object} data
+      #  * @prop {string} link - 接続ユーザーの閲覧しているURL
+      #  */
+      # ------------------------------------------------------------
+      _changeLocationHandler: (data) ->
+        console.log "%c[Socket] SocketModel -> _changeLocationHandler", debug.style, data
+        if @get "isConnected"
+          @socket.emit "changeLocation", data
 
       # ------------------------------------------------------------
       # /**
@@ -212,7 +226,9 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       _updateLandscapeHandler: (data) ->
         console.log "%c[Socket] SocketModel -> _updateLandscapeHandler", debug.style, data
-        @socket.emit "shootLandscape", data
+        
+        if @get "isConnected"
+          @socket.emit "shootLandscape", data
 
       # ------------------------------------------------------------
       # /**

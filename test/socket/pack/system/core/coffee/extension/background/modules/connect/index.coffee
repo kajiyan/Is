@@ -3,6 +3,7 @@
 # 
 # EVENT
 #   - connectInitializeUser
+#   - connectChangeLocation
 #   - connectWindowResize
 #   - connectPointerMove
 #   - connectUpdateLandscape
@@ -57,7 +58,9 @@ module.exports = (App, sn, $, _) ->
         # content script からのLong-lived 接続
         # chrome.extension.onConnect.addListener (port) =>
         chrome.runtime.onConnect.addListener (port) =>
-          console.log port
+          # console.log port
+
+          landscape = ""
 
           # 初期化済みのResident IDの配列
           initializedResidents = []
@@ -65,8 +68,6 @@ module.exports = (App, sn, $, _) ->
           tabId = port.sender.tab.id
           windowId = port.sender.tab.windowId
           link = port.sender.tab.url
-
-          # socketDisconnect
 
           changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
           changeChangeActiveInfoHandler = @_changeChangeActiveInfoHandler.bind(@)(port, initializedResidents)
@@ -160,22 +161,13 @@ module.exports = (App, sn, $, _) ->
 
                   when "initializeUser"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeUser", debug.style, message
-                    
-                    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #
-                    # アクティブなウインドウIDを取得
-                    # portに紐付いたウインドウIDと照合
-                    # 一致した場合アクティブなタブIDのスクリーンショットを撮影 
-                    #
-                    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
                     # 現在選択されているTabの情報を取得する
                     activeInfo = App.reqres.request "stageGetActiveInfo"
 
-                    if activeInfo.windowId is windowId
+                    if activeInfo.tabId is tabId
                       # スクリーンショットを撮影する
-                      chrome.tabs.captureVisibleTab activeInfo.windowId,
-                      # chrome.tabs.captureVisibleTab windowId,
+                      chrome.tabs.captureVisibleTab
                         format: "jpeg"
                         quality: 80
                         ,
@@ -196,10 +188,8 @@ module.exports = (App, sn, $, _) ->
                     # 現在選択されているTabの情報を取得する
                     activeInfo = App.reqres.request "stageGetActiveInfo"
 
-                    if activeInfo.windowId is windowId
-                      # スクリーンショットを撮影する
-                      chrome.tabs.captureVisibleTab activeInfo.windowId,
-                      # chrome.tabs.captureVisibleTab windowId,
+                    if activeInfo.tabId is tabId
+                      chrome.tabs.captureVisibleTab
                         format: "jpeg"
                         quality: 80
                         ,
@@ -236,15 +226,6 @@ module.exports = (App, sn, $, _) ->
                           App.vent.trigger "connectUpdateLandscape",
                             landscape: dataUrl
 
-                    # # スクリーンショットを撮影する
-                    # chrome.tabs.captureVisibleTab windowId,
-                    #   format: "jpeg"
-                    #   quality: 80
-                    #   ,
-                    #   (dataUrl) ->
-                    #     App.vent.trigger "connectUpdateLandscape",
-                    #       landscape: dataUrl
-
 
       # --------------------------------------------------------------
       # /**
@@ -269,26 +250,24 @@ module.exports = (App, sn, $, _) ->
       # --------------------------------------------------------------
       # /**
       #  * ConnectModel#_changeChangeActiveInfoHandler
+      #  * 選択されているタブ、ウインドウが変わった時のイベントハンドラー 
+      #  * @param {Object} port - Chrome Extentions Port Object
       #  */
       # --------------------------------------------------------------
       _changeChangeActiveInfoHandler: (port, initializedResidents) ->
+        # /**
+        #  * @param {Object} - activeInfo
+        #  * @prop {number} - tabId
+        #  * @prop {number} - windowId
+        #  */
         return (activeInfo) =>
-          console.log "%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:#{port.sender.tab.id} | ACTIVE TabID:#{activeInfo.tabId}", initializedResidents
-
-      # --------------------------------------------------------------
-      # /**
-      #  * ConnectModel#_changeSelsectedTabIdHandler
-      #  */
-      # --------------------------------------------------------------
-      _changeSelsectedTabIdHandler: (port, initializedResidents) ->
-        return (tabId) =>
-          console.log "%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:#{port.sender.tab.id} | ACTIVE TabID:#{tabId}", initializedResidents
+          console.log "%c[Connect] ConnectModel -> _changeChangeActiveInfoHandler", debug.style, "PORT TabID:#{port.sender.tab.id} | ACTIVE TabID:#{activeInfo.tabId}", initializedResidents
 
           # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           # リンク、ランドスケープのアップデートもする
           # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-          if port.sender.tab.id is tabId
+          if port.sender.tab.id is activeInfo.tabId
             # 同じroomIdにjoinしているResidentsを取得する
             residents = App.reqres.request "socketGetResidents"
 
@@ -304,6 +283,48 @@ module.exports = (App, sn, $, _) ->
             
                 # 表示リストに加える
                 initializedResidents.push resident.id
+
+            # リンクの情報をアップデートする
+            App.vent.trigger "connectChangeLocation", link: port.sender.tab.url
+
+            # スクリーンショットを撮影する
+            chrome.tabs.captureVisibleTab
+              format: "jpeg"
+              quality: 80
+              ,
+              (dataUrl) ->
+                App.vent.trigger "connectUpdateLandscape",
+                  landscape: dataUrl
+
+      # # --------------------------------------------------------------
+      # # /**
+      # #  * ConnectModel#_changeSelsectedTabIdHandler
+      # #  */
+      # # --------------------------------------------------------------
+      # _changeSelsectedTabIdHandler: (port, initializedResidents) ->
+      #   return (tabId) =>
+      #     console.log "%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:#{port.sender.tab.id} | ACTIVE TabID:#{tabId}", initializedResidents
+
+      #     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      #     # リンク、ランドスケープのアップデートもする
+      #     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      #     if port.sender.tab.id is tabId
+      #       # 同じroomIdにjoinしているResidentsを取得する
+      #       residents = App.reqres.request "socketGetResidents"
+
+      #       for resident, index in residents
+      #         # 表示リストに表示されていないResidentがあるか調べる
+      #         if _.indexOf(initializedResidents, resident.id) is -1
+      #           # content script にResidentの表示依頼をする
+      #           port.postMessage
+      #             to: "contentScript"
+      #             from: "background"
+      #             type: "addResident"
+      #             body: resident
+            
+      #           # 表示リストに加える
+      #           initializedResidents.push resident.id
 
       # # --------------------------------------------------------------
       # # /**
