@@ -81,7 +81,6 @@ module.exports = (App, sn, $, _) ->
                 getLandscape = ->
                   return landscape: landscape
               )
-          # changeSelsectedTabIdHandler = @_changeSelsectedTabIdHandler.bind(@)(port, initializedResidents)
           sendJointedHandler = @_sendJointedHandler.bind(@)(port)
           sendDisconnectHandler = @_sendDisconnectHandler.bind(@)(port)
           sendAddUser = @_sendAddUser.bind(@)(port)
@@ -122,7 +121,6 @@ module.exports = (App, sn, $, _) ->
             App.vent.on "stageChangeIsRun", changeIsRunHandler
             # タブが切り替わった時のイベントリスナー
             App.vent.on "stageChangeActiveInfo", changeActiveInfoHandler
-            # App.vent.on "stageSelsectedTabId", changeSelsectedTabIdHandler
             # socketサーバーの特定のRoomへの入室が完了した時に呼び出される
             App.vent.on "socketJointed", sendJointedHandler
             # socketサーバーsocketサーバーとの通信が切断された時に呼び出される
@@ -156,6 +154,13 @@ module.exports = (App, sn, $, _) ->
                       type: "setup"
                       body:
                         isRun: @get "isRun"
+
+                    chrome.tabs.captureVisibleTab
+                      format: "jpeg"
+                      quality: 80
+                      ,
+                      (dataUrl) ->
+                        landscape = dataUrl
 
                     # エクステンションがすでに起動している場合の処理
                     if @get "isRun"
@@ -200,8 +205,6 @@ module.exports = (App, sn, $, _) ->
                               height: message.body.window.height
                             link: link
                             landscape: landscape
-
-                          console.log landscape
 
                   when "initializeResident"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message
@@ -319,52 +322,6 @@ module.exports = (App, sn, $, _) ->
             App.vent.trigger "connectChangeLocation", link: port.sender.tab.url
             App.vent.trigger "connectUpdateLandscape", getLandscape()
 
-
-      # # --------------------------------------------------------------
-      # # /**
-      # #  * ConnectModel#_changeSelsectedTabIdHandler
-      # #  */
-      # # --------------------------------------------------------------
-      # _changeSelsectedTabIdHandler: (port, initializedResidents) ->
-      #   return (tabId) =>
-      #     console.log "%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, "PORT TabID:#{port.sender.tab.id} | ACTIVE TabID:#{tabId}", initializedResidents
-
-      #     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      #     # リンク、ランドスケープのアップデートもする
-      #     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-      #     if port.sender.tab.id is tabId
-      #       # 同じroomIdにjoinしているResidentsを取得する
-      #       residents = App.reqres.request "socketGetResidents"
-
-      #       for resident, index in residents
-      #         # 表示リストに表示されていないResidentがあるか調べる
-      #         if _.indexOf(initializedResidents, resident.id) is -1
-      #           # content script にResidentの表示依頼をする
-      #           port.postMessage
-      #             to: "contentScript"
-      #             from: "background"
-      #             type: "addResident"
-      #             body: resident
-            
-      #           # 表示リストに加える
-      #           initializedResidents.push resident.id
-
-      # # --------------------------------------------------------------
-      # # /**
-      # #  * ConnectModel#_changeSelsectedTabIdHandler
-      # #  * 選択されているタブが変わった時のイベントハンドラー 
-      # #  * contentScript からデータを受信した時の処理を設定する
-      # #  * @param {number} tabId - 選択されているタブのID
-      # #  */
-      # # -------------------------------------------------------------
-      # _changeSelsectedTabIdHandler: (tabId) ->
-      #   console.log "%c[Connect] ConnectModel -> _changeSelsectedTabIdHandler", debug.style, tabId
-
-      #   if @get "isRun"
-      #     contentScriptPort = chrome.tabs.connect tabId, "name": "background"
-      #     @_setContentScriptPort contentScriptPort
-
       # --------------------------------------------------------------
       # /**
       #  * ConnectModel#_sendJointedHandler
@@ -377,7 +334,6 @@ module.exports = (App, sn, $, _) ->
 
           # 現在選択されているTabの情報を取得する
           activeInfo = App.reqres.request "stageGetActiveInfo"
-          # selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
 
           # アクティブなタブだけにメッセージを送る
           if port.sender.tab.id is activeInfo.tabId
@@ -434,7 +390,6 @@ module.exports = (App, sn, $, _) ->
 
           # 現在選択されているTabの情報を取得する
           activeInfo = App.reqres.request "stageGetActiveInfo"
-          # selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
 
           # アクティブなタブだけにメッセージを送る
           if port.sender.tab.id is activeInfo.tabId
@@ -481,33 +436,11 @@ module.exports = (App, sn, $, _) ->
           initializedResidents.set _initializedResidents
 
           # if port.sender.tab.id is selsectedTabId
-          # initializedResidents.push data.id
-
           port.postMessage
             to: "contentScript"
             from: "background"
             type: "addResident"
             body: data
-
-      # # --------------------------------------------------------------
-      # # /**
-      # #  * ConnectModel#_sendCheckInHandler
-      # #  * socketサーバーに接続した時、所属するroomに新規ユーザーが追加された時に呼び出されるイベントハンドラーかつ
-      # #  * Receive Message | setup が発生した時にエクステンションが起動している時にも呼び出される
-      # #  * アクティブなタブのcontent script にユーザーの一覧を通知する
-      # #  * @param {[string]} users - 同じRoom に所属するユーザーのSocket ID の配列
-      # #  */
-      # # -------------------------------------------------------------
-      # _sendCheckInHandler: (port) ->
-      #   return (users) =>
-      #     console.log "%c[Connect] ConnectModel -> _sendCheckInHandler", debug.style, users
-
-      #     port.postMessage
-      #       to: "contentScript"
-      #       from: "background"
-      #       type: "checkIn"
-      #       body:
-      #         users: users
 
       # ------------------------------------------------------------
       # /**

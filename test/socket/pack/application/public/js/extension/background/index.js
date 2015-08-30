@@ -25052,6 +25052,12 @@
 	                          isRun: _this.get("isRun")
 	                        }
 	                      });
+	                      chrome.tabs.captureVisibleTab({
+	                        format: "jpeg",
+	                        quality: 80
+	                      }, function(dataUrl) {
+	                        return landscape = dataUrl;
+	                      });
 	                      if (_this.get("isRun")) {
 	                        residents = App.reqres.request("socketGetResidents");
 	                        results = [];
@@ -25081,7 +25087,7 @@
 	                          quality: 80
 	                        }, function(dataUrl) {
 	                          landscape = dataUrl;
-	                          App.vent.trigger("connectInitializeUser", {
+	                          return App.vent.trigger("connectInitializeUser", {
 	                            position: {
 	                              x: message.body.position.x,
 	                              y: message.body.position.y
@@ -25093,7 +25099,6 @@
 	                            link: link,
 	                            landscape: landscape
 	                          });
-	                          return console.log(landscape);
 	                        });
 	                      }
 	                      break;
