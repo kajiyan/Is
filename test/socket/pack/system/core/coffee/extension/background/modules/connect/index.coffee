@@ -58,10 +58,8 @@ module.exports = (App, sn, $, _) ->
         # content script からのLong-lived 接続
         # chrome.extension.onConnect.addListener (port) =>
         chrome.runtime.onConnect.addListener (port) =>
-          # console.log port
-
+          # スクリーンショット
           landscape = ""
-
           # 初期化済みのResident IDの配列
           initializedResidents = []
 
@@ -70,12 +68,31 @@ module.exports = (App, sn, $, _) ->
           link = port.sender.tab.url
 
           changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
-          changeChangeActiveInfoHandler = @_changeChangeActiveInfoHandler.bind(@)(port, initializedResidents)
+          changeActiveInfoHandler = 
+            @_changeActiveInfoHandler
+              .bind(@)(
+                port
+                ,
+                get: ->
+                  return [].concat(initializedResidents)
+                set: (_initializedResidents) ->
+                  initializedResidents = _initializedResidents
+                ,
+                getLandscape = ->
+                  return landscape: landscape
+              )
           # changeSelsectedTabIdHandler = @_changeSelsectedTabIdHandler.bind(@)(port, initializedResidents)
           sendJointedHandler = @_sendJointedHandler.bind(@)(port)
           sendDisconnectHandler = @_sendDisconnectHandler.bind(@)(port)
           sendAddUser = @_sendAddUser.bind(@)(port)
-          sendAddResident = @_sendAddResident.bind(@)(port, initializedResidents)
+          sendAddResident = @_sendAddResident
+            .bind(@)(
+              port,
+              get: ->
+                return [].concat(initializedResidents)
+              set: (_initializedResidents) ->
+                initializedResidents = _initializedResidents
+            )
           sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
           sendUpdateWindowSize = @_sendUpdateWindowSize.bind(@)(port)
           sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
@@ -84,7 +101,7 @@ module.exports = (App, sn, $, _) ->
           # Long-lived 接続 切断時の処理を登録する
           port.onDisconnect.addListener =>
             App.vent.off "stageChangeIsRun", changeIsRunHandler
-            App.vent.off "stageChangeActiveInfo", changeChangeActiveInfoHandler
+            App.vent.off "stageChangeActiveInfo", changeActiveInfoHandler
             # App.vent.off "stageSelsectedTabId", changeSelsectedTabIdHandler
             App.vent.off "socketJointed", sendJointedHandler
             App.vent.off "socketDisconnect", sendDisconnectHandler 
@@ -104,7 +121,7 @@ module.exports = (App, sn, $, _) ->
             # エクステンションの起動状態に変化があった時のイベントリスナー
             App.vent.on "stageChangeIsRun", changeIsRunHandler
             # タブが切り替わった時のイベントリスナー
-            App.vent.on "stageChangeActiveInfo", changeChangeActiveInfoHandler
+            App.vent.on "stageChangeActiveInfo", changeActiveInfoHandler
             # App.vent.on "stageSelsectedTabId", changeSelsectedTabIdHandler
             # socketサーバーの特定のRoomへの入室が完了した時に呼び出される
             App.vent.on "socketJointed", sendJointedHandler
@@ -172,6 +189,8 @@ module.exports = (App, sn, $, _) ->
                         quality: 80
                         ,
                         (dataUrl) ->
+                          landscape = dataUrl
+
                           App.vent.trigger "connectInitializeUser",
                             position:
                               x: message.body.position.x
@@ -180,7 +199,9 @@ module.exports = (App, sn, $, _) ->
                               width: message.body.window.width
                               height: message.body.window.height
                             link: link
-                            landscape: dataUrl
+                            landscape: landscape
+
+                          console.log landscape
 
                   when "initializeResident"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message
@@ -194,12 +215,14 @@ module.exports = (App, sn, $, _) ->
                         quality: 80
                         ,
                         (dataUrl) ->
+                          landscape = dataUrl
+
                           App.vent.trigger "connectInitializeResident",
                             toSocketId: message.body.toSocketId
                             position: message.body.position
                             window: message.body.window
                             link: link
-                            landscape: dataUrl
+                            landscape: landscape
 
 
                   when "windowResize"
@@ -223,8 +246,10 @@ module.exports = (App, sn, $, _) ->
                         quality: 80
                         ,
                         (dataUrl) ->
+                          landscape = dataUrl
+
                           App.vent.trigger "connectUpdateLandscape",
-                            landscape: dataUrl
+                            landscape: landscape
 
 
       # --------------------------------------------------------------
@@ -249,19 +274,23 @@ module.exports = (App, sn, $, _) ->
 
       # --------------------------------------------------------------
       # /**
-      #  * ConnectModel#_changeChangeActiveInfoHandler
+      #  * ConnectModel#_changeActiveInfoHandler
       #  * 選択されているタブ、ウインドウが変わった時のイベントハンドラー 
       #  * @param {Object} port - Chrome Extentions Port Object
+      #  * @param {Object} initializedResidents 
+      #  * @prop {Function} get - 初期化済みのResident IDの配列を取得する
+      #  * @prop {Function} set - 初期化済みのResident IDの配列を更新する
+      #  * @param {Function} getLandscape - 最後に撮影されたスクリーンショット(base64)を取得する
       #  */
       # --------------------------------------------------------------
-      _changeChangeActiveInfoHandler: (port, initializedResidents) ->
+      _changeActiveInfoHandler: (port, initializedResidents, getLandscape) ->
         # /**
         #  * @param {Object} - activeInfo
         #  * @prop {number} - tabId
         #  * @prop {number} - windowId
         #  */
         return (activeInfo) =>
-          console.log "%c[Connect] ConnectModel -> _changeChangeActiveInfoHandler", debug.style, "PORT TabID:#{port.sender.tab.id} | ACTIVE TabID:#{activeInfo.tabId}", initializedResidents
+          console.log "%c[Connect] ConnectModel -> _changeActiveInfoHandler", debug.style, "PORT TabID:#{port.sender.tab.id} | ACTIVE TabID:#{activeInfo.tabId}", initializedResidents.get()
 
           # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           # リンク、ランドスケープのアップデートもする
@@ -270,10 +299,11 @@ module.exports = (App, sn, $, _) ->
           if port.sender.tab.id is activeInfo.tabId
             # 同じroomIdにjoinしているResidentsを取得する
             residents = App.reqres.request "socketGetResidents"
+            _initializedResidents = initializedResidents.get()
 
             for resident, index in residents
               # 表示リストに表示されていないResidentがあるか調べる
-              if _.indexOf(initializedResidents, resident.id) is -1
+              if _.indexOf(_initializedResidents, resident.id) is -1
                 # content script にResidentの表示依頼をする
                 port.postMessage
                   to: "contentScript"
@@ -282,19 +312,13 @@ module.exports = (App, sn, $, _) ->
                   body: resident
             
                 # 表示リストに加える
-                initializedResidents.push resident.id
+                _initializedResidents.push resident.id
+                initializedResidents.set _initializedResidents
 
             # リンクの情報をアップデートする
             App.vent.trigger "connectChangeLocation", link: port.sender.tab.url
+            App.vent.trigger "connectUpdateLandscape", getLandscape()
 
-            # スクリーンショットを撮影する
-            chrome.tabs.captureVisibleTab
-              format: "jpeg"
-              quality: 80
-              ,
-              (dataUrl) ->
-                App.vent.trigger "connectUpdateLandscape",
-                  landscape: dataUrl
 
       # # --------------------------------------------------------------
       # # /**
@@ -428,7 +452,10 @@ module.exports = (App, sn, $, _) ->
       #  * 同じRoomに所属するユーザーの初期化に必要なデータを受信したときのイベントハンドラー
       #  * content script に既存ユーザーの表示依頼(addResident)を発信する
       #  * portに紐づけて表示中のResidentのIDを保存する
-      #  * @param {Array} initializedResidents - 初期化済みのResident IDの配列
+      #  * @param {Object} port - Chrome Extentions Port Object
+      #  * @param {Object} initializedResidents 
+      #  * @prop {Function} get - 初期化済みのResident IDの配列を取得する
+      #  * @prop {Function} set - 初期化済みのResident IDの配列を更新する
       #  */
       # -------------------------------------------------------------
       _sendAddResident: (port, initializedResidents) ->
@@ -448,8 +475,13 @@ module.exports = (App, sn, $, _) ->
           # 現在選択されているTabの情報を取得する
           # selsectedTabId = App.reqres.request "stageGetSelsectedTabId"
 
+          _initializedResidents = initializedResidents.get()
+          _initializedResidents.push data.id
+
+          initializedResidents.set _initializedResidents
+
           # if port.sender.tab.id is selsectedTabId
-          initializedResidents.push data.id
+          # initializedResidents.push data.id
 
           port.postMessage
             to: "contentScript"

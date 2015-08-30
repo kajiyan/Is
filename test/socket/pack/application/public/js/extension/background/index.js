@@ -24978,25 +24978,43 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeChangeActiveInfoHandler, changeIsRunHandler, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
+	            var changeActiveInfoHandler, changeIsRunHandler, getLandscape, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
 	            landscape = "";
 	            initializedResidents = [];
 	            tabId = port.sender.tab.id;
 	            windowId = port.sender.tab.windowId;
 	            link = port.sender.tab.url;
 	            changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
-	            changeChangeActiveInfoHandler = _this._changeChangeActiveInfoHandler.bind(_this)(port, initializedResidents);
+	            changeActiveInfoHandler = _this._changeActiveInfoHandler.bind(_this)(port, {
+	              get: function() {
+	                return [].concat(initializedResidents);
+	              },
+	              set: function(_initializedResidents) {
+	                return initializedResidents = _initializedResidents;
+	              }
+	            }, getLandscape = function() {
+	              return {
+	                landscape: landscape
+	              };
+	            });
 	            sendJointedHandler = _this._sendJointedHandler.bind(_this)(port);
 	            sendDisconnectHandler = _this._sendDisconnectHandler.bind(_this)(port);
 	            sendAddUser = _this._sendAddUser.bind(_this)(port);
-	            sendAddResident = _this._sendAddResident.bind(_this)(port, initializedResidents);
+	            sendAddResident = _this._sendAddResident.bind(_this)(port, {
+	              get: function() {
+	                return [].concat(initializedResidents);
+	              },
+	              set: function(_initializedResidents) {
+	                return initializedResidents = _initializedResidents;
+	              }
+	            });
 	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
 	            sendUpdateWindowSize = _this._sendUpdateWindowSize.bind(_this)(port);
 	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
 	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
 	            port.onDisconnect.addListener(function() {
 	              App.vent.off("stageChangeIsRun", changeIsRunHandler);
-	              App.vent.off("stageChangeActiveInfo", changeChangeActiveInfoHandler);
+	              App.vent.off("stageChangeActiveInfo", changeActiveInfoHandler);
 	              App.vent.off("socketJointed", sendJointedHandler);
 	              App.vent.off("socketDisconnect", sendDisconnectHandler);
 	              App.vent.off("socketAddUser", sendAddUser);
@@ -25011,7 +25029,7 @@
 	            if (port.name === "contentScript") {
 	              console.log("%c[Connect] ConnectModel | onConnect", debug.style);
 	              App.vent.on("stageChangeIsRun", changeIsRunHandler);
-	              App.vent.on("stageChangeActiveInfo", changeChangeActiveInfoHandler);
+	              App.vent.on("stageChangeActiveInfo", changeActiveInfoHandler);
 	              App.vent.on("socketJointed", sendJointedHandler);
 	              App.vent.on("socketDisconnect", sendDisconnectHandler);
 	              App.vent.on("socketAddUser", sendAddUser);
@@ -25062,7 +25080,8 @@
 	                          format: "jpeg",
 	                          quality: 80
 	                        }, function(dataUrl) {
-	                          return App.vent.trigger("connectInitializeUser", {
+	                          landscape = dataUrl;
+	                          App.vent.trigger("connectInitializeUser", {
 	                            position: {
 	                              x: message.body.position.x,
 	                              y: message.body.position.y
@@ -25072,8 +25091,9 @@
 	                              height: message.body.window.height
 	                            },
 	                            link: link,
-	                            landscape: dataUrl
+	                            landscape: landscape
 	                          });
+	                          return console.log(landscape);
 	                        });
 	                      }
 	                      break;
@@ -25085,12 +25105,13 @@
 	                          format: "jpeg",
 	                          quality: 80
 	                        }, function(dataUrl) {
+	                          landscape = dataUrl;
 	                          return App.vent.trigger("connectInitializeResident", {
 	                            toSocketId: message.body.toSocketId,
 	                            position: message.body.position,
 	                            window: message.body.window,
 	                            link: link,
-	                            landscape: dataUrl
+	                            landscape: landscape
 	                          });
 	                        });
 	                      }
@@ -25108,8 +25129,9 @@
 	                          format: "jpeg",
 	                          quality: 80
 	                        }, function(dataUrl) {
+	                          landscape = dataUrl;
 	                          return App.vent.trigger("connectUpdateLandscape", {
-	                            landscape: dataUrl
+	                            landscape: landscape
 	                          });
 	                        });
 	                      }
@@ -25136,36 +25158,31 @@
 	          };
 	        })(this);
 	      },
-	      _changeChangeActiveInfoHandler: function(port, initializedResidents) {
+	      _changeActiveInfoHandler: function(port, initializedResidents, getLandscape) {
 	        return (function(_this) {
 	          return function(activeInfo) {
-	            var i, index, len, resident, residents;
-	            console.log("%c[Connect] ConnectModel -> _changeChangeActiveInfoHandler", debug.style, "PORT TabID:" + port.sender.tab.id + " | ACTIVE TabID:" + activeInfo.tabId, initializedResidents);
+	            var _initializedResidents, i, index, len, resident, residents;
+	            console.log("%c[Connect] ConnectModel -> _changeActiveInfoHandler", debug.style, "PORT TabID:" + port.sender.tab.id + " | ACTIVE TabID:" + activeInfo.tabId, initializedResidents.get());
 	            if (port.sender.tab.id === activeInfo.tabId) {
 	              residents = App.reqres.request("socketGetResidents");
+	              _initializedResidents = initializedResidents.get();
 	              for (index = i = 0, len = residents.length; i < len; index = ++i) {
 	                resident = residents[index];
-	                if (_.indexOf(initializedResidents, resident.id) === -1) {
+	                if (_.indexOf(_initializedResidents, resident.id) === -1) {
 	                  port.postMessage({
 	                    to: "contentScript",
 	                    from: "background",
 	                    type: "addResident",
 	                    body: resident
 	                  });
-	                  initializedResidents.push(resident.id);
+	                  _initializedResidents.push(resident.id);
+	                  initializedResidents.set(_initializedResidents);
 	                }
 	              }
 	              App.vent.trigger("connectChangeLocation", {
 	                link: port.sender.tab.url
 	              });
-	              return chrome.tabs.captureVisibleTab({
-	                format: "jpeg",
-	                quality: 80
-	              }, function(dataUrl) {
-	                return App.vent.trigger("connectUpdateLandscape", {
-	                  landscape: dataUrl
-	                });
-	              });
+	              return App.vent.trigger("connectUpdateLandscape", getLandscape());
 	            }
 	          };
 	        })(this);
@@ -25228,8 +25245,11 @@
 	      _sendAddResident: function(port, initializedResidents) {
 	        return (function(_this) {
 	          return function(data) {
+	            var _initializedResidents;
 	            console.log("%c[Connect] ConnectModel -> _sendAddResident | " + port.sender.tab.id, debug.style, data);
-	            initializedResidents.push(data.id);
+	            _initializedResidents = initializedResidents.get();
+	            _initializedResidents.push(data.id);
+	            initializedResidents.set(_initializedResidents);
 	            return port.postMessage({
 	              to: "contentScript",
 	              from: "background",
