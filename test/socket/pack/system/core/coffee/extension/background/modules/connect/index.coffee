@@ -93,6 +93,7 @@ module.exports = (App, sn, $, _) ->
                 initializedResidents = _initializedResidents
             )
           sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
+          sendUpdateLocation = @_sendUpdateLocation.bind(@)(port)
           sendUpdateWindowSize = @_sendUpdateWindowSize.bind(@)(port)
           sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
           sendUpdateLandscapeHandler = @_sendUpdateLandscapeHandler.bind(@)(port)
@@ -101,12 +102,12 @@ module.exports = (App, sn, $, _) ->
           port.onDisconnect.addListener =>
             App.vent.off "stageChangeIsRun", changeIsRunHandler
             App.vent.off "stageChangeActiveInfo", changeActiveInfoHandler
-            # App.vent.off "stageSelsectedTabId", changeSelsectedTabIdHandler
             App.vent.off "socketJointed", sendJointedHandler
             App.vent.off "socketDisconnect", sendDisconnectHandler 
             App.vent.off "socketAddUser", sendAddUser
             App.vent.off "socketAddResident", sendAddResident
             App.vent.off "socketCheckOut", sendCheckOutHandler
+            App.vent.off "socketUpdateLocation", sendUpdateLocation
             App.vent.off "socketUpdateWindowSize", sendUpdateWindowSize
             App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
             App.vent.off "socketUpdateLandscape", sendUpdateLandscapeHandler
@@ -131,6 +132,8 @@ module.exports = (App, sn, $, _) ->
             App.vent.on "socketAddResident", sendAddResident
             # 同じRoom に所属していたユーザーがsoket通信を切断した時に呼び出される
             App.vent.on "socketCheckOut", sendCheckOutHandler
+            # 同じRoom に所属しているユーザーの閲覧しているURLに変化があった時に呼び出される
+            App.vent.on "socketUpdateLocation", sendUpdateLocation
             # 同じRoom に所属しているユーザーのウインドウサイズに変化があった時に呼び出される
             App.vent.on "socketUpdateWindowSize", sendUpdateWindowSize
             # 同じRoom に所属しているユーザーのポインター座標に変化があった時に呼び出される
@@ -234,10 +237,12 @@ module.exports = (App, sn, $, _) ->
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | windowResize", debug.style, message
                     App.vent.trigger "connectWindowResize", message.body
 
+                  # --------------------------------------------------------------
                   when "pointerMove"
                     # console.log "%c[Connect] ConnectModel | Long-lived Receive Message | pointerMove", debug.style, message
                     App.vent.trigger "connectPointerMove", message.body
 
+                  # --------------------------------------------------------------
                   when "updateLandscape"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message
                     
@@ -256,6 +261,18 @@ module.exports = (App, sn, $, _) ->
                           App.vent.trigger "connectUpdateLandscape",
                             landscape: landscape
 
+                  # --------------------------------------------------------------
+                  when "addMemory"
+                    console.log "%c[Connect] ConnectModel | Long-lived Receive Message | addMemory", debug.style, message
+                    
+                    activeInfo = App.reqres.request "stageGetActiveInfo"
+
+                    if activeInfo.tabId is tabId
+                      App.vent.trigger "connectAddMemory",
+                        link: port.sender.tab.url
+                        window: message.body.window
+                        landscape: landscape
+                        positions: message.body.positions
 
       # --------------------------------------------------------------
       # /**
@@ -468,11 +485,33 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       # /**
       #  * ConnectModel#_sendUpdateWindowSize
+      #  * 同じRoom に所属していたユーザーの閲覧しているURLの変化をsoketが受信した時に呼び出されるイベントハンドラー
+      #  * @param {Object} port - Chrome Extentions Port Object
+      #  */
+      # ------------------------------------------------------------
+      _sendUpdateLocation: (port) ->
+        # /**
+        #  * @param {Object} data
+        #  * @param {string} id - 同じRoomに所属していたユーザーのSocketID
+        #  * @prop {string} link - 接続ユーザーの閲覧しているURL
+        #  */
+        (data) =>
+          console.log "%c[Connect] ConnectModel -> _sendUpdateLocation", debug.style, data
+
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "updateLocation"
+            body: data
+
+      # ------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_sendUpdateWindowSize
       #  * 同じRoom に所属していたユーザーのウインドウサイズの変化をsoketが受信した時に呼び出されるイベントハンドラー
       #  * @param {Object} port - Chrome Extentions Port Object
       #  */
       # ------------------------------------------------------------
-      _sendUpdateWindowSize: (port)->
+      _sendUpdateWindowSize: (port) ->
         # /**
         #  * @param {Object} data
         #  * @prop {string} id - 発信者のsocket.id

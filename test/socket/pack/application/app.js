@@ -28,8 +28,7 @@ swig.setDefaults( { cache: false } );
 app.set( 'views', path.join( __dirname, 'views' ) );
 app.set( 'view engine', 'swig' );
 
-// uncomment after placing your favicon in /public
-// app.use(favicon(__dirname + '/public/images/favicon.ico'));
+app.use(favicon(__dirname + '/public/images/favicon-0.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

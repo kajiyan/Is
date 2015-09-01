@@ -70,6 +70,8 @@ module.exports = (App, sn, $, _) ->
         App.vent.on "connectPointerMove", @_pointerMoveHandler.bind @
         # スクリーンショットが撮影された時のイベントリスナー
         App.vent.on "connectUpdateLandscape", @_updateLandscapeHandler.bind @
+        # content scriptからポインターの軌跡データが用意された通知を受け取った時のイベントリスナー
+        App.vent.on "connectAddMemory", @_addMemoryHandler.bind @
         # WebSocket の接続状態が変わった時に実行される
         @listenTo @, "change:isConnected", @_changeIsConnectedHandler.bind @
 
@@ -105,7 +107,7 @@ module.exports = (App, sn, $, _) ->
         # 同じRoom に所属していたユーザーのSocketIDを受信する
         @socket.on "checkOut", @_receiveCheckOutHandler.bind(@)
         # 同じRoom に所属するユーザーの閲覧しているURLを受信する
-        @socket.on "updateLocation", (data) -> console.log data
+        @socket.on "updateLocation", @_receiveUpdateLocationHandler.bind(@)
         # 同じRoom に所属するユーザーのwindowサイズの変化を受信する
         @socket.on "updateWindowSize", @_receiveWindowSizeHandler.bind(@)
         # 同じRoom に所属するユーザーのポインター座標を受信する
@@ -231,6 +233,27 @@ module.exports = (App, sn, $, _) ->
         
         if @get "isConnected"
           @socket.emit "shootLandscape", data
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_addMemoryHandler
+      #  * content scriptからポインターの軌跡データが用意された通知を受け取った時のイベントハンドラー
+      #  * @param {Object} data
+      #  * @prop {string} link - 接続ユーザーの閲覧しているURL
+      #  * @param {Object} window - 発信者のwindowのサイズ
+      #  * @prop {number} window.width - 発信者のwindowの幅
+      #  * @prop {number} window.height - 発信者のwindowの高さ
+      #  * @prop {string} landscape - スクリーンショット（base64）
+      #  * @param {[Object]} positions - 発信者のポインター軌跡の配列
+      #  * @prop {number} positions[0].x - 発信者のポインターのx座標の軌跡
+      #  * @prop {number} positions[0].y - 発信者のポインターのy座標の軌跡
+      #  */
+      # ------------------------------------------------------------      
+      _addMemoryHandler: (data) ->
+        console.log "%c[Socket] Socket -> _addMemoryHandler", debug.style, data
+
+        if @get "isConnected"
+          @socket.emit "addMemory", data
 
       # ------------------------------------------------------------
       # /**
@@ -409,6 +432,17 @@ module.exports = (App, sn, $, _) ->
         # socketCheckOut イベントを発火する | connect がlisten
         App.vent.trigger "socketCheckOut", data
 
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_receiveWindowSizeHandler
+      #  * @param {Object} data
+      #  * @prop {string} id - 発信者のsocket.id
+      #  * @prop {string} link - 接続ユーザーの閲覧しているURL
+      #  */
+      # ------------------------------------------------------------
+      _receiveUpdateLocationHandler: (data) ->
+        console.log "%c[Socket] SocketModel -> _receiveUpdateLocationHandler", debug.style, data
+        App.vent.trigger "socketUpdateLocation", data        
 
       # ------------------------------------------------------------
       # /**

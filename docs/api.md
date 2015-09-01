@@ -116,8 +116,6 @@
  * @param {Object}
  * @prop {string} _id - 登録されているMongo ID
  * @prop {string} dayId - 登録時のDayID
- * @prop {string} roomId - 登録時に入室していたRoomID
- * @prop {number} roomType - 0 = "Manual" or 1 = "Automatic"
  * @prop {string} url - 個別のリンク
  * @prop {string} link - 登録時に閲覧していたサイトのURL
  * @prop {Object} window
@@ -134,8 +132,6 @@
 {
   _id: "1234567890abcdfegh",
   dayId: "20150712",
-  roomId: "000001",
-  roomType: 0,
   url: "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
   link: "https://www.google.co.jp/",
   window: {

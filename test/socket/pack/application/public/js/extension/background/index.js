@@ -24978,7 +24978,7 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeActiveInfoHandler, changeIsRunHandler, getLandscape, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
+	            var changeActiveInfoHandler, changeIsRunHandler, getLandscape, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdateLocation, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
 	            landscape = "";
 	            initializedResidents = [];
 	            tabId = port.sender.tab.id;
@@ -25009,6 +25009,7 @@
 	              }
 	            });
 	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
+	            sendUpdateLocation = _this._sendUpdateLocation.bind(_this)(port);
 	            sendUpdateWindowSize = _this._sendUpdateWindowSize.bind(_this)(port);
 	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
 	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
@@ -25020,6 +25021,7 @@
 	              App.vent.off("socketAddUser", sendAddUser);
 	              App.vent.off("socketAddResident", sendAddResident);
 	              App.vent.off("socketCheckOut", sendCheckOutHandler);
+	              App.vent.off("socketUpdateLocation", sendUpdateLocation);
 	              App.vent.off("socketUpdateWindowSize", sendUpdateWindowSize);
 	              App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.off("socketUpdateLandscape", sendUpdateLandscapeHandler);
@@ -25035,6 +25037,7 @@
 	              App.vent.on("socketAddUser", sendAddUser);
 	              App.vent.on("socketAddResident", sendAddResident);
 	              App.vent.on("socketCheckOut", sendCheckOutHandler);
+	              App.vent.on("socketUpdateLocation", sendUpdateLocation);
 	              App.vent.on("socketUpdateWindowSize", sendUpdateWindowSize);
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
@@ -25138,6 +25141,18 @@
 	                          return App.vent.trigger("connectUpdateLandscape", {
 	                            landscape: landscape
 	                          });
+	                        });
+	                      }
+	                      break;
+	                    case "addMemory":
+	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | addMemory", debug.style, message);
+	                      activeInfo = App.reqres.request("stageGetActiveInfo");
+	                      if (activeInfo.tabId === tabId) {
+	                        return App.vent.trigger("connectAddMemory", {
+	                          link: port.sender.tab.url,
+	                          window: message.body.window,
+	                          landscape: landscape,
+	                          positions: message.body.positions
 	                        });
 	                      }
 	                  }
@@ -25277,6 +25292,19 @@
 	          };
 	        })(this);
 	      },
+	      _sendUpdateLocation: function(port) {
+	        return (function(_this) {
+	          return function(data) {
+	            console.log("%c[Connect] ConnectModel -> _sendUpdateLocation", debug.style, data);
+	            return port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "updateLocation",
+	              body: data
+	            });
+	          };
+	        })(this);
+	      },
 	      _sendUpdateWindowSize: function(port) {
 	        return (function(_this) {
 	          return function(data) {
@@ -25358,6 +25386,7 @@
 	        App.vent.on("connectWindowResize", this._windowResizeHandler.bind(this));
 	        App.vent.on("connectPointerMove", this._pointerMoveHandler.bind(this));
 	        App.vent.on("connectUpdateLandscape", this._updateLandscapeHandler.bind(this));
+	        App.vent.on("connectAddMemory", this._addMemoryHandler.bind(this));
 	        return this.listenTo(this, "change:isConnected", this._changeIsConnectedHandler.bind(this));
 	      },
 	      _connect: function() {
@@ -25374,9 +25403,7 @@
 	        this.socket.on("addUser", this._receiveAddUserHandler.bind(this));
 	        this.socket.on("addResident", this._receiveAddResidentHandler.bind(this));
 	        this.socket.on("checkOut", this._receiveCheckOutHandler.bind(this));
-	        this.socket.on("updateLocation", function(data) {
-	          return console.log(data);
-	        });
+	        this.socket.on("updateLocation", this._receiveUpdateLocationHandler.bind(this));
 	        this.socket.on("updateWindowSize", this._receiveWindowSizeHandler.bind(this));
 	        this.socket.on("updatePointer", this._receiveUpdatePointerHandler.bind(this));
 	        return this.socket.on("updateLandscape", this._receiveUpdateLandscapeHandler.bind(this));
@@ -25419,6 +25446,12 @@
 	        console.log("%c[Socket] SocketModel -> _updateLandscapeHandler", debug.style, data);
 	        if (this.get("isConnected")) {
 	          return this.socket.emit("shootLandscape", data);
+	        }
+	      },
+	      _addMemoryHandler: function(data) {
+	        console.log("%c[Socket] Socket -> _addMemoryHandler", debug.style, data);
+	        if (this.get("isConnected")) {
+	          return this.socket.emit("addMemory", data);
 	        }
 	      },
 	      _connectHandler: function() {
@@ -25476,6 +25509,10 @@
 	      _receiveCheckOutHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, data);
 	        return App.vent.trigger("socketCheckOut", data);
+	      },
+	      _receiveUpdateLocationHandler: function(data) {
+	        console.log("%c[Socket] SocketModel -> _receiveUpdateLocationHandler", debug.style, data);
+	        return App.vent.trigger("socketUpdateLocation", data);
 	      },
 	      _receiveWindowSizeHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _receiveWindowSizeHandler", debug.style, data);

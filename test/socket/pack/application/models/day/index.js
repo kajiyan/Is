@@ -112,7 +112,7 @@ Day = (function() {
       });
 
     MemorySchema
-      .virtual('imgSrc')
+      .virtual('landscape')
       .get(function() {
         var result = '';
         var port = '';
@@ -124,6 +124,20 @@ Day = (function() {
         result = '//' + config.host + port + '/memorys/' + this.dayId + '/' + this._id + this.ext;
         return result;
       });
+
+    // MemorySchema
+    //   .virtual('imgSrc')
+    //   .get(function() {
+    //     var result = '';
+    //     var port = '';
+         
+    //     if (config['port'] !== null) {
+    //       port = ':' + config['port'];
+    //     }
+
+    //     result = '//' + config.host + port + '/memorys/' + this.dayId + '/' + this._id + this.ext;
+    //     return result;
+    //   });
 
 
     // ManualRoom Schema の定義
@@ -560,35 +574,6 @@ Day = (function() {
 
 
 
-  /****/
-  Day.prototype.addMemory = function( options ) {
-    console.log('[Models] Day -> addMemory');
-
-    var query = _.extend({
-      'dayID': helpers.utils.getDayID(),
-      'roomID': '',
-      'link': '',
-      'window': {},
-      'image': {
-        'filename': '',
-        'width': 0,
-        'height': 0
-      },
-      'positions': [],
-      'createDate': new Date()
-    }, options);
-
-    return (function( _this ) {
-      return Q.Promise(function( resolve, reject, notify ) {
-        
-
-      });
-    })(this);
-  };
-
-
-
-
   // --------------------------------------------------------------
   /**
    * Day Class -> getRooms
@@ -758,9 +743,20 @@ Day = (function() {
   // --------------------------------------------------------------
   /**
    * Day#addMemory
+   * @param {Object} _query
+   * @prop {string} dayId - 登録時のDayID
+   * @prop {string} link - 登録時に閲覧していたサイトのURL
+   * @prop {Object} window
+   * @prop {number} window.width - 登録時のWindow幅
+   * @prop {number} window.height - 登録時のWindow高さ
+   * @prop {string} [ext] - 登録時閲覧していたサイトのスクリーンショットの拡張子
+   * @prop {string} landscape - 登録時閲覧していたサイトのスクリーンショット（base64）
+   * @prop {[Object]} positions - 軌跡の配列
+   * @prop {number} positions[n].x - 軌跡のx座標
+   * @prop {number} positions[n].y - 軌跡のy座標
    */
   // --------------------------------------------------------------
-  Day.prototype.addMemory = function(dataUrl, _query) {
+  Day.prototype.addMemory = function(_query) {
     console.log('[Models] Day -> addMemory');
 
     var query = _.extend({
@@ -770,14 +766,15 @@ Day = (function() {
         'width': 0,
         'height': 0
       },
-      'ext': null,
+      'landscape': '',
+      'ext': '',
       'positions': []
     }, _query);
 
     return (function(_this) {
       return Q.Promise(function(resolve, reject, notify) {
-        if (!validator.isLength(dataUrl, 1)) {
-          reject(new Error('[Model] Day -> getAutomaticRooms | Validation Error: Query Value.'));
+        if (!validator.isLength(query.landscape, 1)) {
+          reject(new Error('[Model] Day -> addMemorys | Validation Error: query.landscape Not base64.'));
           return;
         }
 
@@ -785,7 +782,7 @@ Day = (function() {
         var memory = new _this.Model.Memory(query);
 
         helpers.utils.parseDataUrl({
-          'dataUrl': dataUrl
+          'dataUrl': query.landscape
         })
         .then(
           function(data) {

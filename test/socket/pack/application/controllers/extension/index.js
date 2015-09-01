@@ -358,15 +358,6 @@ Extension = (function() {
               'id': socket.id,
               'position': position
             });
-
-          // socket
-          //   .broadcast
-          //   .to(joinRoomId)
-          //   .emit('updatePointer', {
-          //     'socketId': socket.id,
-          //     'x': pointerPosition.x,
-          //     'y': pointerPosition.y
-          //   });
         });
 
         // --------------------------------------------------------------
@@ -389,6 +380,27 @@ Extension = (function() {
               'landscape': data.landscape
             });
         });
+
+        // --------------------------------------------------------------
+        socket.on('addMemory',
+          /**
+           * @param {Object} data
+           * @prop {string} link - 接続ユーザーの閲覧しているURL
+           * @param {Object} window - 発信者のwindowのサイズ
+           * @prop {number} window.width - 発信者のwindowの幅
+           * @prop {number} window.height - 発信者のwindowの高さ
+           * @prop {string} landscape - スクリーンショット（base64）
+           * @param {[Object]} positions - 発信者のポインター軌跡の配列
+           * @prop {number} positions[0].x - 発信者のポインターのx座標の軌跡
+           * @prop {number} positions[0].y - 発信者のポインターのy座標の軌跡
+           */
+          function(data) {
+            console.log('[Controller] Extension -> Socket Receive Message | addMemory');
+            // 通知されたデータをデータベースに保存する
+            _this._dayModel.addMemory(data);
+          }
+        );
+
       });
     })(this);
   };
@@ -446,12 +458,29 @@ Extension = (function() {
     //   }
     // );
 
-    // this._dayModel.getRandomMemory({
-    //   'options': {
-    //     'limit': 1
-    //   }
-    // });
-
+    // Memory の取得
+    // (function(_this) {
+    //   Q.fcall(
+    //     function(){
+    //       return _this._dayModel.getRandomMemory({
+    //         'options': {
+    //           'limit': 1
+    //         }
+    //       });
+    //     }
+    //   )
+    //   .then(
+    //     function(memorys) {
+    //       console.log(JSON.stringify(memorys));
+    //     }
+    //   )
+    //   .catch(
+    //     function (error) {
+    //       console.log(error);
+    //     }
+    //   )
+    //   .done();
+    // })(this);
   };
 
   return Extension;

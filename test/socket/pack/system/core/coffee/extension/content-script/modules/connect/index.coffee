@@ -96,13 +96,13 @@ module.exports = (App, sn, $, _) ->
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | initializeResident", debug.style, message.body
                 App.vent.trigger "connectInitializeResident", message.body
 
-              # when "checkIn"
-              #   console.log "%c[Connect] ConnectModel | Long-lived Receive Message | checkIn", debug.style, message.body
-              #   @set "users", message.body.users
-
               when "checkOut"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | checkOut", debug.style, message.body
                 App.vent.trigger "connectCheckOut", message.body
+
+              when "updateLocation"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updateLocation", debug.style, message.body
+                App.vent.trigger "connectUpdateLocation", message.body
 
               when "updateWindowSize"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | updateWindowSize", debug.style, message.body
@@ -132,12 +132,12 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Connect] ConnectModel | _changeIsRunHandler", debug.style, isRun
 
         if isRun
-          # App.vent.on "stageSetup", @_setupHandler @port
           App.vent.on "stageInitializeUser", @_initializeUserHandler @port
           App.vent.on "stageInitializeResident", @_initializeResidentHandler @port
           App.vent.on "stageWindowScroll", @_windowScrollHandler @port
           App.vent.on "stageWindowResize", @_windowResizeHandler @port
           App.vent.on "stagePointerMove", @_pointerMoveHandler @port
+          App.vent.on "stageAddMemory", @_addMemoryHandler @port
 
         else if not isRun
           App.vent.off "stageInitializeUser"
@@ -145,6 +145,7 @@ module.exports = (App, sn, $, _) ->
           App.vent.off "stageWindowScroll"
           App.vent.off "stageWindowResize"
           App.vent.off "stagePointerMove"
+          App.vent.off "stageAddMemory"
 
         App.vent.trigger "connectChangeIsRun", isRun
 
@@ -313,6 +314,31 @@ module.exports = (App, sn, $, _) ->
             from: "contentScript"
             type: "pointerMove"
             body: position
+
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_pointerMoveHandler
+      #  * ポインターの軌跡の保存データが用意された時のイベントハンドラー
+      #  * @param {Object} port - Chrome Extentions Port Object
+      #  */
+      # --------------------------------------------------------------
+      _addMemoryHandler: (port) ->
+        # /**
+        #  * @param {Object} data
+        #  * @param {Object} windowSize
+        #  * @prop {number} windowSize.width - 発信者のwindowの幅
+        #  * @prop {number} windowSize.height - 発信者のwindowの高さ
+        #  * @param {[Object]} positions
+        #  * @prop {number} positions[0].x - 発信者のポインターのx座標の軌跡
+        #  * @prop {number} positions[0].y - 発信者のポインターのy座標の軌跡
+        #  */
+        return (data) ->
+          console.log "%c[Connect] ConnectModel | _addMemoryHandler", debug.style, data
+          port.postMessage
+            to: "background"
+            from: "contentScript"
+            type: "addMemory"
+            body: data
     )
 
 
