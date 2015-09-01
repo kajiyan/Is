@@ -1,0 +1,100 @@
+@import "compass";
+@import "core/_import.scss";
+
+$baseWidth: 1920;
+$baseHeight: 1080;
+
+$baceMinWidth: 980;
+$baceMinHeight: 600;
+
+$baceColor: #00b8ee;
+$imgPass: "../images/";
+
+.noscript {
+	position: relative;
+	z-index: 5260;
+	padding: 1em;
+	border-bottom: #000000 solid 1px;
+	background: #ffffff;
+	color: #000000;
+	text-align: center;
+	span {
+		color: #ff0000;
+	}
+}
+
+.d {
+	border: 1px solid #000000;
+	background: #cccccc;
+}
+
+@for $i from 1 through 12 {
+	$proportion: 100% / 12 * $i;
+	.l-grid-#{$i} {
+		position: relative;
+		float: left;
+		width: $proportion;
+	}
+	
+	.l-grid-pull-#{$i} {
+		right: $proportion;
+	}
+
+	.l-grid-push-#{$i} {
+		left: $proportion;
+	}
+}
+
+@for $i from 1 through 10 {
+	.l-index-#{$i} {
+		z-index: $i;
+	}
+}
+
+.l-full {
+	position: relative;
+	width: 100%;
+	@include remod(min-width, $baceMinWidth);
+	height: 100%;
+	@include remod(min-height, $baceMinHeight);
+}
+
+.l-fix {
+	position: fixed;
+}
+
+/* =============================================================================
+		Media Queries
+	 ========================================================================== */
+/* デフォルト：960px以上用（PC用）の記述 */
+@media screen and (max-width: #{(959 / $rembase)}em) {
+
+}
+
+/* 767px以下用（タブレット／スマートフォン用）の記述 */
+@media screen and (max-width: #{(767 / $rembase)}em) {
+
+}
+
+/* 479px以下用（スマートフォン用）の記述 */
+@media screen and (max-width: #{(479 / $rembase)}em) {
+
+}
+
+/* Retinaディスプレイ用の指定 */
+@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-resolution: 2dppx) {
+
+}
+
+/* Androidの高精細画面も含めた指定 */
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-resolution: 2dppx) {
+
+}
+
+/* 紙媒体でのスタイル */
+@media print {
+
+}
+/* =============================================================================
+		End. Media Queries
+	 ========================================================================== */

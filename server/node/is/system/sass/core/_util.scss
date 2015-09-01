@@ -1,0 +1,55 @@
+/*
+ * 0-1. clearfix
+ */
+.cf { 
+	@include clearfix;
+}
+
+/*
+ * 0-2. hideText
+ */
+.is-hide-text { text-indent: 100%; white-space: nowrap; overflow: hidden; }
+
+/*
+ * 0-3. breakWord
+ */
+.is-break-word { word-wrap: break-word; }
+
+/*
+ * 0-4. upperCase
+ */
+.is-upper-case { text-transform: uppercase; }
+
+/*
+ * 標準のボックス計算クラス
+ */
+.is-standard-box {
+	-moz-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
+/*
+ * formのデフォルトスタイルを切る
+ */
+.re-parts {
+	-webkit-appearance: none;
+	   -moz-appearance: none;
+	    -ms-appearance: none;
+	     -o-appearance: none;
+	        appearance: none;
+}
+
+.mod-fluid-w {
+	max-width: 100%;
+	width: 100%;
+	height: auto;
+	line-height: 0;
+}
+
+.mod-fluid-h {
+	max-height: 100%;
+	height: 100%;
+	width: auto;
+	line-height: 0;
+}

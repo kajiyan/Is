@@ -1,0 +1,59 @@
+@include keyframes(js-animate-fadeOut) {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    z-index: 1;
+  }
+}
+
+@include keyframes(js-animate-fadeIn) {
+  0% {
+    opacity: 0;
+    z-index: 2;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@include keyframes(js-popup-animate-fadeIn) {
+  0% {
+    opacity: 0;
+    z-index: 2;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@include keyframes(showText) {
+  $fontsize: 11;
+  0% {
+    color: transparent;
+    @include text-shadow(0 0 (6 / $fontsize) + em #1E5674);
+  }
+  70% {
+    @include text-shadow(0 0 0 #1E5674);
+  }
+  100% {
+    color: #000;
+    @include opacity(1.0);
+  }
+}
+
+@include keyframes(hideText) {
+  $fontsize: 11;
+  0% {
+    color: transparent;
+    @include text-shadow(0 0 0 #1E5674);
+  }
+  30% {
+    @include text-shadow(0 0 (14 / $fontsize) + em #1E5674);
+  }
+  100% {
+    @include opacity(0.0);
+    display: none;
+  }
+}

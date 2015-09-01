@@ -1,0 +1,19 @@
+{
+  "apps": [
+    {
+      "name": "is",
+      "script": "bin/www",
+      "exec_mode": "fork_mode",
+      "watch": true,
+      "env": {
+        "NODE_ENV": "development",
+        "PORT": 3000
+      },
+      "env_production" : {
+        "NODE_ENV": "production",
+        "PORT": 3000
+      },
+      "ignoreWatch": ["node_modules", "log"]
+    }
+  ]   
+}  

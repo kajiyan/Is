@@ -1,0 +1,57 @@
+$rembase:     14;
+$line-height: 24;
+
+
+// IE6,IE7にclearfixを対応するかしないか
+$support-clearfix-legacy: false;
+
+
+// レガシーブラウザ用にpxを出力するかしないか
+$support-rem-legacy: true;
+
+
+// Base Window Size
+$baseWidth: 960;
+$baseHeight: 900;
+$baceMinWidth: 980;
+$baceMinHeight: 560;
+
+
+// Base Font size(px)
+$font-base: 10;
+
+
+// Base line-height
+$base-line: 1.6;
+
+
+// page width
+$width-page: 980px;
+
+
+// Colors
+$color-base:    #222222; //base text color
+$color-bg:      #ffffff; //base background color
+$color-link:    #999999; //:link color 
+$color-hover:   #cccccc; //:hover color 
+$color-active:  #cccccc; //:active color 
+$color-visited: #aaaaaa; //:visited color 
+$color-focus:   #cccccc; //:focus color 
+
+
+// Break Point
+$mq-small: 480px;
+$mq-middle: 768px;
+$mq-large: 1200px;
+
+
+// Border Radius
+$radius-base: 4px;
+
+
+// Font Settings
+$font-family-body: "游ゴシック体", "Yu Gothic", "YuGothic", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", 'Meiryo', "メイリオ", "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+
+
+// Path
+$path-img: "../images/";

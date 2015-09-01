@@ -1,0 +1,1 @@
+{"script":"bin/www","name":"www","node_args":[],"out_file":"-t","cron_restart":"-h","exec_mode":"fork_mode"}

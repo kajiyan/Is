@@ -28,99 +28,133 @@
 
 ***
 
-- Day object 
+## Memoryについて
+### 概要
 
-  {Object}
+- Memory の保存は1秒24コマ。最大6秒。
 
-    {
-      "_id": "1234567890abcdfegh"
-      "dayId": "20150712",
-      "manualRooms": [
-        (Manual Room ObjectId),
-        (Manual Room ObjectId),
-        ...
-      ],
-      "automaticRooms": [
-        (Automatic Room ObjectId),
-        (Automatic Room ObjectId),
-        ...
-      ],
-      "memorys": [
-        (Memory ObjectId),
-        (Memory ObjectId),
-        ...
-      ]
-      "createAt": "2015-07-07T12:00:00.024Z"
-    }
+***
+
+#### Day Object 
+```js
+/**
+ * @param {Object}
+ * @prop {string} _id - 登録されているMongo ID
+ * @prop {string} dayId - Roomが作成された日付を元に割り振られるID、数値からなる文字列8桁
+ * @prop {[Manual Room]} manualRooms - このDay Objectが持つdayIdを持つMemory Room _idの配列
+ * @prop {[Automatic Room]} automatic - このDay Objectが持つdayIdを持つAutomatic Room _idの配列
+ * @prop {[Memory]} memorys - このDay Objectが持つdayIdを持つMemory _idの配列
+ * @prop {string} createAt - 登録時の時間
+ */
+{
+  _id: "1234567890abcdfegh",
+  dayId: "20150712",
+  manualRooms: [
+    (Manual Room ObjectId),
+    (Manual Room ObjectId),
+    ...
+  ],
+  automaticRooms: [
+    (Automatic Room ObjectId),
+    (Automatic Room ObjectId),
+    ...
+  ],
+  memorys: [
+    (Memory ObjectId),
+    (Memory ObjectId),
+    ...
+  ]
+  createAt: "2015-07-07T12:00:00.024Z"
+}
+```
 
 
-- Manual Room object
+#### Manual Room Object
+```js
+/**
+ * @param {Object}
+ * @prop {string} _id - 登録されているMongo ID
+ * @prop {string} dayId - Roomが作成された日付を元に割り振られるID、数値からなる文字列8桁
+ * @prop {string} roomId - RoomのID、任意の数値からなる文字列6桁
+ * @prop {number} capacity - このRoom Objectに入室できるユーザーの数
+ * @prop {string} createAt - 登録時の時間
+ */
+{
+  _id: "1234567890abcdfegh",
+  dayId: "20150713", 
+  roomId: "123456",
+  capacity: 6,
+  createAt: "2015-07-07T12:00:00.024Z"
+}
+```
 
-  {Object}
 
-    {
-      "_id": "1234567890abcdfegh",
-      "dayId": "20150713", 
-      "roomId": "123456",
-      "capacity": 6,
-      "lastModified": "2015-07-07T12:00:00.024Z"
-    }
+#### Automatic Room Object
+```js
+/**
+ * @param {Object}
+ * @prop {string} _id - 登録されているMongo ID
+ * @prop {string} dayId - Roomが作成された日付を元に割り振られるID、数値からなる文字列8桁
+ * @prop {string} roomId - RoomのID、ランダムな数値からなる文字列6桁
+ * @prop {number} capacity - このRoom Objectに入室できるユーザーの数
+ * @prop {string} createAt - 登録時の時間
+ */
+{
+  _id: "1234567890abcdfegh",
+  dayId: "20150713", 
+  roomId: "123456",
+  capacity: 6,
+  createAt: "2015-07-07T12:00:00.024Z"
+}
+```
 
-- Automatic Room object
-
-  {Object}
-
-    {
-      "_id": "1234567890abcdfegh",
-      "dayId": "20150713", 
-      "roomId": "123456",
-      "capacity": 6,
-      "lastModified": "2015-07-07T12:00:00.024Z"
-    }
-
-- Memory object
+#### Memory Object
 
   APIから取得する場合のMemory Object
+```js
+/**
+ * @param {Object}
+ * @prop {string} _id - 登録されているMongo ID
+ * @prop {string} dayId - 登録時のDayID
+ * @prop {string} roomId - 登録時に入室していたRoomID
+ * @prop {number} roomType - 0 = "Manual" or 1 = "Automatic"
+ * @prop {string} url - 個別のリンク
+ * @prop {string} link - 登録時に閲覧していたサイトのURL
+ * @prop {Object} window
+ * @prop {number} window.width - 登録時のWindow幅
+ * @prop {number} window.height - 登録時のWindow高さ
+ * @prop {string} ext - 登録時閲覧していたサイトのスクリーンショットの拡張子
+ * @prop {string} landscape - 登録時閲覧していたサイトのスクリーンショットまでのパス
+ * @prop {[Object]} positions
+ * @prop {number} positions[n].x - x座標
+ * @prop {number} positions[n].y - y座標
+ * @prop {[number]} random[n] - ランダム取得時に使う数値、長さは2。[0]は0.0〜1.0の乱数
+ * @prop {string} createAt - 登録時の時間
+ */
+{
+  _id: "1234567890abcdfegh",
+  dayId: "20150712",
+  roomId: "000001",
+  roomType: 0,
+  url: "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
+  link: "https://www.google.co.jp/",
+  window: {
+    width: 1920,
+    height: 1080
+  },
+  ext: ".jpeg",
+  landscape: "//is-eternal.me/memorys/20150712/1234567890abcdfegh.jpeg", (virtual)
+  positions: [
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    ...
+  ],
+  random: [0.1, 0],
+  createAt: "2015-07-07T12:00:00.024Z"
+}
+```
 
-    {
-      "_id": "1234567890abcdfegh",
-      "dayId": "20150712",
-      "url": "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
-      "link": "https://www.google.co.jp/",
-      "window": {
-        "width": 1920,
-        "height": 1080
-      },
-      "ext": ".jpeg",
-      "imgSrc": "//is-eternal.me/memorys/20150712/1234567890abcdfegh.jpeg", (virtual)
-      "positions": [
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            ...
-        ],
-      "random": [0.1, 0],
-      "createAt": "2015-07-07T12:00:00.024Z"
-    }
 
-  - data[0]._id (int): 登録されている軌跡のID
-  - data[0].dayId (string): 登録時のDayID
-  - data[0].roomId (string): 登録時に入室していたRoomID
-  - data[0].roomType (number): 0 = "Manual" or 1 = "Automatic"
-  - data[0].url (string): 個別のリンク  
-  - data[0].link (string): 登録時に閲覧していたサイトのURL  
-  - date[0].positions.window: 登録時のブラウザWindowサイズ  
-    - width: Window 幅
-    - height: Window 高さ
-  - date[0].positions.image: 登録時閲覧していたサイトのスクリーンショット
-    - filename: 画像ファイル名    
-    - width: スクリーンショット 幅
-    - height: スクリーンショット 高さ
-  - date[0].positions: 軌跡
-    - x: x座標
-    - y: y座標
-    - ※ 軌跡の記録時間は最大6秒、時間はランダムに決まる
-  - date[0].room (Object ID): 関係するRoomのObject ID
-  - data[0].createDate (string): 登録時の時間  
 
 <a name="rest_api"></a>
 # REST API
@@ -289,7 +323,7 @@ date[0].positions.y: 軌跡の y座標
 ***
 <a name="add_is"></a>
 ### 【add_is】
-軌跡のデータを保存する  
+軌跡のデータをMemoryとして保存する  
 
 #### ■ リクエストメソッド
 POST
@@ -364,6 +398,8 @@ http://api.is-eternal.me/extension
 * [windowResize](#io-windowResize)
 * [pointerMove](#io-pointerMove)
 * [shootLandscape](#io-shootLandscape)
+* [addMemory](#io-addMemory)
+* [getMemorys](#io-getMemorys)
 
 #### `API -> Client`  
 * [addUser](#io-addUser)
@@ -740,6 +776,122 @@ Roomにjoinしているユーザーのポインターが移動した時に通知
 
 
 
+<a name="io-addMemory"></a>
+### 【addMemory】
+Client側でデータベースにMemoryとして保存するデータが生成されたタイミングで通知される  
+受信した値をデータベースに保存し、保存に成功したらクライアント側にコールバックを通知する  
+
+#### Overview
+`Client -> API`  
+
+##### Request Parameters
+```js
+/**
+ * @param {Object}
+ */
+{
+  link: "https://www.google.co.jp/",
+  window: {
+    width: 1920,
+    height: 1080
+  },
+  landscape: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAACFCAYAAACt……"
+  positions: [
+    { x: 0, y: 0 },
+    { x: 0, y: 0 },
+    ...
+  ]
+}
+```
+
+##### Response (Emit Callback) 
+```js
+/**
+ * @callback Function
+ */
+```
+
+###### Server
+```js
+```
+
+###### Client
+```js
+```
+
+
+
+***
+
+
+
+<a name="io-getMemorys"></a>
+### 【getMemorys】
+データベースのMemorys CollectionからランダムにMemory Documentを取得してクライアントに返す  
+
+#### Overview
+`API -> Client `  
+
+##### Request Parameters
+```js
+```
+
+##### Response 
+```js
+```
+
+##### Response (Emit Callback) 
+```js
+/**
+ * @callback Function
+ * 下記のイベントオブジェクトをクライアント側に返す
+ * @param {Object}
+ * @prop {[Memory]} memorys - Memory Documentの配列
+ */
+{
+  memorys: {
+    [
+      {
+        _id: "1234567890abcdfegh",
+        dayId: "20150712",
+        roomId: "000001",
+        roomType: 0,
+        url: "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
+        link: "https://www.google.co.jp/",
+        window: {
+          width: 1920,
+          height: 1080
+        },
+        ext: ".jpeg",
+        landscape: "//is-eternal.me/memorys/20150712/1234567890abcdfegh.jpeg", (virtual)
+        positions: [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          ...
+        ],
+        random: [0.1, 0],
+        createAt: "2015-07-07T12:00:00.024Z"
+      },
+      ...
+    ]
+  }
+}
+
+```
+
+###### Server
+```js
+```
+
+###### Client
+```js
+```
+
+
+***
+
+
+
 # socket.io event
 以下のように受信可能  
 ```js
@@ -1040,64 +1192,6 @@ socketサーバーからのdisconnectが完了したタイミングで発信さ�
 ```js
 ```
 
-
-
-***
-
-
-
-<a name="io-receiveMemorys"></a>
-### 【receiveMemorys】
-データベースのMemorys CollectionからランダムにMemory Documentを返す  
-
-#### Overview
-`API -> Client `  
-
-##### Request Parameters
-```js
-```
-
-##### Response 
-```js
-/**
- * @param {Object}
- * @prop {[Memory]} memorys - Memory Documentの配列
- */
-{
-  memorys: {
-    [
-      {
-        _id: "1234567890abcdfegh",
-        dayId: "20150712",
-        url: "//is-eternal.me/memorys/1234567890abcdfegh", (virtual)
-        link: "https://www.google.co.jp/",
-        window: {
-          width: 1920,
-          height: 1080
-        },
-        ext: ".jpeg",
-        imgSrc: "//is-eternal.me/memorys/20150712/1234567890abcdfegh.jpeg", (virtual)
-        positions: [
-          { x: 0, y: 0 },
-          { x: 0, y: 0 },
-          ...
-        ],
-        random: [0.1, 0],
-        createAt: "2015-07-07T12:00:00.024Z"
-      },
-      ...
-    ]
-  }
-}
-```
-
-###### Server
-```js
-```
-
-###### Client
-```js
-```
 
 
 ***
