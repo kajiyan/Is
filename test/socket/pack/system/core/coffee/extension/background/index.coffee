@@ -3,7 +3,7 @@ do (window=window, document=document, $=jQuery) ->
 
   console.log SETTING
 
-  sn = {}
+  window.sn = {}
 
   # ============================================================
   # TypeFrameWork

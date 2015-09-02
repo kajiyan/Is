@@ -138,6 +138,7 @@ module.exports = (App, sn, $, _) ->
           App.vent.on "stageWindowResize", @_windowResizeHandler @port
           App.vent.on "stagePointerMove", @_pointerMoveHandler @port
           App.vent.on "stageAddMemory", @_addMemoryHandler @port
+          App.vent.on "stageGetMemory", @_getMemoryHandler @port
 
         else if not isRun
           App.vent.off "stageInitializeUser"
@@ -146,6 +147,7 @@ module.exports = (App, sn, $, _) ->
           App.vent.off "stageWindowResize"
           App.vent.off "stagePointerMove"
           App.vent.off "stageAddMemory"
+          App.vent.off "stageGetMemory"
 
         App.vent.trigger "connectChangeIsRun", isRun
 
@@ -338,6 +340,27 @@ module.exports = (App, sn, $, _) ->
             to: "background"
             from: "contentScript"
             type: "addMemory"
+            body: data
+    
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_getMemoryHandler
+      #  * データベースに保存されているMemoryを取得する際のイベントハンドラー
+      #  * background scriptへMemoryの取得依頼を発信する
+      #  * @param {Object} port - Chrome Extentions Port Object
+      #  * @prop {number} limit - 取得数
+      #  */
+      # --------------------------------------------------------------
+      _getMemoryHandler: (port) ->
+        # /**
+        #  * @param {Object} data
+        #  */
+        return (data) ->
+          console.log "%c[Connect] ConnectModel | _getMemoryHandler", debug.style, data
+          port.postMessage
+            to: "background"
+            from: "contentScript"
+            type: "getMemory"
             body: data
     )
 

@@ -72,10 +72,10 @@ module.exports = (App, sn, $, _) ->
         App.vent.on "connectUpdateLandscape", @_updateLandscapeHandler.bind @
         # content scriptからポインターの軌跡データが用意された通知を受け取った時のイベントリスナー
         App.vent.on "connectAddMemory", @_addMemoryHandler.bind @
+        # content scriptからMemoryの取得依頼を受信した時のイベントリスナー
+        App.vent.on "connectGetMemory", @_getMemoryHandler.bind @
         # WebSocket の接続状態が変わった時に実行される
         @listenTo @, "change:isConnected", @_changeIsConnectedHandler.bind @
-
-        # @_connect()
 
       # --------------------------------------------------------------
       # /**
@@ -253,7 +253,23 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] Socket -> _addMemoryHandler", debug.style, data
 
         if @get "isConnected"
-          @socket.emit "addMemory", data
+          @socket.emit "addMemory", data, () ->
+            App.vent.trigger "socketAddedMemory" 
+
+      # ------------------------------------------------------------
+      # /**
+      #  * SocketModel#_getMemoryHandler
+      #  * @param {Object} data
+      #  * @prop {number} limit - 取得数
+      #  */
+      # ------------------------------------------------------------      
+      _getMemoryHandler: (data) ->
+        console.log "%c[Socket] Socket -> _getMemoryHandler", debug.style, data
+
+        if @get "isConnected"
+          @socket.emit "getMemory", data, (memorys) ->
+            console.log memorys
+            App.vent.trigger "socketGetMemory", memorys
 
       # ------------------------------------------------------------
       # /**

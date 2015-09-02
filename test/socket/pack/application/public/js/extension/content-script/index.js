@@ -25313,24 +25313,16 @@
 	          now = window.perfomance && (perfomance.now || perfomance.webkitNow || perfomance.mozNow || perfomance.msNow || perfomance.oNow);
 	          return (now && now.cell(perfomance)) || (new Date().getTime());
 	        };
-	        this._updateProcess = function() {};
+	        this._recInterval = 10000 / 1000;
+	        this._memoryGetInterval = 10000 / 1000;
+	        this._memoryGetMaxLimit = 3;
+	        this._updateProcess = $.noop;
 	        this._startTime = 0;
 	        this._oldFrame = 0;
+	        this._currentFrame = 0;
 	        this._recordingTime = 6000;
 	        this._frameRate = 24;
 	        this._positionsSize = this._recordingTime / 1000 * this._frameRate;
-	        this._positions = (function(size) {
-	          var i, j, ref, result, results;
-	          result = new Array(size);
-	          results = [];
-	          for (i = j = 0, ref = size; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
-	            results.push(result[i] = {
-	              x: 0,
-	              y: 0
-	            });
-	          }
-	          return results;
-	        })(this._positionsSize);
 	        return this._positionsSelectOffset = 2000 / 1000 * this._frameRate;
 	      },
 	      _update: function(process) {
@@ -25341,7 +25333,7 @@
 	          return function() {
 	            return _this._update(process);
 	          };
-	        })(this));
+	        })(this), this._frameRate);
 	        this._currentFrame = Math.floor((this._getTime() - this._startTime) / (1000 / this._frameRate) % 2);
 	        if (this._currentFrame !== this._oldFrame) {
 	          process();
@@ -25353,20 +25345,38 @@
 	        return cancelAnimationFrame(this._updateProcess);
 	      },
 	      _changeIsRunHandler: function(isRun) {
+	        var position;
 	        if (isRun) {
 	          this._startTime = this._getTime();
+	          position = this.get("position");
+	          this._positions = (function(size) {
+	            var i, j, ref, result, results;
+	            result = new Array(size);
+	            results = [];
+	            for (i = j = 0, ref = size; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+	              results.push(result[i] = position);
+	            }
+	            return results;
+	          })(this._positionsSize);
 	          return this._update((function(_this) {
 	            return function() {
-	              var limit, positions;
 	              _this._positions.unshift(_this.get("position"));
 	              _this._positions.pop();
-	              if ((~~(Math.random() * (_this._frameRate * 10))) === 1) {
-	                console.log("%c[Stage] StageModel | REC", debug.style);
-	                limit = ~~(Math.random() * (_this._positionsSize - _this._positionsSelectOffset) + _this._positionsSelectOffset);
-	                positions = _.first(_this._positions, limit);
-	                return App.vent.trigger("stageAddMemory", {
-	                  window: _this.get("window"),
+	
+	              /* 一旦コメントアウト
+	              if (~~(Math.random() * (@_frameRate * @_recInterval))) is 1
+	                console.log "%c[Stage] StageModel | REC", debug.style
+	                limit = ~~(Math.random() * (@_positionsSize - @_positionsSelectOffset) + @_positionsSelectOffset)
+	                positions = _.first(@_positions, limit)
+	              
+	                App.vent.trigger "stageAddMemory",
+	                  window: @get "window"
 	                  positions: positions
+	               */
+	              if ((~~(Math.random() * (_this._frameRate * _this._recInterval))) === 1) {
+	                console.log("%c[Stage] StageModel | getMemory Request", debug.style);
+	                return App.vent.trigger("stageGetMemory", {
+	                  limit: ~~(Math.random() * _this._memoryGetMaxLimit + 1)
 	                });
 	              }
 	            };
@@ -25552,6 +25562,7 @@
 	          App.vent.on("stageWindowResize", this._windowResizeHandler(this.port));
 	          App.vent.on("stagePointerMove", this._pointerMoveHandler(this.port));
 	          App.vent.on("stageAddMemory", this._addMemoryHandler(this.port));
+	          App.vent.on("stageGetMemory", this._getMemoryHandler(this.port));
 	        } else if (!isRun) {
 	          App.vent.off("stageInitializeUser");
 	          App.vent.off("stageInitializeSpace");
@@ -25559,6 +25570,7 @@
 	          App.vent.off("stageWindowResize");
 	          App.vent.off("stagePointerMove");
 	          App.vent.off("stageAddMemory");
+	          App.vent.off("stageGetMemory");
 	        }
 	        return App.vent.trigger("connectChangeIsRun", isRun);
 	      },
@@ -25633,6 +25645,17 @@
 	            to: "background",
 	            from: "contentScript",
 	            type: "addMemory",
+	            body: data
+	          });
+	        };
+	      },
+	      _getMemoryHandler: function(port) {
+	        return function(data) {
+	          console.log("%c[Connect] ConnectModel | _getMemoryHandler", debug.style, data);
+	          return port.postMessage({
+	            to: "background",
+	            from: "contentScript",
+	            type: "getMemory",
 	            body: data
 	          });
 	        };

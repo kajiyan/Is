@@ -7,6 +7,8 @@
 #   - connectWindowResize
 #   - connectPointerMove
 #   - connectUpdateLandscape
+#   - connectAddMemory
+#   - connectGetMemory
 #
 # SEND TYPE
 #   - changeIsRun ConnectModel#_changeIsRunHandler
@@ -264,7 +266,7 @@ module.exports = (App, sn, $, _) ->
                   # --------------------------------------------------------------
                   when "addMemory"
                     console.log "%c[Connect] ConnectModel | Long-lived Receive Message | addMemory", debug.style, message
-                    
+
                     activeInfo = App.reqres.request "stageGetActiveInfo"
 
                     if activeInfo.tabId is tabId
@@ -273,6 +275,18 @@ module.exports = (App, sn, $, _) ->
                         window: message.body.window
                         landscape: landscape
                         positions: message.body.positions
+
+                  # --------------------------------------------------------------
+                  when "getMemory"
+                    console.log "%c[Connect] ConnectModel | Long-lived Receive Message | getMemory", debug.style, message
+                    
+                    activeInfo = App.reqres.request "stageGetActiveInfo"
+
+                    if activeInfo.tabId is tabId
+                      App.vent.trigger "connectGetMemory", message.body
+
+
+
 
       # --------------------------------------------------------------
       # /**

@@ -394,10 +394,55 @@ Extension = (function() {
            * @prop {number} positions[0].x - 発信者のポインターのx座標の軌跡
            * @prop {number} positions[0].y - 発信者のポインターのy座標の軌跡
            */
-          function(data) {
+          function(data, callback) {
             console.log('[Controller] Extension -> Socket Receive Message | addMemory');
             // 通知されたデータをデータベースに保存する
-            _this._dayModel.addMemory(data);
+            Q.fcall(function(){
+              _this._dayModel.addMemory(data);
+            })
+            .then(function(memory) {
+            })
+            .catch(function (error) {
+              console.log(error);
+            })
+            .done(function(){
+              callback();
+            });
+          }
+        );
+
+        // --------------------------------------------------------------
+        socket.on('getMemory',
+          /**
+           * @param {Object} data
+           * @prop {number} limit - 取得数
+           */
+          function(data, callback) {
+            console.log('[Controller] Extension -> Socket Receive Message | addMemory');
+                  
+            Q.fcall(
+              function(){
+                return _this._dayModel.getRandomMemory({
+                  'options': data
+                });
+              }
+            )
+            .then(
+              function(memorys) {
+                for (var i = 0, len = memorys.length; i < len; i++) {
+                  memorys[i] = memorys[i].toJSON();
+                }
+                return memorys;
+              }
+            )
+            .catch(
+              function (error) {
+                console.log(error);
+              }
+            )
+            .done(function(memorys){
+              callback(memorys);
+            });
           }
         );
 
@@ -471,7 +516,12 @@ Extension = (function() {
     //   )
     //   .then(
     //     function(memorys) {
-    //       console.log(JSON.stringify(memorys));
+    //       for (var i = 0, len = memorys.length; i < len; i++) {
+    //         memorys[i] = memorys[i].toJSON();
+    //       }
+    //       // console.log(memorys[0]);
+
+    //       return memorys;
     //     }
     //   )
     //   .catch(
@@ -479,7 +529,9 @@ Extension = (function() {
     //       console.log(error);
     //     }
     //   )
-    //   .done();
+    //   .done(function(memorys){
+    //     console.log(memorys);
+    //   });
     // })(this);
   };
 

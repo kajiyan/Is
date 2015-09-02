@@ -868,8 +868,11 @@ Day = (function() {
             query.projection,
             query.options
           )
+          .select({
+            '__v': 0
+          })
           .exec(function(error, doc, numberAffected) {
-            console.log(error, doc, numberAffected);
+            // console.log(error, doc, numberAffected);
             if (error) {
               reject(error);
               return;

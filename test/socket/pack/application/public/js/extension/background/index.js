@@ -46,9 +46,9 @@
 
 	/* WEBPACK VAR INJECTION */(function(jQuery, Backbone, _) {(function(window, document, $) {
 	  "use strict";
-	  var Background, sn;
+	  var Background;
 	  console.log(SETTING);
-	  sn = {};
+	  window.sn = {};
 	  sn.tf = new TypeFrameWork();
 	  __webpack_require__(6);
 	  Background = new Backbone.Marionette.Application();
@@ -25155,6 +25155,13 @@
 	                          positions: message.body.positions
 	                        });
 	                      }
+	                      break;
+	                    case "getMemory":
+	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | getMemory", debug.style, message);
+	                      activeInfo = App.reqres.request("stageGetActiveInfo");
+	                      if (activeInfo.tabId === tabId) {
+	                        return App.vent.trigger("connectGetMemory", message.body);
+	                      }
 	                  }
 	                }
 	              });
@@ -25387,6 +25394,7 @@
 	        App.vent.on("connectPointerMove", this._pointerMoveHandler.bind(this));
 	        App.vent.on("connectUpdateLandscape", this._updateLandscapeHandler.bind(this));
 	        App.vent.on("connectAddMemory", this._addMemoryHandler.bind(this));
+	        App.vent.on("connectGetMemory", this._getMemoryHandler.bind(this));
 	        return this.listenTo(this, "change:isConnected", this._changeIsConnectedHandler.bind(this));
 	      },
 	      _connect: function() {
@@ -25451,7 +25459,18 @@
 	      _addMemoryHandler: function(data) {
 	        console.log("%c[Socket] Socket -> _addMemoryHandler", debug.style, data);
 	        if (this.get("isConnected")) {
-	          return this.socket.emit("addMemory", data);
+	          return this.socket.emit("addMemory", data, function() {
+	            return App.vent.trigger("socketAddedMemory");
+	          });
+	        }
+	      },
+	      _getMemoryHandler: function(data) {
+	        console.log("%c[Socket] Socket -> _getMemoryHandler", debug.style, data);
+	        if (this.get("isConnected")) {
+	          return this.socket.emit("getMemory", data, function(memorys) {
+	            console.log(memorys);
+	            return App.vent.trigger("socketGetMemory", memorys);
+	          });
 	        }
 	      },
 	      _connectHandler: function() {

@@ -52,21 +52,19 @@ module.exports = (App, sn, $, _) ->
           now = window.perfomance and (perfomance.now or perfomance.webkitNow or perfomance.mozNow or perfomance.msNow or perfomance.oNow)
           return ( now and now.cell perfomance ) or ( new Date().getTime() )
 
-        @_updateProcess = ->
+        @_recInterval = 10000 / 1000
+        @_memoryGetInterval = 10000 / 1000
+        @_memoryGetMaxLimit = 3
+        
+        @_updateProcess = $.noop
         @_startTime = 0
         @_oldFrame = 0
-        # @_lastTime = 0
+        @_currentFrame = 0
 
         @_recordingTime = 6000
         @_frameRate = 24
 
         @_positionsSize = @_recordingTime / 1000 * @_frameRate
-        @_positions = ((size) ->
-          result = new Array(size)
-          for i in [0...size]
-            result[i] = 
-              x: 0, y: 0
-        )(@_positionsSize)
 
         # 最短の録画時間 (2000ms)
         @_positionsSelectOffset = 2000 / 1000 * @_frameRate
@@ -79,7 +77,10 @@ module.exports = (App, sn, $, _) ->
       _update: (process=$.noop) ->
         # console.log "%c[Stage] StageModel -> _update", debug.style
 
-        @_updateProcess = window.requestAnimationFrame => @_update(process)
+        @_updateProcess = window.requestAnimationFrame =>
+          @_update(process)
+        ,
+          @_frameRate
 
         @_currentFrame = Math.floor((@_getTime() - @_startTime) / (1000 / @_frameRate) % 2)
         
@@ -107,11 +108,20 @@ module.exports = (App, sn, $, _) ->
         if isRun
           @_startTime = @_getTime()
 
+          position = @get "position"
+
+          @_positions = ((size) ->
+            result = new Array(size)
+            for i in [0...size]
+              result[i] = position
+          )(@_positionsSize)
+
           @_update =>
             @_positions.unshift(@get "position")
             @_positions.pop()
             
-            if (~~(Math.random() * (@_frameRate * 10))) is 1
+            ### 一旦コメントアウト
+            if (~~(Math.random() * (@_frameRate * @_recInterval))) is 1
               console.log "%c[Stage] StageModel | REC", debug.style
               limit = ~~(Math.random() * (@_positionsSize - @_positionsSelectOffset) + @_positionsSelectOffset)
               positions = _.first(@_positions, limit)
@@ -119,6 +129,11 @@ module.exports = (App, sn, $, _) ->
               App.vent.trigger "stageAddMemory",
                 window: @get "window"
                 positions: positions
+            ###
+            if (~~(Math.random() * (@_frameRate * @_recInterval))) is 1
+              console.log "%c[Stage] StageModel | getMemory Request", debug.style
+              App.vent.trigger "stageGetMemory",
+                limit: (~~(Math.random() * @_memoryGetMaxLimit + 1))
         else
           @_stop()
         
