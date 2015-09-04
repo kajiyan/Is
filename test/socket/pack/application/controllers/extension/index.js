@@ -431,6 +431,7 @@ Extension = (function() {
               function(memorys) {
                 for (var i = 0, len = memorys.length; i < len; i++) {
                   memorys[i] = memorys[i].toJSON();
+                  // console.log(memorys[i]);
                 }
                 return memorys;
               }
@@ -519,7 +520,7 @@ Extension = (function() {
     //       for (var i = 0, len = memorys.length; i < len; i++) {
     //         memorys[i] = memorys[i].toJSON();
     //       }
-    //       // console.log(memorys[0]);
+    //       console.log(memorys[0]);
 
     //       return memorys;
     //     }

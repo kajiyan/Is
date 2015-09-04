@@ -99,6 +99,7 @@ module.exports = (App, sn, $, _) ->
           sendUpdateWindowSize = @_sendUpdateWindowSize.bind(@)(port)
           sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
           sendUpdateLandscapeHandler = @_sendUpdateLandscapeHandler.bind(@)(port)
+          sendMemoryHandler = @_sendMemoryHandler.bind(@)(port)
 
           # Long-lived 接続 切断時の処理を登録する
           port.onDisconnect.addListener =>
@@ -113,6 +114,7 @@ module.exports = (App, sn, $, _) ->
             App.vent.off "socketUpdateWindowSize", sendUpdateWindowSize
             App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
             App.vent.off "socketUpdateLandscape", sendUpdateLandscapeHandler
+            App.vent.off "socketResponseMemory", sendMemoryHandler
             port.disconnect()
             console.log "%c[Connect] ConnectModel | onDisconnect", debug.style
 
@@ -142,6 +144,8 @@ module.exports = (App, sn, $, _) ->
             App.vent.on "socketUpdatePointer", sendUpdatePointerHandler
             # 同じRoom に所属しているユーザーのスクリーンショットが更新された時に呼び出される
             App.vent.on "socketUpdateLandscape", sendUpdateLandscapeHandler
+            # サーバーに保存されているMemoryを取得した時に呼び出される
+            App.vent.on "socketResponseMemory", sendMemoryHandler
 
             # メッセージを受信した時の処理
             port.onMessage.addListener (message) =>
@@ -546,6 +550,7 @@ module.exports = (App, sn, $, _) ->
       #  * ConnectModel#_sendUpdatePointerHandler
       #  * 同じRoom に所属していたユーザーのポインターの座標の変化をsoketが受信した時に呼び出されるイベントハンドラー
       #  * アクティブなタブのcontent script にポインター座標の情報を通知する
+      #  * @param {Object} port - Chrome Extentions Port Object
       #  */
       # ------------------------------------------------------------
       _sendUpdatePointerHandler: (port) ->
@@ -584,6 +589,27 @@ module.exports = (App, sn, $, _) ->
             from: "background"
             type: "updateLandscape"
             body: data
+
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_sendMemoryHandler
+      #  * @param {Object} port - Chrome Extentions Port Object
+      #  */
+      # --------------------------------------------------------------
+      _sendMemoryHandler: (port) ->
+        # /**
+        #  * @param {Object} data
+        #  * @prop {[Memory]} memorys - Memory Documentの配列
+        #  */
+        (data) =>
+          console.log "%c[Connect] ConnectModel -> _sendMemoryHandler", debug.style, data
+
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "receiveMemory"
+            body: data
+
 
     # ============================================================
     ConnectModule.addInitializer (options) ->

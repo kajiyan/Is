@@ -60,6 +60,7 @@ do (window=window, document=document, $=jQuery) ->
   sn.modules =
     stage: require("./modules/stage/index")(Extension, sn, $, _)
     connect: require("./modules/connect/index")(Extension, sn, $, _)
+    memory: require("./modules/memory/index")(Extension, sn, $, _)
 
 
   $ ->
@@ -237,13 +238,14 @@ do (window=window, document=document, $=jQuery) ->
         MemoryModel = Backbone.Model.extend(
           # ------------------------------------------------------------
           defaults:
-            position:
-              x: 0
-              y: 0
-            windowWidth: 0
-            windowHeight: 0
+            url: ""
+            link: ""
+            window:
+              width: 0
+              height: 0
             landscape: ""
-            time: ""
+            positions: []
+            createAt: ""
         )
 
 
@@ -381,6 +383,11 @@ do (window=window, document=document, $=jQuery) ->
         # ============================================================
         # COLLECTION - MEMORYS
         MemorysCollection = Backbone.Collection.extend(
+          # --------------------------------------------------------------
+          initialize: () ->
+            console.log "%c[Extension] LoversCollection -> memorysCollection", debug.style
+
+          # --------------------------------------------------------------  
           model: MemoryModel
         )
 
@@ -522,7 +529,21 @@ do (window=window, document=document, $=jQuery) ->
         MemoryItemView = Backbone.Marionette.ItemView.extend(
           # ------------------------------------------------------------
           initialize: () ->
-            console.log "[ExtensionModule] MemoryItemView -> initialize"
+            console.log "%c[ExtensionModule] MemoryItemView -> initialize", debug.style
+
+            @_getTime = ->
+              now = window.perfomance and (perfomance.now or perfomance.webkitNow or perfomance.mozNow or perfomance.msNow or perfomance.oNow)
+              return ( now and now.cell perfomance ) or ( new Date().getTime() )
+
+            @_frameRate = 24
+            @_currentFrame = 0
+            @_oldFrame = 0
+            @_startTime = 0
+            @_updateProcess = $.noop
+
+            # @close()
+
+            @_update =>
 
           # ------------------------------------------------------------
           tagName: "div"
@@ -532,6 +553,39 @@ do (window=window, document=document, $=jQuery) ->
 
           # ------------------------------------------------------------
           template: _.template(isElShadowRoot.querySelector("#memory-template").innerHTML)
+        
+          # ------------------------------------------------------------
+          ui: 
+            body: ".body"
+
+          # ------------------------------------------------------------
+          events:
+            "click @ui.body": () -> console.log "%c[ExtensionModule] MemoryItemView -> click", debug.style
+
+          # ------------------------------------------------------------
+          _update: (process=$.noop) ->
+            # console.log "%c[ExtensionModule] MemoryItemView -> _update", debug.style
+
+            @_updateProcess = window.requestAnimationFrame =>
+              @_update(process)
+            ,
+              @_frameRate
+
+            @_currentFrame = Math.floor((@_getTime() - @_startTime) / (1000 / @_frameRate) % 2)
+            
+            if @_currentFrame isnt @_oldFrame then process()
+
+            @_oldFrame = @_currentFrame
+
+          # ------------------------------------------------------------
+          onBeforeRender: () ->
+            console.log "%c[ExtensionModule] MemoryItemView -> onBeforeRender", debug.style
+            # console.log @destroy
+            # @destroy()
+
+          # ------------------------------------------------------------
+          onDestroy: () ->
+            console.log "%c[ExtensionModule] MemoryItemView -> onDestroy", debug.style
         )
 
 
@@ -556,13 +610,14 @@ do (window=window, document=document, $=jQuery) ->
           childView: LoverItemView
         )
 
-
         # ============================================================
         # COLLECTION VIEW - MEMORYS
         MemorysCollectionView = Backbone.Marionette.CollectionView.extend(
           # ------------------------------------------------------------
           initialize: () ->
             console.log "[ExtensionModule] MemorysCollectionView -> initialize"
+            
+
 
           # ------------------------------------------------------------
           tagName: "div"
@@ -572,6 +627,11 @@ do (window=window, document=document, $=jQuery) ->
 
           # ------------------------------------------------------------
           childView: MemoryItemView
+
+          # ------------------------------------------------------------
+          childEvents: 
+            onDestroy: ()->
+              console.log "%c[ExtensionModule] MemorysCollectionView -> onDestroy", debug.style
         )
 
 
@@ -621,7 +681,7 @@ do (window=window, document=document, $=jQuery) ->
           Extension.content.show(new ExtensionLayoutView())
 
           loversCollection = new LoversCollection()
-          memorysCollection = new MemorysCollection()
+          memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY])
 
           loversCollectionView = new LoversCollectionView(
             collection: loversCollection
@@ -630,6 +690,12 @@ do (window=window, document=document, $=jQuery) ->
           memorysCollectionView = new MemorysCollectionView(
             collection: memorysCollection
           )
+
+          # console.log memorysCollectionView.children
+
+          # memorysCollectionView.children.each (view) ->
+          #   console.log view.close()
+
 
           Extension.content.currentView.lovers.show(loversCollectionView)
           Extension.content.currentView.memorys.show(memorysCollectionView)

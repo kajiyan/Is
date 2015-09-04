@@ -24978,7 +24978,7 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeActiveInfoHandler, changeIsRunHandler, getLandscape, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendUpdateLandscapeHandler, sendUpdateLocation, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
+	            var changeActiveInfoHandler, changeIsRunHandler, getLandscape, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendMemoryHandler, sendUpdateLandscapeHandler, sendUpdateLocation, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
 	            landscape = "";
 	            initializedResidents = [];
 	            tabId = port.sender.tab.id;
@@ -25013,6 +25013,7 @@
 	            sendUpdateWindowSize = _this._sendUpdateWindowSize.bind(_this)(port);
 	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
 	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
+	            sendMemoryHandler = _this._sendMemoryHandler.bind(_this)(port);
 	            port.onDisconnect.addListener(function() {
 	              App.vent.off("stageChangeIsRun", changeIsRunHandler);
 	              App.vent.off("stageChangeActiveInfo", changeActiveInfoHandler);
@@ -25025,6 +25026,7 @@
 	              App.vent.off("socketUpdateWindowSize", sendUpdateWindowSize);
 	              App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.off("socketUpdateLandscape", sendUpdateLandscapeHandler);
+	              App.vent.off("socketResponseMemory", sendMemoryHandler);
 	              port.disconnect();
 	              return console.log("%c[Connect] ConnectModel | onDisconnect", debug.style);
 	            });
@@ -25041,6 +25043,7 @@
 	              App.vent.on("socketUpdateWindowSize", sendUpdateWindowSize);
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
+	              App.vent.on("socketResponseMemory", sendMemoryHandler);
 	              return port.onMessage.addListener(function(message) {
 	                var activeInfo;
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
@@ -25349,6 +25352,19 @@
 	            });
 	          };
 	        })(this);
+	      },
+	      _sendMemoryHandler: function(port) {
+	        return (function(_this) {
+	          return function(data) {
+	            console.log("%c[Connect] ConnectModel -> _sendMemoryHandler", debug.style, data);
+	            return port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "receiveMemory",
+	              body: data
+	            });
+	          };
+	        })(this);
 	      }
 	    });
 	    ConnectModule.addInitializer(function(options) {
@@ -25469,7 +25485,7 @@
 	        if (this.get("isConnected")) {
 	          return this.socket.emit("getMemory", data, function(memorys) {
 	            console.log(memorys);
-	            return App.vent.trigger("socketGetMemory", memorys);
+	            return App.vent.trigger("socketResponseMemory", memorys);
 	          });
 	        }
 	      },

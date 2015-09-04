@@ -9,6 +9,7 @@
 #   - socketCheckOut
 #   - socketUpdatePointer
 #   - socketUpdateLandscape
+#   - socketResponseMemory
 #
 # ============================================================
 module.exports = (App, sn, $, _) ->
@@ -269,7 +270,7 @@ module.exports = (App, sn, $, _) ->
         if @get "isConnected"
           @socket.emit "getMemory", data, (memorys) ->
             console.log memorys
-            App.vent.trigger "socketGetMemory", memorys
+            App.vent.trigger "socketResponseMemory", memorys
 
       # ------------------------------------------------------------
       # /**
