@@ -1,7 +1,7 @@
 # ============================================================
 # Memory
 # ============================================================
-module.exports = (App, sn, $, _) ->
+module.exports = (App, sn, $, _, isElShadowRoot) ->
   debug = 
     style: "background-color: DarkGreen; color: #ffffff;"
 
@@ -108,15 +108,47 @@ module.exports = (App, sn, $, _) ->
 
 
     # ============================================================
+    # COLLECTION VIEW
+    # ============================================================
+    MemorysCollectionView = Backbone.Marionette.CollectionView.extend
+      # ------------------------------------------------------------
+      initialize: () ->
+        console.log "%c[Memory] MemorysCollectionView -> initialize", debug.style
+      
+      # ------------------------------------------------------------
+      tagName: "div"
+    
+      # ------------------------------------------------------------
+      className: "memorys"
+
+      # ------------------------------------------------------------
+      childView: MemoryItemView
+
+      # ------------------------------------------------------------
+      childEvents: 
+        onDestroy: ()->
+          console.log "%c[Memory] MemorysCollectionView -> onDestroy", debug.style
+
+
+
+
+    # ============================================================
     MemoryModule.addInitializer (options) ->
       console.log "%c[Memory] addInitializer", debug.style, options
 
+      memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY])
+
+      memorysCollectionView = new MemorysCollectionView
+        collection: memorysCollection
+
+      App.content.currentView.memorys.show(memorysCollectionView)
+      
       # ============================================================
       # COMMANDS
 
       # ============================================================
       # REQUEST RESPONSE
-      
+
       # @models = 
       #   stage: new StageModel()
 
