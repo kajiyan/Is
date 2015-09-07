@@ -9,6 +9,7 @@ module.exports = (function(){
 
   result.BASE_PATH = process.cwd();
   result.AVAILABLE_PERIOD = 0.25 * 24 * 60 * 60 * 1000;
+  result.protocol = 'http';
   result.host = 'localhost';
   result.port = 8001;
   result.roomIdLength = 6;

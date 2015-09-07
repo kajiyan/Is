@@ -138,19 +138,29 @@ module.exports = (App, sn, $, _) ->
 
       # ============================================================
       # COMMANDS
-      App.commands.setHandler "stageAppRun", () =>
-        console.log "%c[Stage] StageModel | stageAppRun", debug.style
-        @models.stage.set "isRun", true
+      # App.commands.setHandler "stageAppRun", (isRun) =>
+      #   console.log "%c[Stage] StageModel | stageAppRun", debug.style
+      #   @models.stage.set "isRun", true
 
-
-      App.commands.setHandler "stopAppRun", (isRun) =>
-        console.log "%c[Stage] SocketModel | stopAppRun", debug.style
-        @models.stage.set "isRun", false
+      # App.commands.setHandler "stopAppRun", (isRun) =>
+      #   console.log "%c[Stage] SocketModel | stopAppRun", debug.style
+      #   @models.stage.set "isRun", false
 
       # App.execute "stageAppRun"
 
       # ============================================================
       # REQUEST RESPONSE
+      App.reqres.setHandler "stageAppRun", (roomId) =>
+        console.log "%c[Stage] Request Response | stageAppRun", debug.style, roomId
+        @models.stage.set
+          isRun: true
+          roomId: roomId
+
+      App.reqres.setHandler "stopAppRun", () =>
+        console.log "%c[Stage] Request Response | stopAppRun", debug.style
+        @models.stage.set
+          isRun: false
+
       App.reqres.setHandler "stageGetActiveInfo", () =>
         console.log "%c[Stage] Request Response | stageGetActiveInfo", debug.style
         return @models.stage.get "activeInfo"

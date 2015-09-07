@@ -57,13 +57,16 @@
 	    connect: __webpack_require__(8)(Background, sn, $, _),
 	    socket: __webpack_require__(9)(Background, sn, $, _)
 	  };
-	  window.appRun = function() {
+	  window.appRun = function(roomId) {
+	    if (roomId == null) {
+	      roomId = null;
+	    }
 	    console.log("%cAPP RUN", "color: #999999");
-	    return Background.execute("stageAppRun");
+	    return Background.reqres.request("stageAppRun", roomId);
 	  };
 	  window.appStop = function() {
 	    console.log("%cAPP STOP", "color: #999999");
-	    return Background.execute("stopAppRun");
+	    return Background.reqres.request("sopAppRun");
 	  };
 	  return $(function() {
 	    sn.tf.setup(function() {
@@ -24932,16 +24935,21 @@
 	      this.models = {
 	        stage: new StageModel()
 	      };
-	      App.commands.setHandler("stageAppRun", (function(_this) {
-	        return function() {
-	          console.log("%c[Stage] StageModel | stageAppRun", debug.style);
-	          return _this.models.stage.set("isRun", true);
+	      App.reqres.setHandler("stageAppRun", (function(_this) {
+	        return function(roomId) {
+	          console.log("%c[Stage] Request Response | stageAppRun", debug.style, roomId);
+	          return _this.models.stage.set({
+	            isRun: true,
+	            roomId: roomId
+	          });
 	        };
 	      })(this));
-	      App.commands.setHandler("stopAppRun", (function(_this) {
-	        return function(isRun) {
-	          console.log("%c[Stage] SocketModel | stopAppRun", debug.style);
-	          return _this.models.stage.set("isRun", false);
+	      App.reqres.setHandler("stopAppRun", (function(_this) {
+	        return function() {
+	          console.log("%c[Stage] Request Response | stopAppRun", debug.style);
+	          return _this.models.stage.set({
+	            isRun: false
+	          });
 	        };
 	      })(this));
 	      return App.reqres.setHandler("stageGetActiveInfo", (function(_this) {

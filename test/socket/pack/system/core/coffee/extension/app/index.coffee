@@ -3,6 +3,12 @@ do (window=window, document=document, $=jQuery) ->
 
   sn = {}
 
+  require "backbone.validation"
+  require "backbone.marionette"
+  require "backbone.stickit/backbone.stickit"
+
+  require "pepjs/dist/pep.min"
+
   # ============================================================
   # background script
   # ============================================================
@@ -12,19 +18,13 @@ do (window=window, document=document, $=jQuery) ->
     console.log error
 
     bg = {}
-    bg.appRun = () ->
-      console.log "%c[index] APP RUN", "color: #d9597b"
+    bg.appRun = (roomId) ->
+      console.log "%c[index] APP RUN", "color: #d9597b", roomId
 
     bg.appStop = () ->
       console.log "%c[index] APP STOP", "color: #d9597b"
 
     window.bg = bg
-
-  
-  # bg.sn.bb.models.stage.set "isBrowserAction", true
-
-  # chrome.browserAction.onClicked.addListener () ->
-  # alert "click"
 
   # ============================================================
   # TypeFrameWork
@@ -32,66 +32,63 @@ do (window=window, document=document, $=jQuery) ->
   sn.tf = new TypeFrameWork()
 
   # ============================================================
+  # APPLICATION
+  # ============================================================
+  App = new Backbone.Marionette.Application()
+
+  # ============================================================
   # Library
   # ============================================================
-
-  # ============================================================
-  # Detect / Normalize event names
-
-  # ============================================================
-  # Module
-  # sn.router = do ->
-  #   Router = require("./router/index")(sn, $, _)
-  #   return new Router()
-
-  # window.addEventListener "unload"
-  #   ,
-  #   (e) ->
-  #     bg.sn.bb.models.stage.set "isBrowserAction", false
-  #   ,
-  #   false
 
   $ ->
     console.log SETTING
 
     # ============================================================
-    # BackBone
+    # MODULES
     # ============================================================
-    sn.bb =
-      models: null
-      collections: null
-      views: null
+    sn.modules =
+      stage: require("./modules/stage/index")(App, sn, $, _)
 
-    # ============================================================
-    # BackBone MODEL
+    App.start()
 
-    # ============================================================
-    # BackBone COLLECTION
+    # # ============================================================
+    # # BackBone
+    # # ============================================================
+    # sn.bb =
+    #   models: null
+    #   collections: null
+    #   views: null
 
-    # ============================================================
-    # BackBone - VIEW
-    sn.bb.views =
-      "stage": do ->
-        Stage = require("./views/stage")(sn, $, _)
-        return new Stage()
+    # # ============================================================
+    # # BackBone MODEL
 
-    # --------------------------------------------------------------
-    sn.tf.setup ->
-      # util = require("./helper/util")(sn)
+    # # ============================================================
+    # # BackBone COLLECTION
 
-      $.when(
-        for key, model of sn.bb.models
-          model.setup?()
-      ).then( =>
-        $.when(
-          for key, view of sn.bb.views
-            view.setup?()
-        )
-      ).then( =>
-        $.when(
-          console.log "%cPopup Setup Complete", "color: #d9597b"
-        )
-      )
+    # # ============================================================
+    # # BackBone - VIEW
+    # sn.bb.views =
+    #   "stage": do ->
+    #     Stage = require("./views/stage")(sn, $, _)
+    #     return new Stage()
+
+    # # --------------------------------------------------------------
+    # sn.tf.setup ->
+    #   # util = require("./helper/util")(sn)
+
+    #   $.when(
+    #     for key, model of sn.bb.models
+    #       model.setup?()
+    #   ).then( =>
+    #     $.when(
+    #       for key, view of sn.bb.views
+    #         view.setup?()
+    #     )
+    #   ).then( =>
+    #     $.when(
+    #       console.log "%cPopup Setup Complete", "color: #d9597b"
+    #     )
+    #   )
 
 
     # --------------------------------------------------------------

@@ -323,7 +323,7 @@ module.exports = function( options ){
         { x: 638, y: 151 }
       ],
       window: { width: 1255, height: 425 },
-      landscape: '//localhost:8001/memorys/20150902/55e5c4b75ae10c89bf74c8fd.jpeg',
+      landscape: 'http://localhost:8001/memorys/20150902/55e5c4b75ae10c89bf74c8fd.jpeg',
       url: '//localhost:8001/memorys/20150902/55e5c4b75ae10c89bf74c8fd',
       id: '55e5c4b75ae10c89bf74c8fd'
     }

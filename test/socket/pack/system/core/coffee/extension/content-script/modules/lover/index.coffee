@@ -248,8 +248,14 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         # --------------------------------------------------------------
         _changePositionHandler: (model, position) ->
           # console.log "%c[Lover] LoverItemView -> _changePositionHandler", debug.style, position
+          stageWindowSize = App.reqres.request "stageGetWindowSize"
+          windowSize = @model.get "window"
+          
+          offsetX = (stageWindowSize.width - windowSize.width) / 2
+          offsetY = (stageWindowSize.height - windowSize.height) / 2
+
           @ui.body.css
-            transform: "translate(#{position.x}px, #{position.y}px)"
+            transform: "translate(#{position.x + offsetX}px, #{position.y + offsetY}px)"
 
         # --------------------------------------------------------------
         # /**
@@ -295,7 +301,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
               opacity: 0.0
             ,
               duration: 400
-              delay: 0
+              delay: 100
               easing: "easeOutQuart"
               complete: () =>
                 @ui.landscape.addClass "is-hidden"

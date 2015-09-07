@@ -26,49 +26,16 @@ do (window=window, document=document, $=jQuery) ->
     connect: require("./modules/connect/")(Background, sn, $, _)
     socket: require("./modules/socket/")(Background, sn, $, _)
 
-  # ============================================================
-  # BackBone
-  # sn.bb =
-  #   models: null
-  #   collections: null
-  #   views: null
 
-
-  # ============================================================
-  # BackBone MODEL
-  # sn.bb.models =
-  #   stage: do ->
-  #     Stage = require("./models/stage")(sn, $, _)
-  #     stage = new Stage
-  #       "debug": true
-  #     return stage
-    # connect: do ->
-    #   Connect = require("./models/connect")(sn, $, _)
-    #   return new Connect()
-    # socket: do ->
-    #   Socket = require("./models/socket")(sn, $, _)
-    #   return new Socket()
-
-
-  # ============================================================
-  # BackBone COLLECTION
-
-
-  # ============================================================
-  # BackBone VIEW  
-
-
-  window.appRun = () ->
+  window.appRun = (roomId=null) ->
     console.log "%cAPP RUN", "color: #999999"
-    Background.execute "stageAppRun"
-    # sn.bb.models.stage.set "isRun", true
-
+    Background.reqres.request "stageAppRun", roomId
+    # Background.execute "stageAppRun"
 
   window.appStop = () ->
     console.log "%cAPP STOP", "color: #999999"
-    Background.execute "stopAppRun"
-    # sn.bb.models.stage.set "isRun", false
-
+    Background.reqres.request "sopAppRun"
+    # Background.execute "stopAppRun"
 
   $ ->
     # --------------------------------------------------------------

@@ -107,7 +107,7 @@ Day = (function() {
           port = ':' + config['port'];
         }
 
-        result = '//' + config.host + port + '/memorys/' + this.dayId + '/' + this._id;
+        result = config.protocol + '://' + config.host + port + '/memorys/' + this.dayId + '/' + this._id;
         return result;
       });
 
@@ -121,7 +121,7 @@ Day = (function() {
           port = ':' + config['port'];
         }
 
-        result = '//' + config.host + port + '/memorys/' + this.dayId + '/' + this._id + this.ext;
+        result = config.protocol + '://' + config.host + port + '/memorys/' + this.dayId + '/' + this._id + this.ext;
         return result;
       });
 

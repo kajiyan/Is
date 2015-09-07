@@ -305,6 +305,12 @@ module.exports = (App, sn, $, _) ->
           model: @models.stage
         )
 
+      # ============================================================
+      # REQUEST RESPONSE
+      App.reqres.setHandler "stageGetWindowSize", () =>
+        # console.log "%c[Stage] Request Response | stageGetWindowSize", debug.style
+        return @models.stage.get "window"
+
     # ============================================================
     StageModule.addFinalizer () ->
       console.log "%c[Stage] addFinalizer", debug.style
