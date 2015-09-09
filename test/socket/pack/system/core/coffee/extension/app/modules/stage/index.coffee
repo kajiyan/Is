@@ -71,10 +71,13 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Stage] EntranceItemView -> initialize", debug.style
         Backbone.Validation.bind @
 
+        # エクステンションの起動状態に変化があった時のイベントリスナー
+        App.vent.on "connectChangeExtensionState", @_changeExtensionStateHandler.bind @
+
         @listenTo @model, "change:isRoomIdValid", @_changeIsRoomIdValidHandler
 
       # ------------------------------------------------------------
-      el: "#js-check-in"
+      el: "#js-is-body"
 
       # ------------------------------------------------------------
       ui: 
@@ -82,6 +85,8 @@ module.exports = (App, sn, $, _) ->
         manualRoomButton: "#js-check-in-button--room_manual"
         checkInRoomIdInput: "#js-check-in-input--room_id"
         checkInFormAutomaticRoom: "#js-check-in-form--room_automatic"
+        checkOutForm: "#js-check-out-form"
+        checkOutButton: "#js-check-out-button"
 
       # ------------------------------------------------------------
       template: false
@@ -90,6 +95,9 @@ module.exports = (App, sn, $, _) ->
       events:
         "submit @ui.manualRoomForm": "_checkInManualRoomHandler"
         "submit @ui.checkInFormAutomaticRoom": "_checkInAutomaticRoomHandler"
+        "submit @ui.checkOutForm": (e) ->
+          e.preventDefault()
+          window.bg.appStop()
 
       # ------------------------------------------------------------
       bindings: 
@@ -125,11 +133,13 @@ module.exports = (App, sn, $, _) ->
       _checkInAutomaticRoomHandler: (e) ->
         console.log "%c[Stage] EntranceItemView -> _checkInAutomaticRoomHandler", debug.style
         e.preventDefault()
-        window.bg.appRun null
+        window.bg.appRun "000000"
+        # window.bg.appRun null
 
       # ------------------------------------------------------------
       # /** 
       #  * EntranceItemView#_changeIsRoomIdValidHandler
+      #  * フォームのバリデーション結果によってボタンの状態をアップデートする
       #  * @prop {Object} model - BackBone Model Object
       #  * @prop {bool} isRoomIdValid - フォームに入力されたAutomatic Room IDのバリデーション結果
       #  */
@@ -140,6 +150,18 @@ module.exports = (App, sn, $, _) ->
           @ui.manualRoomButton.prop "disabled", false
         else
           @ui.manualRoomButton.prop "disabled", true
+
+      # --------------------------------------------------------------
+      # /**
+      #  * StageItemView#_changeExtensionStateHandler
+      #  * エクステンションの起動状態が変わった時に呼ばれるイベントハンドラー
+      #  * @param {Object} extensionState
+      #  * @prop {boolean} extensionState.isRun - エクステンションの起動状態
+      #  * @prop {boolean} extensionState.isConnected - socketサーバーとの接続状態
+      #  */
+      # --------------------------------------------------------------
+      _changeExtensionStateHandler: (extensionState) ->
+        console.log "%c[Stage] EntranceItemView -> _changeExtensionStateHandler", debug.style, extensionState
 
 
 

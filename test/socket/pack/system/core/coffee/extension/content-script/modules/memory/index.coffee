@@ -341,7 +341,8 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       createAt = sn.moment(SETTING.CONFIG.MEMORY.createAt)
       SETTING.CONFIG.MEMORY.createAt = createAt.format("DD MMMM YYYY [at] HH:mm")
 
-      memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY])
+      # memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY])
+      memorysCollection = new MemorysCollection()
 
       memorysCollectionView = new MemorysCollectionView
         collection: memorysCollection

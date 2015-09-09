@@ -66,7 +66,7 @@ module.exports = (App, sn, $, _) ->
         @port.onMessage.addListener (message) =>
           # console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
           # background からの通知か判別する
-          if (message.from? and message.from is "background") and message.type?
+          if (message.to? and message.to is "contentScript") and (message.from? and message.from is "background") and message.type?
             switch message.type
               when "setup"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message.body

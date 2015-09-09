@@ -2,6 +2,7 @@
 # Socket
 # 
 # EVENT
+#   - socketConnecteded
 #   - socketDisconnect
 #   - socketJointed
 #   - socketAddUser
@@ -39,13 +40,14 @@ module.exports = (App, sn, $, _) ->
       #  * @prop {boolean} isRun - エクステンションの起動状態
       #  * @prop {boolean} isConnected - webSocketの接続状態
       #  * @prop {Object} residents - 同じRoomに所属するユーザーの初期化に必要な値が入った配列
+      #  * @prop {boolean} extensionState.isRoomJoin - room 入室状態
       #  */
       # ------------------------------------------------------------
       defaults:
         isRun: false
         isConnected: false
+        isRoomJoin: false
         residents: []
-        # user: []
 
       # --------------------------------------------------------------
       # /**
@@ -125,12 +127,11 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       _disconnectHandler: () ->
         console.log "%c[Socket] SocketModel -> _disconnectHandler", debug.style
-        # 接続状態を変更
-        @set "isConnected", false
-
-        # 接続ユーザーを空にする
-        @set "residents", []
-
+        
+        @set 
+          "isConnected": false # 接続状態を切断状態へ変更
+          "isRoomJoin": false  # 接続状態を退室状態へ変更
+          "residents": []      # 接続ユーザーを空にする
         App.vent.trigger "socketDisconnect"
 
       # ------------------------------------------------------------
@@ -142,14 +143,16 @@ module.exports = (App, sn, $, _) ->
       _join: () ->
         console.log "%c[Socket] SocketModel -> join", debug.style
 
-        @socket.emit "join", {}, () ->
+        data =
+          roomId: App.reqres.request "stageGetRoomId"
+
+        @socket.emit "join", data, () =>
           console.log "%c[Socket] SocketModel -> jointed", debug.style
+          # 接続状態を入室状態へ変更
+          @set "isRoomJoin", true
           # socketJointed イベントを発火する
           App.vent.trigger "socketJointed"
-
-          # 先にroom に入室していたユーザー情報の取得
-          # 先にroom に入室していたユーザーに情報を通知
-
+          
       # ------------------------------------------------------------
       # /**
       #  * SocketModel#_initializeUserHandler
@@ -255,7 +258,7 @@ module.exports = (App, sn, $, _) ->
 
         if @get "isConnected"
           @socket.emit "addMemory", data, () ->
-            App.vent.trigger "socketAddedMemory" 
+            App.vent.trigger "socketAddedMemory"
 
       # ------------------------------------------------------------
       # /**
@@ -282,6 +285,7 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] SocketModel -> _connectHandler", debug.style, @socket.id
         # 接続状態を変更
         @set "isConnected", true
+        App.vent.trigger "socketConnected", true
 
       # ------------------------------------------------------------
       # /**
@@ -306,7 +310,7 @@ module.exports = (App, sn, $, _) ->
 
       # ------------------------------------------------------------
       # /**
-      #  * SocketModel#_changeIsRunHandler
+      #  * SocketModel#_toggleIsRunHandler
       #  * エクステンションの状態が変更された時に実行される
       #  * @param {boolean} isRun - エクステンションの起動状態
       #  */
@@ -531,13 +535,17 @@ module.exports = (App, sn, $, _) ->
 
       # ============================================================
       # REQUEST RESPONSE
+      App.reqres.setHandler "socketGetIsConnected", () =>
+        console.log "%c[Socket] Request Response | socketGetIsConnected", debug.style
+        return @models.socket.get "isConnected"
+
+      App.reqres.setHandler "socketGetIsRoomJoin", () =>
+        console.log "%c[Socket] Request Response | socketGetIsRoomJoin", debug.style
+        return @models.socket.get "isRoomJoin"
+
       App.reqres.setHandler "socketGetResidents", () =>
         console.log "%c[Socket] Request Response | socketGetResidents", debug.style
         return @models.socket.get "residents"
-
-      # App.reqres.setHandler "socketGetUsers", () =>
-      #   console.log "%c[Socket] Request Response | socketGetUsers", debug.style
-      #   return @models.socket.get "users"
 
 
     # ============================================================

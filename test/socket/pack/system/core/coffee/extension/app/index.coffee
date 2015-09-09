@@ -48,48 +48,9 @@ do (window=window, document=document, $=jQuery) ->
     # ============================================================
     sn.modules =
       stage: require("./modules/stage/index")(App, sn, $, _)
+      connect: require("./modules/connect/index")(App, sn, $, _)
 
     App.start()
-
-    # # ============================================================
-    # # BackBone
-    # # ============================================================
-    # sn.bb =
-    #   models: null
-    #   collections: null
-    #   views: null
-
-    # # ============================================================
-    # # BackBone MODEL
-
-    # # ============================================================
-    # # BackBone COLLECTION
-
-    # # ============================================================
-    # # BackBone - VIEW
-    # sn.bb.views =
-    #   "stage": do ->
-    #     Stage = require("./views/stage")(sn, $, _)
-    #     return new Stage()
-
-    # # --------------------------------------------------------------
-    # sn.tf.setup ->
-    #   # util = require("./helper/util")(sn)
-
-    #   $.when(
-    #     for key, model of sn.bb.models
-    #       model.setup?()
-    #   ).then( =>
-    #     $.when(
-    #       for key, view of sn.bb.views
-    #         view.setup?()
-    #     )
-    #   ).then( =>
-    #     $.when(
-    #       console.log "%cPopup Setup Complete", "color: #d9597b"
-    #     )
-    #   )
-
 
     # --------------------------------------------------------------
     sn.tf.update ->

@@ -28,13 +28,13 @@ do (window=window, document=document, $=jQuery) ->
 
 
   window.appRun = (roomId=null) ->
-    console.log "%cAPP RUN", "color: #999999"
+    console.log "APP RUN"
     Background.reqres.request "stageAppRun", roomId
     # Background.execute "stageAppRun"
 
   window.appStop = () ->
-    console.log "%cAPP STOP", "color: #999999"
-    Background.reqres.request "sopAppRun"
+    console.log "APP STOP"
+    Background.reqres.request "stopAppRun"
     # Background.execute "stopAppRun"
 
   $ ->

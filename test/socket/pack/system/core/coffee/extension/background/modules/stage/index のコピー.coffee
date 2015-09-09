@@ -37,7 +37,6 @@ module.exports = (App, sn, $, _) ->
       #  * オブジェクトのキーと同じものを指定すると、その値で上書きされる。 
       #  * @type {Object}
       #  * @prop {boolean} isRun - エクステンションの起動状態
-      #  * @prop {string} roomId - 入室する部屋のID
       #  * @prop {Object} activeInfo - 選択されているタブのID
       #  * @prop {number} tabId - 選択されているタブID
       #  * @prop {number} windowId - 選択されているウインドウID
@@ -45,7 +44,6 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       defaults:
         isRun: false
-        roomId: null
         activeInfo:
           tabId: null
           windowId: null
@@ -76,14 +74,13 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       # /**
       #  * StageModel#_changeIsRunHandler
-      #  * stageChangeIsRun イベントを発火させる
       #  * @param {Object} Model - BackBone Model Object
       #  */
       # ------------------------------------------------------------
       _changeIsRunHandler: (stageModel, isRun) ->
         console.log "%c[Stage] StageModel -> _changeIsRunHandler", debug.style, isRun
-        # console.log chrome.extension.getViews type: "popup"
 
+        # stageChangeIsRun イベントを発火させる
         App.vent.trigger "stageChangeIsRun", isRun
 
         if isRun
@@ -163,10 +160,6 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Stage] Request Response | stopAppRun", debug.style
         @models.stage.set
           isRun: false
-
-      App.reqres.setHandler "stageGetRoomId", () =>
-        console.log "%c[Stage] Request Response | stageGetRoomId", debug.style
-        return @models.stage.get "roomId"
 
       App.reqres.setHandler "stageGetActiveInfo", () =>
         console.log "%c[Stage] Request Response | stageGetActiveInfo", debug.style

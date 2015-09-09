@@ -107,15 +107,41 @@ Extension = (function() {
         // --------------------------------------------------------------
         socket.on('join', function(_keyData, callback) {
           console.log('[Controller] Extension -> join');
+          console.log(_keyData);
 
           var keyData = _.extend({
             'roomId': null
           }, _keyData);
 
           if (keyData.roomId !== null) {
-            // Room ID が指定されている場合の処理
+            // Room ID が指定されている場合の処理 ManualRoomへのログイン
             console.log('[Controller] Extension -> join | ID Join');
 
+            // Q.all([
+            //   // join できるAutomaticRoom を取得してくる
+            //   _this._dayModel.getAutomaticRooms({
+            //     'populateSelect': {},
+            //     'populateMatch': {
+            //       'capacity': { '$ne': 0 }
+            //     },
+            //     'populateOptions': {
+            //       'sort': { 'lastModified': 1 }
+            //     }
+            //   })
+            // ]).then(
+            //   function(data) {
+            //     console.log('getAutomaticRooms Length: ' + data[0].length);
+                
+            //   //   if (data[0].length > 0) {
+            //   //     // join できるAutomaticRoomがある場合の処理
+            //   //     joinRoom(data[0])();
+            //   //   } else {
+            //   //     // join できるAutomaticRoomがない場合の処理
+            //   //     createRoom();
+            //   //   }
+            //   // },
+            //   function(data) { /* reject */ }
+            // );
           } else {
             // Room ID が指定されていない場合の処理
             console.log('[Controller] Extension -> join | Random Join');
@@ -484,6 +510,14 @@ Extension = (function() {
     })(this);
     
     // テスト用
+    (function(_this) {
+      _this._dayModel.addManualRoom({
+        'roomId': 'debug0'
+      });
+      _this._dayModel.getManualRooms();
+    })(this);
+
+
     // (function(_this) {
     //   console.log('call');
     //   _this._setupSocket(_this);

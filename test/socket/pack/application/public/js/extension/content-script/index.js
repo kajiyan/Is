@@ -37152,7 +37152,7 @@
 	          return this._update((function(_this) {
 	            return function() {
 	              _this._positions.unshift(_this.get("position"));
-	              _this._positions.pop();
+	              return _this._positions.pop();
 	
 	              /* 一旦コメントアウト
 	              if (~~(Math.random() * (@_frameRate * @_recInterval))) is 1
@@ -37163,13 +37163,11 @@
 	                App.vent.trigger "stageAddMemory",
 	                  window: @get "window"
 	                  positions: positions
+	              if (~~(Math.random() * (@_frameRate * @_recInterval))) is 1
+	                console.log "%c[Stage] StageModel | getMemory Request", debug.style
+	                App.vent.trigger "stageGetMemory",
+	                  limit: (~~(Math.random() * @_memoryGetMaxLimit + 1))
 	               */
-	              if ((~~(Math.random() * (_this._frameRate * _this._recInterval))) === 1) {
-	                console.log("%c[Stage] StageModel | getMemory Request", debug.style);
-	                return App.vent.trigger("stageGetMemory", {
-	                  limit: ~~(Math.random() * _this._memoryGetMaxLimit + 1)
-	                });
-	              }
 	            };
 	          })(this));
 	        } else {
@@ -37307,7 +37305,7 @@
 	        });
 	        return this.port.onMessage.addListener((function(_this) {
 	          return function(message) {
-	            if (((message.from != null) && message.from === "background") && (message.type != null)) {
+	            if (((message.to != null) && message.to === "contentScript") && ((message.from != null) && message.from === "background") && (message.type != null)) {
 	              switch (message.type) {
 	                case "setup":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message.body);
@@ -37948,7 +37946,7 @@
 	      console.log("%c[Memory] addInitializer", debug.style, options);
 	      createAt = sn.moment(SETTING.CONFIG.MEMORY.createAt);
 	      SETTING.CONFIG.MEMORY.createAt = createAt.format("DD MMMM YYYY [at] HH:mm");
-	      memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY]);
+	      memorysCollection = new MemorysCollection();
 	      memorysCollectionView = new MemorysCollectionView({
 	        collection: memorysCollection
 	      });

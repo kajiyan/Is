@@ -129,11 +129,11 @@ module.exports = (App, sn, $, _) ->
               App.vent.trigger "stageAddMemory",
                 window: @get "window"
                 positions: positions
-            ###
             if (~~(Math.random() * (@_frameRate * @_recInterval))) is 1
               console.log "%c[Stage] StageModel | getMemory Request", debug.style
               App.vent.trigger "stageGetMemory",
                 limit: (~~(Math.random() * @_memoryGetMaxLimit + 1))
+            ###
         else
           @_stop()
         

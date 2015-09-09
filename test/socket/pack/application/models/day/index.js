@@ -369,11 +369,87 @@ Day = (function() {
 
   // --------------------------------------------------------------
   /**
+   * Day Class -> addManualRoom
+   * @param {Object} _query
+   * @prop {String} dayId - 
+   *   追加するManualRoom Collection のDayID を指定する
+   *   何も指定されていなければサーバー内の時間をベースに生成されたidをクエリのキーにする
+   * @prop {String} roomId - 
+   *   追加するRoom Dcumentに設定するroomId を半角英数字6桁で構成された文字列で設定する
+   * @return {Object} Q promise を返す
+   */
+  // --------------------------------------------------------------
+  Day.prototype.addManualRoom = function(_query) {
+    console.log('[Model] Day -> addManualRoom');
+
+    try {
+      var query = _.extend({
+        'dayId': helpers.utils.getDayId(),
+        'roomId': null
+      }, _query);
+
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          if(!validator.isAlphanumeric(query.roomId) && !validator.isLength(query.roomId, 6)) {
+            reject(new Error('[Model] Day -> addManualRoom | Validation Error: Query Value.'));
+            return;
+          }
+
+          var result = {};
+          var room = new _this.Model.ManualRoom({
+            'dayId': query.dayId,
+            'roomId': query.roomId,
+            'lastModified': new Date()
+          });
+
+          room.save(function(error, doc, numberAffected) {
+            // console.log(error, doc, numberAffected);
+            if (error) {
+              reject(error);
+              return;
+            }
+
+            result = doc;
+
+            _this.Model.Day
+              .findOneAndUpdate(
+                {
+                  'dayId': query.dayId
+                },
+                {
+                  '$push': {
+                    'manualRooms': doc._id
+                  }
+                },
+                {
+                  'new': true,
+                  'upsert': true
+                }
+              )
+              .exec(function(error, doc) {
+                // console.log(error, doc);
+                if (error) {
+                  reject(error);
+                  return;
+                }
+
+                resolve(result);
+              });
+          });
+        });
+      })(this);
+    } catch(error) {
+      console.log(error);
+    }
+  };
+
+  // --------------------------------------------------------------
+  /**
    * Day#getNamberOfAutomaticRoom
    * @param {Object} [_query] - クエリを指定する
    * @prop {string} dayId - カウント対象のdayId を指定する
    *
-   * promise　の状態がresolve　になるとAutomaticRoom Document の数を返す 
+   * promiseの状態がresolve　になるとAutomaticRoom Document の数を返す 
    */
   // --------------------------------------------------------------
   Day.prototype.getNamberOfAutomaticRoom = function(_query) {
@@ -473,6 +549,38 @@ Day = (function() {
       console.log(error);
     }
   };
+
+
+  // --------------------------------------------------------------
+  /**
+   * Day Class -> getManualRooms
+   */
+  // --------------------------------------------------------------
+  Day.prototype.getManualRooms = function(_query) {
+    console.log('[Model] Day -> getManualRooms');
+
+    try {
+       var query = _.extend({
+        'dayId': helpers.utils.getDayId(),
+        'populatePath': 'manualRooms',
+        'populateSelect': {},
+        'populateMatch': {},
+        'populateOptions': {}
+      }, _query);
+
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          if (!validator.isNumeric(query.dayId) && !validator.isLength(query.dayId, 8)) {
+            reject(new Error('[Model] Day -> getManualRooms | Validation Error: Query Value.'));
+            return;
+          }
+        });
+      })(this);
+    } catch(error) {
+      console.log(error);
+    }
+  };
+
 
   // --------------------------------------------------------------
   /**

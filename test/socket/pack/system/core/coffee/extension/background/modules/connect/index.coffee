@@ -60,67 +60,111 @@ module.exports = (App, sn, $, _) ->
         # content script からのLong-lived 接続
         # chrome.extension.onConnect.addListener (port) =>
         chrome.runtime.onConnect.addListener (port) =>
-          # スクリーンショット
-          landscape = ""
-          # 初期化済みのResident IDの配列
-          initializedResidents = []
+          # ============================================================
+          if port.name is "popupScript"
+            console.log "%c[Connect] ConnectModel | popupScript - onConnect", debug.style
 
-          tabId = port.sender.tab.id
-          windowId = port.sender.tab.windowId
-          link = port.sender.tab.url
+            changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
+            sendConnectedHandler = @_sendConnectedHandler.bind(@)(port)
+            sendJointedHandler = @_sendJointedHandler.bind(@)(port)
+            sendDisconnectHandler = @_sendDisconnectHandler.bind(@)(port)
 
-          changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
-          changeActiveInfoHandler = 
-            @_changeActiveInfoHandler
+            # Long-lived 接続 切断時の処理を登録する
+            port.onDisconnect.addListener =>
+              App.vent.off "stageChangeIsRun", changeIsRunHandler
+              App.vent.off "socketConnected", sendConnectedHandler
+              App.vent.off "socketJointed", sendJointedHandler
+              App.vent.off "socketDisconnect", sendDisconnectHandler
+
+            # エクステンションの起動状態に変化があった時のイベントリスナー
+            App.vent.on "stageChangeIsRun", changeIsRunHandler
+            # socketサーバーへの接続が成功した時
+            App.vent.on "socketConnected", sendConnectedHandler
+            # socketサーバーの特定のRoomへの入室が完了した時に呼び出される
+            App.vent.on "socketJointed", sendJointedHandler
+            # socketサーバーsocketサーバーとの通信が切断された時に呼び出される
+            App.vent.on "socketDisconnect", sendDisconnectHandler 
+
+            # メッセージを受信した時の処理
+            port.onMessage.addListener (message) =>
+              if (message.from? and message.from is "popupScript") and message.type?
+                switch message.type
+                  # --------------------------------------------------------------
+                  when "setup"
+                    console.log "%c[Connect] ConnectModel | Long-lived Receive Message | popupScript - setup", debug.style, message
+
+                    # エクステンションとsocketの接続情報を返す
+                    port.postMessage
+                      to: "popupScript"
+                      from: "background"
+                      type: "setup"
+                      body:
+                        isRun: @get "isRun"
+                        isConnected: App.reqres.request "socketGetIsConnected"
+                        isRoomJoin: App.reqres.request "socketGetIsRoomJoin"
+
+          # ============================================================
+          if port.name is "contentScript"
+            console.log "%c[Connect] ConnectModel | contentScript - onConnect", debug.style
+
+            # スクリーンショット
+            landscape = ""
+            # 初期化済みのResident IDの配列
+            initializedResidents = []
+
+            tabId = port.sender.tab.id
+            windowId = port.sender.tab.windowId
+            link = port.sender.tab.url
+
+            changeIsRunHandler = @_changeIsRunHandler.bind(@)(port)
+            changeActiveInfoHandler = 
+              @_changeActiveInfoHandler
+                .bind(@)(
+                  port
+                  ,
+                  get: ->
+                    return [].concat(initializedResidents)
+                  set: (_initializedResidents) ->
+                    initializedResidents = _initializedResidents
+                  ,
+                  getLandscape = ->
+                    return landscape: landscape
+                )
+            sendJointedHandler = @_sendJointedHandler.bind(@)(port)
+            sendDisconnectHandler = @_sendDisconnectHandler.bind(@)(port)
+            sendAddUser = @_sendAddUser.bind(@)(port)
+            sendAddResident = @_sendAddResident
               .bind(@)(
-                port
-                ,
+                port,
                 get: ->
                   return [].concat(initializedResidents)
                 set: (_initializedResidents) ->
                   initializedResidents = _initializedResidents
-                ,
-                getLandscape = ->
-                  return landscape: landscape
               )
-          sendJointedHandler = @_sendJointedHandler.bind(@)(port)
-          sendDisconnectHandler = @_sendDisconnectHandler.bind(@)(port)
-          sendAddUser = @_sendAddUser.bind(@)(port)
-          sendAddResident = @_sendAddResident
-            .bind(@)(
-              port,
-              get: ->
-                return [].concat(initializedResidents)
-              set: (_initializedResidents) ->
-                initializedResidents = _initializedResidents
-            )
-          sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
-          sendUpdateLocation = @_sendUpdateLocation.bind(@)(port)
-          sendUpdateWindowSize = @_sendUpdateWindowSize.bind(@)(port)
-          sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
-          sendUpdateLandscapeHandler = @_sendUpdateLandscapeHandler.bind(@)(port)
-          sendMemoryHandler = @_sendMemoryHandler.bind(@)(port)
+            sendCheckOutHandler = @_sendCheckOutHandler.bind(@)(port)
+            sendUpdateLocation = @_sendUpdateLocation.bind(@)(port)
+            sendUpdateWindowSize = @_sendUpdateWindowSize.bind(@)(port)
+            sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
+            sendUpdateLandscapeHandler = @_sendUpdateLandscapeHandler.bind(@)(port)
+            sendMemoryHandler = @_sendMemoryHandler.bind(@)(port)
 
-          # Long-lived 接続 切断時の処理を登録する
-          port.onDisconnect.addListener =>
-            App.vent.off "stageChangeIsRun", changeIsRunHandler
-            App.vent.off "stageChangeActiveInfo", changeActiveInfoHandler
-            App.vent.off "socketJointed", sendJointedHandler
-            App.vent.off "socketDisconnect", sendDisconnectHandler 
-            App.vent.off "socketAddUser", sendAddUser
-            App.vent.off "socketAddResident", sendAddResident
-            App.vent.off "socketCheckOut", sendCheckOutHandler
-            App.vent.off "socketUpdateLocation", sendUpdateLocation
-            App.vent.off "socketUpdateWindowSize", sendUpdateWindowSize
-            App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
-            App.vent.off "socketUpdateLandscape", sendUpdateLandscapeHandler
-            App.vent.off "socketResponseMemory", sendMemoryHandler
-            port.disconnect()
-            console.log "%c[Connect] ConnectModel | onDisconnect", debug.style
+            # Long-lived 接続 切断時の処理を登録する
+            port.onDisconnect.addListener =>
+              App.vent.off "stageChangeIsRun", changeIsRunHandler
+              App.vent.off "stageChangeActiveInfo", changeActiveInfoHandler
+              App.vent.off "socketJointed", sendJointedHandler
+              App.vent.off "socketDisconnect", sendDisconnectHandler
+              App.vent.off "socketAddUser", sendAddUser
+              App.vent.off "socketAddResident", sendAddResident
+              App.vent.off "socketCheckOut", sendCheckOutHandler
+              App.vent.off "socketUpdateLocation", sendUpdateLocation
+              App.vent.off "socketUpdateWindowSize", sendUpdateWindowSize
+              App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
+              App.vent.off "socketUpdateLandscape", sendUpdateLandscapeHandler
+              App.vent.off "socketResponseMemory", sendMemoryHandler
+              port.disconnect()
+              console.log "%c[Connect] ConnectModel | onDisconnect", debug.style
 
-
-          if port.name is "contentScript"
-            console.log "%c[Connect] ConnectModel | onConnect", debug.style
 
             # エクステンションの起動状態に変化があった時のイベントリスナー
             App.vent.on "stageChangeIsRun", changeIsRunHandler
@@ -306,11 +350,13 @@ module.exports = (App, sn, $, _) ->
           @set "isRun", isRun
 
           port.postMessage
-            to: "contentScript"
+            to: port.name
             from: "background"
             type: "changeIsRun"
             body:
               isRun: isRun
+              isConnected: App.reqres.request "socketGetIsConnected"
+              isRoomJoin: App.reqres.request "socketGetIsRoomJoin"
 
       # --------------------------------------------------------------
       # /**
@@ -361,6 +407,25 @@ module.exports = (App, sn, $, _) ->
 
       # --------------------------------------------------------------
       # /**
+      #  * ConnectModel#_sendConnectedHandler
+      #  * socketサーバーへの接続が成功した時に呼び出されるイベントハンドラー
+      #  */
+      # -------------------------------------------------------------
+      _sendConnectedHandler: (port) ->
+        return () =>
+          console.log "%c[Connect] ConnectModel -> _sendConnectedHandler", debug.style
+
+          port.postMessage
+            to: port.name
+            from: "background"
+            type: "connected"
+            body: 
+              isRun: @get "isRun"
+              isConnected: App.reqres.request "socketGetIsConnected"
+              isRoomJoin: App.reqres.request "socketGetIsRoomJoin"
+
+      # --------------------------------------------------------------
+      # /**
       #  * ConnectModel#_sendJointedHandler
       #  * socketサーバーの特定のRoomへの入室が完了した時に呼び出されるイベントハンドラー
       #  */
@@ -369,12 +434,22 @@ module.exports = (App, sn, $, _) ->
         return () =>
           console.log "%c[Connect] ConnectModel -> _sendJointedHandler", debug.style
 
+          if port.name is "popupScript"
+            port.postMessage
+              to: "popupScript"
+              from: "background"
+              type: "jointed"
+              body: 
+                isRun: @get "isRun"
+                isConnected: App.reqres.request "socketGetIsConnected"
+                isRoomJoin: App.reqres.request "socketGetIsRoomJoin"
+            return
+
           # 現在選択されているTabの情報を取得する
           activeInfo = App.reqres.request "stageGetActiveInfo"
 
           # アクティブなタブだけにメッセージを送る
           if port.sender.tab.id is activeInfo.tabId
-          # if port.sender.tab.id is selsectedTabId
             port.postMessage
               to: "contentScript"
               from: "background"
@@ -388,14 +463,17 @@ module.exports = (App, sn, $, _) ->
       #  */
       # -------------------------------------------------------------
       _sendDisconnectHandler: (port) ->
-        return () =>
+        return (data) =>
           console.log "%c[Connect] ConnectModel -> _sendDisconnectHandler", debug.style
 
           port.postMessage
-            to: "contentScript"
+            to: port.name
             from: "background"
             type: "disconnect"
-            body: {}
+            body: 
+              isRun: @get "isRun"
+              isConnected: App.reqres.request "socketGetIsConnected"
+              isRoomJoin: App.reqres.request "socketGetIsRoomJoin"
 
       # --------------------------------------------------------------
       # /**
@@ -609,6 +687,20 @@ module.exports = (App, sn, $, _) ->
             from: "background"
             type: "receiveMemory"
             body: data
+
+      # # --------------------------------------------------------------
+      # _poupChangeIsRunHandler: (port) ->
+      #   return (isRun) =>
+      #     console.log "%c[Connect] ConnectModel -> popup | _changeIsRunHandler", debug.style, isRun
+
+      #     @set "isRun", isRun
+
+      #     port.postMessage
+      #       to: "poupScript"
+      #       from: "background"
+      #       type: "changeIsRun"
+      #       body:
+      #         isRun: isRun
 
 
     # ============================================================

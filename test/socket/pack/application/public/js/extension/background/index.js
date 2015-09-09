@@ -61,12 +61,12 @@
 	    if (roomId == null) {
 	      roomId = null;
 	    }
-	    console.log("%cAPP RUN", "color: #999999");
+	    console.log("APP RUN");
 	    return Background.reqres.request("stageAppRun", roomId);
 	  };
 	  window.appStop = function() {
-	    console.log("%cAPP STOP", "color: #999999");
-	    return Background.reqres.request("sopAppRun");
+	    console.log("APP STOP");
+	    return Background.reqres.request("stopAppRun");
 	  };
 	  return $(function() {
 	    sn.tf.setup(function() {
@@ -24882,6 +24882,7 @@
 	    StageModel = Backbone.Model.extend({
 	      defaults: {
 	        isRun: false,
+	        roomId: null,
 	        activeInfo: {
 	          tabId: null,
 	          windowId: null
@@ -24952,6 +24953,12 @@
 	          });
 	        };
 	      })(this));
+	      App.reqres.setHandler("stageGetRoomId", (function(_this) {
+	        return function() {
+	          console.log("%c[Stage] Request Response | stageGetRoomId", debug.style);
+	          return _this.models.stage.get("roomId");
+	        };
+	      })(this));
 	      return App.reqres.setHandler("stageGetActiveInfo", (function(_this) {
 	        return function() {
 	          console.log("%c[Stage] Request Response | stageGetActiveInfo", debug.style);
@@ -24986,60 +24993,95 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeActiveInfoHandler, changeIsRunHandler, getLandscape, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendDisconnectHandler, sendJointedHandler, sendMemoryHandler, sendUpdateLandscapeHandler, sendUpdateLocation, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
-	            landscape = "";
-	            initializedResidents = [];
-	            tabId = port.sender.tab.id;
-	            windowId = port.sender.tab.windowId;
-	            link = port.sender.tab.url;
-	            changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
-	            changeActiveInfoHandler = _this._changeActiveInfoHandler.bind(_this)(port, {
-	              get: function() {
-	                return [].concat(initializedResidents);
-	              },
-	              set: function(_initializedResidents) {
-	                return initializedResidents = _initializedResidents;
-	              }
-	            }, getLandscape = function() {
-	              return {
-	                landscape: landscape
-	              };
-	            });
-	            sendJointedHandler = _this._sendJointedHandler.bind(_this)(port);
-	            sendDisconnectHandler = _this._sendDisconnectHandler.bind(_this)(port);
-	            sendAddUser = _this._sendAddUser.bind(_this)(port);
-	            sendAddResident = _this._sendAddResident.bind(_this)(port, {
-	              get: function() {
-	                return [].concat(initializedResidents);
-	              },
-	              set: function(_initializedResidents) {
-	                return initializedResidents = _initializedResidents;
-	              }
-	            });
-	            sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
-	            sendUpdateLocation = _this._sendUpdateLocation.bind(_this)(port);
-	            sendUpdateWindowSize = _this._sendUpdateWindowSize.bind(_this)(port);
-	            sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
-	            sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
-	            sendMemoryHandler = _this._sendMemoryHandler.bind(_this)(port);
-	            port.onDisconnect.addListener(function() {
-	              App.vent.off("stageChangeIsRun", changeIsRunHandler);
-	              App.vent.off("stageChangeActiveInfo", changeActiveInfoHandler);
-	              App.vent.off("socketJointed", sendJointedHandler);
-	              App.vent.off("socketDisconnect", sendDisconnectHandler);
-	              App.vent.off("socketAddUser", sendAddUser);
-	              App.vent.off("socketAddResident", sendAddResident);
-	              App.vent.off("socketCheckOut", sendCheckOutHandler);
-	              App.vent.off("socketUpdateLocation", sendUpdateLocation);
-	              App.vent.off("socketUpdateWindowSize", sendUpdateWindowSize);
-	              App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
-	              App.vent.off("socketUpdateLandscape", sendUpdateLandscapeHandler);
-	              App.vent.off("socketResponseMemory", sendMemoryHandler);
-	              port.disconnect();
-	              return console.log("%c[Connect] ConnectModel | onDisconnect", debug.style);
-	            });
+	            var changeActiveInfoHandler, changeIsRunHandler, getLandscape, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendConnectedHandler, sendDisconnectHandler, sendJointedHandler, sendMemoryHandler, sendUpdateLandscapeHandler, sendUpdateLocation, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
+	            if (port.name === "popupScript") {
+	              console.log("%c[Connect] ConnectModel | popupScript - onConnect", debug.style);
+	              changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
+	              sendConnectedHandler = _this._sendConnectedHandler.bind(_this)(port);
+	              sendJointedHandler = _this._sendJointedHandler.bind(_this)(port);
+	              sendDisconnectHandler = _this._sendDisconnectHandler.bind(_this)(port);
+	              port.onDisconnect.addListener(function() {
+	                App.vent.off("stageChangeIsRun", changeIsRunHandler);
+	                App.vent.off("socketConnected", sendConnectedHandler);
+	                App.vent.off("socketJointed", sendJointedHandler);
+	                return App.vent.off("socketDisconnect", sendDisconnectHandler);
+	              });
+	              App.vent.on("stageChangeIsRun", changeIsRunHandler);
+	              App.vent.on("socketConnected", sendConnectedHandler);
+	              App.vent.on("socketJointed", sendJointedHandler);
+	              App.vent.on("socketDisconnect", sendDisconnectHandler);
+	              port.onMessage.addListener(function(message) {
+	                if (((message.from != null) && message.from === "popupScript") && (message.type != null)) {
+	                  switch (message.type) {
+	                    case "setup":
+	                      console.log("%c[Connect] ConnectModel | Long-lived Receive Message | popupScript - setup", debug.style, message);
+	                      return port.postMessage({
+	                        to: "popupScript",
+	                        from: "background",
+	                        type: "setup",
+	                        body: {
+	                          isRun: _this.get("isRun"),
+	                          isConnected: App.reqres.request("socketGetIsConnected"),
+	                          isRoomJoin: App.reqres.request("socketGetIsRoomJoin")
+	                        }
+	                      });
+	                  }
+	                }
+	              });
+	            }
 	            if (port.name === "contentScript") {
-	              console.log("%c[Connect] ConnectModel | onConnect", debug.style);
+	              console.log("%c[Connect] ConnectModel | contentScript - onConnect", debug.style);
+	              landscape = "";
+	              initializedResidents = [];
+	              tabId = port.sender.tab.id;
+	              windowId = port.sender.tab.windowId;
+	              link = port.sender.tab.url;
+	              changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
+	              changeActiveInfoHandler = _this._changeActiveInfoHandler.bind(_this)(port, {
+	                get: function() {
+	                  return [].concat(initializedResidents);
+	                },
+	                set: function(_initializedResidents) {
+	                  return initializedResidents = _initializedResidents;
+	                }
+	              }, getLandscape = function() {
+	                return {
+	                  landscape: landscape
+	                };
+	              });
+	              sendJointedHandler = _this._sendJointedHandler.bind(_this)(port);
+	              sendDisconnectHandler = _this._sendDisconnectHandler.bind(_this)(port);
+	              sendAddUser = _this._sendAddUser.bind(_this)(port);
+	              sendAddResident = _this._sendAddResident.bind(_this)(port, {
+	                get: function() {
+	                  return [].concat(initializedResidents);
+	                },
+	                set: function(_initializedResidents) {
+	                  return initializedResidents = _initializedResidents;
+	                }
+	              });
+	              sendCheckOutHandler = _this._sendCheckOutHandler.bind(_this)(port);
+	              sendUpdateLocation = _this._sendUpdateLocation.bind(_this)(port);
+	              sendUpdateWindowSize = _this._sendUpdateWindowSize.bind(_this)(port);
+	              sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
+	              sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
+	              sendMemoryHandler = _this._sendMemoryHandler.bind(_this)(port);
+	              port.onDisconnect.addListener(function() {
+	                App.vent.off("stageChangeIsRun", changeIsRunHandler);
+	                App.vent.off("stageChangeActiveInfo", changeActiveInfoHandler);
+	                App.vent.off("socketJointed", sendJointedHandler);
+	                App.vent.off("socketDisconnect", sendDisconnectHandler);
+	                App.vent.off("socketAddUser", sendAddUser);
+	                App.vent.off("socketAddResident", sendAddResident);
+	                App.vent.off("socketCheckOut", sendCheckOutHandler);
+	                App.vent.off("socketUpdateLocation", sendUpdateLocation);
+	                App.vent.off("socketUpdateWindowSize", sendUpdateWindowSize);
+	                App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
+	                App.vent.off("socketUpdateLandscape", sendUpdateLandscapeHandler);
+	                App.vent.off("socketResponseMemory", sendMemoryHandler);
+	                port.disconnect();
+	                return console.log("%c[Connect] ConnectModel | onDisconnect", debug.style);
+	              });
 	              App.vent.on("stageChangeIsRun", changeIsRunHandler);
 	              App.vent.on("stageChangeActiveInfo", changeActiveInfoHandler);
 	              App.vent.on("socketJointed", sendJointedHandler);
@@ -25186,11 +25228,13 @@
 	            console.log("%c[Connect] ConnectModel -> _changeIsRunHandler", debug.style, isRun);
 	            _this.set("isRun", isRun);
 	            return port.postMessage({
-	              to: "contentScript",
+	              to: port.name,
 	              from: "background",
 	              type: "changeIsRun",
 	              body: {
-	                isRun: isRun
+	                isRun: isRun,
+	                isConnected: App.reqres.request("socketGetIsConnected"),
+	                isRoomJoin: App.reqres.request("socketGetIsRoomJoin")
 	              }
 	            });
 	          };
@@ -25225,11 +25269,41 @@
 	          };
 	        })(this);
 	      },
+	      _sendConnectedHandler: function(port) {
+	        return (function(_this) {
+	          return function() {
+	            console.log("%c[Connect] ConnectModel -> _sendConnectedHandler", debug.style);
+	            return port.postMessage({
+	              to: port.name,
+	              from: "background",
+	              type: "connected",
+	              body: {
+	                isRun: _this.get("isRun"),
+	                isConnected: App.reqres.request("socketGetIsConnected"),
+	                isRoomJoin: App.reqres.request("socketGetIsRoomJoin")
+	              }
+	            });
+	          };
+	        })(this);
+	      },
 	      _sendJointedHandler: function(port) {
 	        return (function(_this) {
 	          return function() {
 	            var activeInfo;
 	            console.log("%c[Connect] ConnectModel -> _sendJointedHandler", debug.style);
+	            if (port.name === "popupScript") {
+	              port.postMessage({
+	                to: "popupScript",
+	                from: "background",
+	                type: "jointed",
+	                body: {
+	                  isRun: _this.get("isRun"),
+	                  isConnected: App.reqres.request("socketGetIsConnected"),
+	                  isRoomJoin: App.reqres.request("socketGetIsRoomJoin")
+	                }
+	              });
+	              return;
+	            }
 	            activeInfo = App.reqres.request("stageGetActiveInfo");
 	            if (port.sender.tab.id === activeInfo.tabId) {
 	              return port.postMessage({
@@ -25244,13 +25318,17 @@
 	      },
 	      _sendDisconnectHandler: function(port) {
 	        return (function(_this) {
-	          return function() {
+	          return function(data) {
 	            console.log("%c[Connect] ConnectModel -> _sendDisconnectHandler", debug.style);
 	            return port.postMessage({
-	              to: "contentScript",
+	              to: port.name,
 	              from: "background",
 	              type: "disconnect",
-	              body: {}
+	              body: {
+	                isRun: _this.get("isRun"),
+	                isConnected: App.reqres.request("socketGetIsConnected"),
+	                isRoomJoin: App.reqres.request("socketGetIsRoomJoin")
+	              }
 	            });
 	          };
 	        })(this);
@@ -25405,6 +25483,7 @@
 	      defaults: {
 	        isRun: false,
 	        isConnected: false,
+	        isRoomJoin: false,
 	        residents: []
 	      },
 	      initialize: function() {
@@ -25442,16 +25521,26 @@
 	      },
 	      _disconnectHandler: function() {
 	        console.log("%c[Socket] SocketModel -> _disconnectHandler", debug.style);
-	        this.set("isConnected", false);
-	        this.set("residents", []);
+	        this.set({
+	          "isConnected": false,
+	          "isRoomJoin": false,
+	          "residents": []
+	        });
 	        return App.vent.trigger("socketDisconnect");
 	      },
 	      _join: function() {
+	        var data;
 	        console.log("%c[Socket] SocketModel -> join", debug.style);
-	        return this.socket.emit("join", {}, function() {
-	          console.log("%c[Socket] SocketModel -> jointed", debug.style);
-	          return App.vent.trigger("socketJointed");
-	        });
+	        data = {
+	          roomId: App.reqres.request("stageGetRoomId")
+	        };
+	        return this.socket.emit("join", data, (function(_this) {
+	          return function() {
+	            console.log("%c[Socket] SocketModel -> jointed", debug.style);
+	            _this.set("isRoomJoin", true);
+	            return App.vent.trigger("socketJointed");
+	          };
+	        })(this));
 	      },
 	      _initializeUserHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _initializeUserHandler", debug.style, data);
@@ -25499,7 +25588,8 @@
 	      },
 	      _connectHandler: function() {
 	        console.log("%c[Socket] SocketModel -> _connectHandler", debug.style, this.socket.id);
-	        return this.set("isConnected", true);
+	        this.set("isConnected", true);
+	        return App.vent.trigger("socketConnected", true);
 	      },
 	      _changeIsRunHandler: function(isRun) {
 	        console.log("%c[Socket] SocketModel -> _changeIsRunHandler", debug.style, isRun);
@@ -25580,6 +25670,18 @@
 	      this.models = {
 	        socket: new SocketModel()
 	      };
+	      App.reqres.setHandler("socketGetIsConnected", (function(_this) {
+	        return function() {
+	          console.log("%c[Socket] Request Response | socketGetIsConnected", debug.style);
+	          return _this.models.socket.get("isConnected");
+	        };
+	      })(this));
+	      App.reqres.setHandler("socketGetIsRoomJoin", (function(_this) {
+	        return function() {
+	          console.log("%c[Socket] Request Response | socketGetIsRoomJoin", debug.style);
+	          return _this.models.socket.get("isRoomJoin");
+	        };
+	      })(this));
 	      return App.reqres.setHandler("socketGetResidents", (function(_this) {
 	        return function() {
 	          console.log("%c[Socket] Request Response | socketGetResidents", debug.style);
