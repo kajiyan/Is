@@ -153,6 +153,14 @@ Day = (function() {
           required: true,
           index: true
         },
+        compositeId: {
+          type: String,
+          required: true,
+          index: {
+            unique: true,
+            sparse: true
+          }
+        },
         capacity: {
           type: Number,
           min: 0,
@@ -180,6 +188,14 @@ Day = (function() {
           type: String,
           required: true,
           index: true
+        },
+        compositeId: {
+          type: String,
+          required: true,
+          index: {
+            unique: true,
+            sparse: true
+          }
         },
         capacity: {
           type: Number,
@@ -390,7 +406,10 @@ Day = (function() {
 
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
-          if(!validator.isAlphanumeric(query.roomId) && !validator.isLength(query.roomId, 6)) {
+          if(
+            !validator.isAlphanumeric(query.roomId) &&
+            !validator.isLength(query.roomId, 6)
+          ) {
             reject(new Error('[Model] Day -> addManualRoom | Validation Error: Query Value.'));
             return;
           }
@@ -399,11 +418,12 @@ Day = (function() {
           var room = new _this.Model.ManualRoom({
             'dayId': query.dayId,
             'roomId': query.roomId,
+            'compositeId': query.dayId + query.roomId,
             'lastModified': new Date()
           });
 
           room.save(function(error, doc, numberAffected) {
-            // console.log(error, doc, numberAffected);
+            console.log(error, doc, numberAffected);
             if (error) {
               reject(error);
               return;
@@ -570,10 +590,55 @@ Day = (function() {
 
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
-          if (!validator.isNumeric(query.dayId) && !validator.isLength(query.dayId, 8)) {
-            reject(new Error('[Model] Day -> getManualRooms | Validation Error: Query Value.'));
+          if (
+            !validator.isNumeric(query.dayId) ||
+            !validator.isLength(query.dayId, 8, 8) ||
+            !validator.isAlphanumeric(query.populateMatch.compositeId) ||
+            !validator.isLength(query.populateMatch.compositeId, 14, 14)
+          ) {
+            reject({
+              status: 'error',
+              type: 'BudQuery',
+              body: { message: 'There is a problem with the query.' }
+            });
             return;
           }
+
+          _this.Model.Day
+            .findOne({
+              'dayId': query.dayId
+            })
+            .populate({
+              'path': query.populatePath,
+              'select': query.populateSelect,
+              'match': query.populateMatch,
+              'options': query.populateOptions
+            })
+            .select({
+              '_id': 0,
+              'manualRooms': 1
+            })
+            .exec(function(error, doc, numberAffected) {
+              // console.log(error, doc.manualRooms, numberAffected);
+              if (error) {
+                reject({
+                  status: 'error',
+                  type: 'FailedExtraction',
+                  body: { message: 'Failed to extraction of data.' }
+                });
+                return;
+              }
+
+              if (doc.manualRooms.length > 0) {
+                resolve(doc.manualRooms);
+              } else {
+                reject({
+                  status: 'error',
+                  type: 'NoneData',
+                  body: { message: 'There is no corresponding data.' }
+                });
+              }
+            });
         });
       })(this);
     } catch(error) {
@@ -614,6 +679,64 @@ Day = (function() {
 
               if (error) {
                 reject(error);
+                return;
+              }
+              resolve(doc);
+            });
+        });
+      })(this);
+    } catch(error) {
+      console.log(error);
+    }
+  };
+
+
+  // --------------------------------------------------------------
+  /**
+   * Day Class -> updateManualRoom
+   */
+  // --------------------------------------------------------------
+  Day.prototype.updateManualRoom = function(_keyData) {
+    console.log('[Model] Day -> updateManualRoom');
+
+    try {
+      var keyData = _.extend({
+        'query': {
+          'conditions': {},
+          'update': {},
+          'options': {},
+          'callback': {}
+        }
+      }, _keyData);
+
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          _this.Model.ManualRoom
+            .update(
+              keyData.query.conditions,
+              keyData.query.update,
+              keyData.query.options,
+              keyData.query.callback
+            )
+            .exec(function(error, doc, numberAffected) {
+              // console.log(error, doc, numberAffected);
+
+              if (error) {
+                // Roomのcapacityに空きがない場合
+                if (error.errors.capacity) {
+                  reject({
+                    status: 'error',
+                    type: 'CapacityOver',
+                    body: { message: 'We have reached capacity.' }
+                  });
+                  return;
+                }
+                // updateの対象オブジェクトがない場合
+                reject({
+                  status: 'error',
+                  type: 'FailedExtraction',
+                  body: { message: 'Failed to extraction of data.' }
+                });
                 return;
               }
               resolve(doc);

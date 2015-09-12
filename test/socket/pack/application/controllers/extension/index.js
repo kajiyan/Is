@@ -511,10 +511,155 @@ Extension = (function() {
     
     // テスト用
     (function(_this) {
-      _this._dayModel.addManualRoom({
-        'roomId': 'debug0'
-      });
-      _this._dayModel.getManualRooms();
+      // // ManualRoomを追加する
+      // Q.fcall(
+      //   _this._dayModel.addManualRoom({
+      //     'roomId': 'debug0'
+      //   })
+      // )
+      // .then(
+      //   function() {
+      //     console.log("resolve");
+      //   },
+      //   function(error) {
+      //     console.log("reject");
+      //   }
+      // )
+      // .catch(function (error) {
+      //   console.log(error);
+      // })
+      // .done();
+
+      // _this._dayModel.addManualRoom({
+      //   'roomId': 'debug0'
+      // });
+
+      // compositeId
+
+
+
+      // 指定したRoomがあるか調べる
+      var callback = function(data){
+        console.log(data);
+      };
+      var keyData = {
+        roomId: 'debug6'
+      };
+      var joinRoomDocId = '';
+      var joinRoomId = '';
+      var response = {};
+      Q.fcall(
+        function(){
+          return _this._dayModel.getManualRooms({
+            'populateSelect': {
+              '__v': 0
+            },
+            'populateMatch': {
+              'compositeId': helpers.utils.getDayId() + keyData.roomId,
+            },
+            'populateOptions': {
+              'sort': { 'lastModified': 1 }
+            }
+          });
+        }
+      )
+      .then(
+        function(manualRooms) {
+          // 該当のcompositeIdのRoomがある場合
+          var manualRoom = manualRooms[0].toJSON();
+
+          _this._dayModel.updateManualRoom({
+            'query': {
+              'conditions': {
+                '_id': manualRoom._id
+              },
+              'update': {
+                'capacity': manualRoom.capacity - 1
+              },
+              'options': {
+                'runValidators': true
+              }
+            }
+          })
+          .then(
+            function(data) {
+              if (data.ok) {
+                joinRoomDocId = manualRoom._id;
+                joinRoomId = 'M-' + manualRoom.roomId;
+
+                console.log('join - ' + joinRoomId);
+                // socket.join(joinRoomId);
+
+                // これが呼ばれるとclient 側のjoin emit 第3引数を呼び出す
+                callback({
+                  status: 'success'
+                });
+              }
+            },
+            function(error) {
+              callback(error);
+            }
+          );
+        },
+        function(error) {
+          // データの抽出、クエリにエラーがある場合
+          console.log("reject");
+
+          // 該当のRoomがない場合新たにRoomを作成する
+          _this._dayModel.addManualRoom({
+            'roomId': keyData.roomId
+          })
+          .then(
+            function(manualRoom) {
+              console.log("resolve");
+              
+              // 作成したRoomのにjoinする
+              manualRoom.toJSON();
+
+              _this._dayModel.updateManualRoom({
+                'query': {
+                  'conditions': {
+                    '_id': manualRoom._id
+                  },
+                  'update': {
+                    'capacity': manualRoom.capacity - 1
+                  },
+                  'options': {
+                    'runValidators': true
+                  }
+                }
+              })
+              .then(
+                function(data) {
+                  if (data.ok) {
+                    joinRoomDocId = manualRoom._id;
+                    joinRoomId = 'M-' + manualRoom.roomId;
+
+                    console.log('join - ' + joinRoomId);
+                    // socket.join(joinRoomId);
+
+                    callback({
+                      status: 'success'
+                    });
+                  }
+                },
+                function(error) {
+                  callback(error);
+                }
+              );
+            },
+            function(error) {
+              console.log("reject");
+            }
+          );
+
+          // callback(error);
+        }
+      )
+      .catch(function (error) {
+        console.log(error);
+      })
+      .done();
     })(this);
 
 
@@ -538,7 +683,7 @@ Extension = (function() {
     //   }
     // );
 
-    // Memory の取得
+    // Memory のsparse取得
     // (function(_this) {
     //   Q.fcall(
     //     function(){

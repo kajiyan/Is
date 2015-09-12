@@ -76,6 +76,7 @@
  * @prop {string} _id - 登録されているMongo ID
  * @prop {string} dayId - Roomが作成された日付を元に割り振られるID、数値からなる文字列8桁
  * @prop {string} roomId - RoomのID、任意の数値からなる文字列6桁
+ * @prop {string} compositeId - dayIdとroomIdを結合した文字列
  * @prop {number} capacity - このRoom Objectに入室できるユーザーの数
  * @prop {string} createAt - 登録時の時間
  */
@@ -83,6 +84,7 @@
   _id: "1234567890abcdfegh",
   dayId: "20150713", 
   roomId: "123456",
+  compositeId: "20150713123456",
   capacity: 6,
   createAt: "2015-07-07T12:00:00.024Z"
 }
@@ -96,6 +98,7 @@
  * @prop {string} _id - 登録されているMongo ID
  * @prop {string} dayId - Roomが作成された日付を元に割り振られるID、数値からなる文字列8桁
  * @prop {string} roomId - RoomのID、ランダムな数値からなる文字列6桁
+ * @prop {string} compositeId - dayIdとroomIdを結合した文字列
  * @prop {number} capacity - このRoom Objectに入室できるユーザーの数
  * @prop {string} createAt - 登録時の時間
  */
@@ -103,6 +106,7 @@
   _id: "1234567890abcdfegh",
   dayId: "20150713", 
   roomId: "123456",
+  compositeId: "20150713123456",
   capacity: 6,
   createAt: "2015-07-07T12:00:00.024Z"
 }
