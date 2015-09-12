@@ -314,24 +314,28 @@ Day = (function() {
         'dayId': helpers.utils.getDayId(),
         'roomId': null
       }, _query);
-
-      // クエリをバリデーションする
       
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
-          if(!validator.isNumeric(query.roomId) && !validator.isLength(query.roomId, 6)) {
-            reject(new Error('[Model] Day -> addaddAutomaticRoom | Validation Error: Query Value.'));
+          // クエリをバリデーションする
+          if(
+            !validator.isNumeric(query.roomId) ||
+            !validator.isLength(query.roomId, 6)
+          ) {
+            rreject({
+              status: 'error',
+              type: 'BudQuery',
+              body: { message: 'There is a problem with the query.' }
+            });
             return;
           }
 
-          var result = {};
-
           // 追加するAutomaticRoom ドキュメントを作る
+          var result = {};
           var room = new _this.Model.AutomaticRoom({
             'dayId': query.dayId,
             'roomId': query.roomId,
-            'memorys': [],
-            'isJoin': true,
+            'compositeId': query.dayId + query.roomId,
             'lastModified': new Date()
           });
 
@@ -350,9 +354,7 @@ Day = (function() {
             // 追加されたRoom の_id を追加する 
             _this.Model.Day
               .findOneAndUpdate(
-                {
-                  'dayId': query.dayId
-                },
+                { 'dayId': query.dayId },
                 {
                   '$push': {
                     'automaticRooms': doc._id
@@ -375,9 +377,6 @@ Day = (function() {
           });
         });
       })(this);
-      // } else {
-      //   throw new Error('[Model] Day -> addaddAutomaticRoom | Validation Error: Query Value');
-      // }
     } catch(error) {
       console.log(error);
     }
@@ -407,10 +406,14 @@ Day = (function() {
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
           if(
-            !validator.isAlphanumeric(query.roomId) &&
+            !validator.isAlphanumeric(query.roomId) ||
             !validator.isLength(query.roomId, 6)
           ) {
-            reject(new Error('[Model] Day -> addManualRoom | Validation Error: Query Value.'));
+            reject({
+              status: 'error',
+              type: 'BudQuery',
+              body: { message: 'There is a problem with the query.' }
+            });
             return;
           }
 
@@ -483,20 +486,29 @@ Day = (function() {
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
           // クエリをバリデーションする
-          if (!validator.isNumeric(query.dayId) && !validator.isLength(query.dayId, 8)) {
-            reject(new Error('[Model] Day -> getNamberOfAutomaticRoom | Validation Error: Query Value.'));
+          if (
+            !validator.isNumeric(query.dayId) ||
+            !validator.isLength(query.dayId, 8, 8)
+          ) {
+            reject({
+              status: 'error',
+              type: 'BudQuery',
+              body: { message: 'There is a problem with the query.' }
+            });
             return;
           }
 
           _this.Model.AutomaticRoom
-            .count(
-              query
-            )
+            .count(query)
             .exec(function(error, doc, numberAffected) {
               console.log(error, doc, numberAffected);
 
               if (error) {
-                reject(error);
+                reject({
+                  status: 'error',
+                  type: 'FailedExtraction',
+                  body: { message: 'Failed to extraction of data.' }
+                });
                 return;
               }
               resolve(doc);
@@ -536,14 +548,21 @@ Day = (function() {
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
           // クエリをバリデーションする
-          if (!validator.isNumeric(query.dayId) && !validator.isLength(query.dayId, 8)) {
-            reject(new Error('[Model] Day -> getAutomaticRooms | Validation Error: Query Value.'));
+          if (
+            !validator.isNumeric(query.dayId) ||
+            !validator.isLength(query.dayId, 8, 8)
+          ) {
+            reject({
+              status: 'error',
+              type: 'BudQuery',
+              body: { message: 'There is a problem with the query.' }
+            });
             return;
           }
 
           _this.Model.Day
             .findOne({
-              'dayId': query['dayId']
+              'dayId': query.dayId
             })
             .populate({
               'path': query.populatePath,
@@ -558,10 +577,23 @@ Day = (function() {
             .exec(function(error, doc, numberAffected) {
               // console.log(error, doc.automaticRooms, numberAffected);
               if (error) {
-                reject(error);
+                reject({
+                  status: 'error',
+                  type: 'FailedExtraction',
+                  body: { message: 'Failed to extraction of data.' }
+                });
                 return;
               }
-              resolve(doc.automaticRooms);
+
+              if (doc.automaticRooms.length > 0) {
+                resolve(doc.automaticRooms);
+              } else {
+                reject({
+                  status: 'error',
+                  type: 'NoneData',
+                  body: { message: 'There is no corresponding data.' }
+                });
+              }
             });
         });
       })(this);
@@ -678,7 +710,21 @@ Day = (function() {
               console.log(error, doc, numberAffected);
 
               if (error) {
-                reject(error);
+                // Roomのcapacityに空きがない場合
+                if (error.errors.capacity) {
+                  reject({
+                    status: 'error',
+                    type: 'CapacityOver',
+                    body: { message: 'We have reached capacity.' }
+                  });
+                  return;
+                }
+                // updateの対象オブジェクトがない場合
+                reject({
+                  status: 'error',
+                  type: 'FailedExtraction',
+                  body: { message: 'Failed to extraction of data.' }
+                });
                 return;
               }
               resolve(doc);

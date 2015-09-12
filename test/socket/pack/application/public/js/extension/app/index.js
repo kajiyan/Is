@@ -30370,7 +30370,7 @@
 	      _checkInAutomaticRoomHandler: function(e) {
 	        console.log("%c[Stage] EntranceItemView -> _checkInAutomaticRoomHandler", debug.style);
 	        e.preventDefault();
-	        return window.bg.appRun("000000");
+	        return window.bg.appRun(null);
 	      },
 	      _changeIsRoomIdValidHandler: function(model, isRoomIdValid) {
 	        console.log("%c[Stage] EntranceItemView -> _changeIsRoomIdValidHandler", debug.style, model, isRoomIdValid);

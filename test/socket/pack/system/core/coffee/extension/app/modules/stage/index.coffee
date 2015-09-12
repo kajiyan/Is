@@ -133,8 +133,7 @@ module.exports = (App, sn, $, _) ->
       _checkInAutomaticRoomHandler: (e) ->
         console.log "%c[Stage] EntranceItemView -> _checkInAutomaticRoomHandler", debug.style
         e.preventDefault()
-        window.bg.appRun "000000"
-        # window.bg.appRun null
+        window.bg.appRun null
 
       # ------------------------------------------------------------
       # /** 

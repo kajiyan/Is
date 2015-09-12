@@ -25535,8 +25535,8 @@
 	          roomId: App.reqres.request("stageGetRoomId")
 	        };
 	        return this.socket.emit("join", data, (function(_this) {
-	          return function() {
-	            console.log("%c[Socket] SocketModel -> jointed", debug.style);
+	          return function(data) {
+	            console.log("%c[Socket] SocketModel -> jointed", debug.style, data);
 	            _this.set("isRoomJoin", true);
 	            return App.vent.trigger("socketJointed");
 	          };

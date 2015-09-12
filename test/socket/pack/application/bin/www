@@ -30,28 +30,6 @@ var socketIo = require('socket.io');
 
 
 
-
-// エラーオブジェクトの定義
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * Get port from environment and store in Express.
  */
@@ -78,29 +56,6 @@ app.set( 'socketIo', io );
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 app.get('models').setup();

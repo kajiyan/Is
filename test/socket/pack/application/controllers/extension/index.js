@@ -70,17 +70,13 @@ Extension = (function() {
       _this._extensionSocketIo.on('connection', function(socket) {
         console.log('[Controller] Extension -> connection');
 
-        // console.log("----------");
-        // console.log(socket.id);
-        // console.log("----------");
-
         var joinRoomDocId = ''; // 所属するRoom Document のID
         var joinRoomId = ''; // 所属するRoom ID
 
         // --------------------------------------------------------------
         // 接続が切れるとroom をデクリメントする
         socket.on('disconnect', function() {
-          console.log('[Controller] Extension -> disconnect', joinRoomDocId);
+          console.log('[Controller] Extension -> disconnect', joinRoomId, joinRoomDocId);
 
           // 同じRoom に所属するユーザーにSocket ID を送信する
           _this._extensionSocketIo
@@ -155,13 +151,12 @@ Extension = (function() {
                     if (data.ok) {
                       joinRoomDocId = manualRoom._id;
                       joinRoomId = 'M-' + manualRoom.roomId;
+                      console.log('join - ' + joinRoomId);
                       socket.join(joinRoomId);
                       callback({ status: 'success' });
                     }
                   },
-                  function(error) {
-                    callback(error);
-                  }
+                  function(error) { callback(error); }
                 );
               },
               function(error) {
@@ -192,25 +187,20 @@ Extension = (function() {
                           if (data.ok) {
                             joinRoomDocId = manualRoom._id;
                             joinRoomId = 'M-' + manualRoom.roomId;
+                            console.log('join - ' + joinRoomId);
                             socket.join(joinRoomId);
                             callback({ status: 'success' });
                           }
                         },
-                        function(error) {
-                          callback(error);
-                        }
+                        function(error) { callback(error); }
                       );
                     },
-                    function(error) {
-                      callback(error);
-                    }
+                    function(error) { callback(error); }
                   );
                 }
               }
             )
-            .catch(function (error) {
-              console.log(error);
-            })
+            .catch(function (error) { console.log(error); })
             .done();
 
 
@@ -219,127 +209,115 @@ Extension = (function() {
             console.log('[Controller] Extension -> join | AutomaticRoom');
 
             var createRoom = function() {
-              Q.all([
-                // 現在のAutomaticRoom の数を取得する
-                _this._dayModel.getNamberOfAutomaticRoom()
-              ]).then(
-                function(data) {
-                  // data[0] にAutomaticRoom のDocument 数が返ってくるので
-                  // この数値をベースに新しくAutomaticRoomを作る
-                  return Q.all([
+              _this._dayModel.getNamberOfAutomaticRoom()
+                .then(
+                  function(automaticRoomNum) {
+                    // 引数に入った現在のAutomaticRoomのDocument数を
+                    // ベースに新しくAutomaticRoomを作る
                     _this._dayModel.addAutomaticRoom({
                       'roomId': helpers.utils.getRoomId({
-                        'baseNumber': data[0]
+                        'baseNumber': automaticRoomNum
                       })
                     })
-                  ]);
-                },
-                function(data) { /* reject */ }
-              ).then(
-                function(data) {
-                  console.log('resolve', data);
-                  // data[0] に追加されたAutomaticRoom が入っている
-                  var rooms = [];
-                  rooms.push(data[0]);
-                  joinRoom(rooms)();
-                },
-                function(data) {
-                  console.log('reject', data);
-                }
-              );
+                    .then(
+                      function(automaticRoom) {
+                        joinRoom([automaticRoom])();
+                      },
+                      function(error) { callback(error); }
+                    );
+                  },
+                  function(error) { callback(error); }
+                );
             };
 
-            var joinRoom = function(rooms) {
-              console.log('joinRoom');
+
+            var joinRoom = function(automaticRooms) {
+              console.log('joinRoom - automaticRoom');
 
               var index = 0;
-              var roomsLength = rooms.length;
-
+              var roomsLength = automaticRooms.length;
               return function() {
-                Q.all([
-                  // join できるRoom のcapacity を減らす
-                  _this._dayModel.updateAutomaticRoom({
-                    'query': {
-                      'conditions': {
-                        '_id': rooms[index]._id
-                      },
-                      'update': {
-                        '$inc': {
-                          'capacity': -1
+                Q.fcall(
+                  function(){
+                    // join できるRoom のcapacity を減らす
+                    return _this._dayModel.updateAutomaticRoom({
+                      'query': {
+                        'conditions': {
+                          '_id': automaticRooms[index]._id
+                        },
+                        'update': {
+                          'capacity': automaticRooms[index].capacity - 1
+                        },
+                        'options': {
+                          'runValidators': true
                         }
                       }
-                    }
-                  })
-                ]).then(
+                    });
+                  }
+                )
+                .then(
                   function(data) {
-                    console.log(data[0]);
-                    // update に成功したAutomaticRoomへjoin する
-                    if (data[0].ok) {
-                      // disconnect の際に使うMongo ID
-                      joinRoomDocId = rooms[index]._id;
-                      joinRoomId = rooms[index].roomId;
-
+                    // update に成功したAutomaticRoomへjoinする
+                    if (data.ok) {
+                      // disconnectの際に使うMongoID
+                      joinRoomDocId = automaticRooms[index]._id;
+                      joinRoomId = 'A-' + automaticRooms[index].roomId;
                       console.log('join - ' + joinRoomId);
                       socket.join(joinRoomId);
-
-                      // // 同じRoom に所属するユーザーのSocket ID の配列を送信
-                      // _this._extensionSocketIo
-                      //   .to(joinRoomId)
-                      //   .emit('checkIn', {
-                      //     'users': _.keys(_this._extensionSocketIo.adapter.rooms[joinRoomId])}
-                      //   );
-
-                      // これが呼ばれるとclient 側のjoin emit 第3引数を呼び出す
-                      callback();
-                      // _this._extensionSocketIo
-                      //   .to(socket.id)
-                      //   .emit('jointed');
+                      callback({ status: 'success' });
                     }
                   },
-                  function(data) {
+                  function(error) {
                     // update に失敗したら取得した他のAutomaticRoom への接続を試す
                     index++;
                     if (index < roomsLength) {
                       joinRoom();
                     } else {
-                      // 新たにAutomaticRoom を作ってjoin する
+                      // 新たにAutomaticRoomを作ってjoinする
                       createRoom();
                     }
                   }
-                );
+                )
+                .catch(function (error) { console.log(error); })
+                .done();
               };
             };
 
-            Q.all([
-              // join できるAutomaticRoom を取得してくる
-              _this._dayModel.getAutomaticRooms({
-                'populateSelect': {},
-                'populateMatch': {
-                  'capacity': { '$ne': 0 }
-                },
-                'populateOptions': {
-                  'sort': { 'lastModified': 1 }
+
+            Q.fcall(
+              function(){
+                return _this._dayModel.getAutomaticRooms({
+                  'populateSelect': {
+                    '__v': 0
+                  },
+                  'populateMatch': {
+                    'capacity': { '$ne': 0 }
+                  },
+                  'populateOptions': {
+                    'sort': { 'lastModified': 1 }
+                  }
+                });
+              }
+            )
+            .then(
+              function(_automaticRooms) {
+                // join できるAutomaticRoomがある場合の処理
+                var automaticRooms = [];
+                for (var i = 0, len = _automaticRooms.length; i < len; i++) {
+                  automaticRooms[i] = _automaticRooms[i].toJSON();
                 }
-              })
-            ]).then(
-              function(data) {
-                console.log('getAutomaticRooms Length: ' + data[0].length);
-                
-                if (data[0].length > 0) {
-                  // join できるAutomaticRoomがある場合の処理
-                  joinRoom(data[0])();
-                } else {
-                  // join できるAutomaticRoomがない場合の処理
+                joinRoom(automaticRooms)();
+              },
+              function(error) {
+                // join できるAutomaticRoomがない場合の処理
+                if (error.status === 'error' && error.type === 'NoneData') {
                   createRoom();
                 }
-              },
-              function(data) { /* reject */ }
-            );
+              }
+            )
+            .catch(function (error) { console.log(error); })
+            .done();
           }
-
-          // console.log(a);
-          // これが呼ばれるとclient 側のemit 第3引数が呼び出される
-          // callbecl('hello');
         });
 
         // --------------------------------------------------------------
@@ -581,159 +559,132 @@ Extension = (function() {
       });
     })(this);
     
-    // テスト用
-    (function(_this) {
-      // // ManualRoomを追加する
-      // Q.fcall(
-      //   _this._dayModel.addManualRoom({
-      //     'roomId': 'debug0'
-      //   })
-      // )
-      // .then(
-      //   function() {
-      //     console.log("resolve");
-      //   },
-      //   function(error) {
-      //     console.log("reject");
-      //   }
-      // )
-      // .catch(function (error) {
-      //   console.log(error);
-      // })
-      // .done();
+    // // テスト用
+    // (function(_this) {
+    //   // 指定したRoomがあるか調べる
+    //   var callback = function(data){
+    //     console.log(data);
+    //   };
+    //   var keyData = {
+    //     roomId: 'debug8'
+    //   };
+    //   var joinRoomDocId = '';
+    //   var joinRoomId = '';
+    //   var response = {};
+    //   Q.fcall(
+    //     function(){
+    //       return _this._dayModel.getManualRooms({
+    //         'populateSelect': {
+    //           '__v': 0
+    //         },
+    //         'populateMatch': {
+    //           'compositeId': helpers.utils.getDayId() + keyData.roomId,
+    //         },
+    //         'populateOptions': {
+    //           'sort': { 'lastModified': 1 }
+    //         }
+    //       });
+    //     }
+    //   )
+    //   .then(
+    //     function(manualRooms) {
+    //       // 該当のcompositeIdのRoomがある場合
+    //       var manualRoom = manualRooms[0].toJSON();
 
-      // _this._dayModel.addManualRoom({
-      //   'roomId': 'debug0'
-      // });
+    //       _this._dayModel.updateManualRoom({
+    //         'query': {
+    //           'conditions': {
+    //             '_id': manualRoom._id
+    //           },
+    //           'update': {
+    //             'capacity': manualRoom.capacity - 1
+    //           },
+    //           'options': {
+    //             'runValidators': true
+    //           }
+    //         }
+    //       })
+    //       .then(
+    //         function(data) {
+    //           if (data.ok) {
+    //             joinRoomDocId = manualRoom._id;
+    //             joinRoomId = 'M-' + manualRoom.roomId;
 
-      // compositeId
+    //             console.log('join - ' + joinRoomId);
+    //             // socket.join(joinRoomId);
 
+    //             // これが呼ばれるとclient 側のjoin emit 第3引数を呼び出す
+    //             callback({
+    //               status: 'success'
+    //             });
+    //           }
+    //         },
+    //         function(error) {
+    //           callback(error);
+    //         }
+    //       );
+    //     },
+    //     function(error) {
+    //       // データの抽出、クエリにエラーがある場合
+    //       console.log("reject");
 
-
-      // 指定したRoomがあるか調べる
-      var callback = function(data){
-        console.log(data);
-      };
-      var keyData = {
-        roomId: 'debug8'
-      };
-      var joinRoomDocId = '';
-      var joinRoomId = '';
-      var response = {};
-      Q.fcall(
-        function(){
-          return _this._dayModel.getManualRooms({
-            'populateSelect': {
-              '__v': 0
-            },
-            'populateMatch': {
-              'compositeId': helpers.utils.getDayId() + keyData.roomId,
-            },
-            'populateOptions': {
-              'sort': { 'lastModified': 1 }
-            }
-          });
-        }
-      )
-      .then(
-        function(manualRooms) {
-          // 該当のcompositeIdのRoomがある場合
-          var manualRoom = manualRooms[0].toJSON();
-
-          _this._dayModel.updateManualRoom({
-            'query': {
-              'conditions': {
-                '_id': manualRoom._id
-              },
-              'update': {
-                'capacity': manualRoom.capacity - 1
-              },
-              'options': {
-                'runValidators': true
-              }
-            }
-          })
-          .then(
-            function(data) {
-              if (data.ok) {
-                joinRoomDocId = manualRoom._id;
-                joinRoomId = 'M-' + manualRoom.roomId;
-
-                console.log('join - ' + joinRoomId);
-                // socket.join(joinRoomId);
-
-                // これが呼ばれるとclient 側のjoin emit 第3引数を呼び出す
-                callback({
-                  status: 'success'
-                });
-              }
-            },
-            function(error) {
-              callback(error);
-            }
-          );
-        },
-        function(error) {
-          // データの抽出、クエリにエラーがある場合
-          console.log("reject");
-
-          // 該当のRoomがない場合、新たにRoomを作成する
-          if (error.status === 'error' && error.type === 'NoneData') {
-            _this._dayModel.addManualRoom({
-              'roomId': keyData.roomId
-            })
-            .then(
-              function(manualRoom) {
-                console.log("resolve");
+    //       // 該当のRoomがない場合、新たにRoomを作成する
+    //       if (error.status === 'error' && error.type === 'NoneData') {
+    //         _this._dayModel.addManualRoom({
+    //           'roomId': keyData.roomId
+    //         })
+    //         .then(
+    //           function(manualRoom) {
+    //             console.log("resolve");
                 
-                // 作成したRoomのにjoinする
-                manualRoom.toJSON();
+    //             // 作成したRoomのにjoinする
+    //             manualRoom.toJSON();
 
-                _this._dayModel.updateManualRoom({
-                  'query': {
-                    'conditions': {
-                      '_id': manualRoom._id
-                    },
-                    'update': {
-                      'capacity': manualRoom.capacity - 1
-                    },
-                    'options': {
-                      'runValidators': true
-                    }
-                  }
-                })
-                .then(
-                  function(data) {
-                    if (data.ok) {
-                      joinRoomDocId = manualRoom._id;
-                      joinRoomId = 'M-' + manualRoom.roomId;
+    //             _this._dayModel.updateManualRoom({
+    //               'query': {
+    //                 'conditions': {
+    //                   '_id': manualRoom._id
+    //                 },
+    //                 'update': {
+    //                   'capacity': manualRoom.capacity - 1
+    //                 },
+    //                 'options': {
+    //                   'runValidators': true
+    //                 }
+    //               }
+    //             })
+    //             .then(
+    //               function(data) {
+    //                 if (data.ok) {
+    //                   joinRoomDocId = manualRoom._id;
+    //                   joinRoomId = 'M-' + manualRoom.roomId;
 
-                      console.log('join - ' + joinRoomId);
-                      // socket.join(joinRoomId);
+    //                   console.log('join - ' + joinRoomId);
+    //                   // socket.join(joinRoomId);
 
-                      callback({ status: 'success' });
-                    }
-                  },
-                  function(error) {
-                    callback(error);
-                  }
-                );
-              },
-              function(error) {
-                console.log("reject");
-              }
-            );
+    //                   callback({ status: 'success' });
+    //                 }
+    //               },
+    //               function(error) {
+    //                 callback(error);
+    //               }
+    //             );
+    //           },
+    //           function(error) {
+    //             console.log("reject");
+    //           }
+    //         );
 
-          } else {
-            callback(error);
-          }
-        }
-      )
-      .catch(function (error) {
-        console.log(error);
-      })
-      .done();
-    })(this);
+    //       } else {
+    //         callback(error);
+    //       }
+    //     }
+    //   )
+    //   .catch(function (error) {
+    //     console.log(error);
+    //   })
+    //   .done();
+    // })(this);
 
 
 

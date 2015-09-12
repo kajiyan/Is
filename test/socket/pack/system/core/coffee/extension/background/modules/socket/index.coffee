@@ -146,8 +146,8 @@ module.exports = (App, sn, $, _) ->
         data =
           roomId: App.reqres.request "stageGetRoomId"
 
-        @socket.emit "join", data, () =>
-          console.log "%c[Socket] SocketModel -> jointed", debug.style
+        @socket.emit "join", data, (data) =>
+          console.log "%c[Socket] SocketModel -> jointed", debug.style, data
           # 接続状態を入室状態へ変更
           @set "isRoomJoin", true
           # socketJointed イベントを発火する
