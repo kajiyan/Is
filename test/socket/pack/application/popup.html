@@ -1,45 +1,197 @@
-<!doctype html>
+<!DOCTYPE html>
 <html class="is">
-  <head>
-    <title>I&quot;s</title>
-    
-    <link rel="stylesheet" media="all" type="text/css" href="public/css/style.css?v=1.0.0">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta http-equiv="content-language" content="en">
+  <meta http-equiv="imagetoolbar" content="no">
+  <meta name="robots" content="index,follow">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width,user-scalable=0">
 
-    <script src="public/common/js/common.js"></script>
-    <script src="public/js/extension/app/index.js"></script>
-  </head>
+  <title>NOT FOUND</title>
   
-  <body id="js-is-body" class="is-body">
-    <div id="js-check-in" class="check-in">
-      <section class="check-in-section">
-        <h1>NOT FOUND</h1>
+  <link rel="stylesheet" media="all" type="text/css" href="public/css/style.css?v=1.0.0">
 
-        <form id="js-check-in-form--room_manual" class="check-in-form check-in-form--room_manual">
-          <label class="check-in-label" for="check-in-input--room_id">Check in at Manual Room</label>
-          <input id="js-check-in-input--room_id" class="check-in-input" type="text" maxlength="6" placeholder="Check in at Manual Room">
-          <button id="js-check-in-button--room_manual" class="check-in-button" type="submit" disabled>Check in</button>
-        </form><!-- /.check-in-form room_manual -->
-        
-        <form id="js-check-in-form--room_automatic" class="check-in-form check-in-form--room_automatic">
-          <label class="check-in-label" for="check-in-input--room_id">Check in at Automatic Room</label>
-          <button id="js-check-in-button--room_automatic" class="check-in-button" type="submit">Check in</button>
-        </form><!-- /.check-in-form room_automatic -->
-      </section><!-- /.check-in-section -->
-    </div><!-- /.check-in -->
+  <script src="public/common/js/common.js"></script>
+  <script src="public/js/extension/app/index.js"></script>
+</head>
 
-    <hr>
+<body id="js-is-body" class="is-body">
+  <div class="main">
+    <div class="l-container-24">
+      <section class="main-section">
+        <h1 class="main-h1">
+          <span class="main-span">
+            <img class="main-img l-width-fluid" src="public/images/extension/header-logo-0.svg" alt="Not Found">
+          </span>
+        </h1>
 
-    <div id="js-check-out" class="check-out">
-      <form id="js-check-out-form" class="check-out-form">
-        <button id="js-check-out-button" class="check-out-button">Check out</button>
-      </form><!-- /.check-out -->
-      
-      <div class="options">
-        <div class="sound">
-          <button id="sound-button" class="sound-button">sound</button>
+        <div class="main-body">
+          <div id="js-check-in" class="check-in">
+            <p class="check-in-p l-roboto-condensed">Check in to the designated ID's room</p>
+            <p class="check-in-annotation l-roboto-condensed">* ID must be 6 half-width alphanumeric characters</p>
+
+            <form id="js-check-in-form--room_manual" class="check-in-form check-in-form--room_manual">
+              <!-- <label class="check-in-label" for="check-in-input--room_id"></label> -->
+              <input id="js-check-in-input--room_id" class="check-in-input l-roboto" type="text" maxlength="6" placeholder="Room ID"><!--
+           --><button id="js-check-in-button--room_manual" class="check-in-button l-roboto-condensed" type="submit" disabled>
+                <span class="check-in-label check-in-label--off">
+                  <span class="l-box-center">
+                    <span class="l-box-center__inner">
+                      <span class="l-box-center__body">
+                        <span class="check-in-label--inner">Check in</span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+                <span class="check-in-label check-in-label--on">
+                  <span class="l-box-center">
+                    <span class="l-box-center__inner">
+                      <span class="l-box-center__body">
+                        <span class="check-in-label--inner">Check in</span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </button>
+            </form><!-- /.check-in-form room_manual -->
+
+            <p class="check-in-errors l-roboto-condensed">
+              <span class="check-in-error check-in-error--type-0 is__hidden">* If there is a problem on the service side, check in will not be possible</span>
+              <span class="check-in-error check-in-error--type-1 is__hidden">* Some characters cannot be used for IDs</span>
+              <span class="check-in-error check-in-error--type-2 is__hidden">* The designated ID's room has reached its capacity</span>
+            </p>
+
+            <p class="check-in-hr l-roboto-condensed">
+              <span class="check-in-hr--inner">
+                <span class="check-in-hr--label">or</span>
+              </span>
+            </p><!-- /.check-in-border -->
+            
+            <form id="js-check-in-form--room_automatic" class="check-in-form check-in-form--room_automatic">
+              <!-- <label class="check-in-label" for="check-in-input--room_id"></label> -->
+              <button id="js-check-in-button--room_automatic" class="check-in-button l-roboto-condensed" type="submit">
+                <span class="check-in-label check-in-label--off">
+                  <span class="l-box-center">
+                    <span class="l-box-center__inner">
+                      <span class="l-box-center__body">
+                        <span class="check-in-label--inner">Check in to a random room</span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+                <span class="check-in-label check-in-label--on">
+                  <span class="l-box-center">
+                    <span class="l-box-center__inner">
+                      <span class="l-box-center__body">
+                        <span class="check-in-label--inner">Check in to a random room</span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </button>
+            </form><!-- /.check-in-form room_automatic -->
+          </div><!-- /.check-in -->
+
+
+          <div id="js-check-out" class="check-out is__hidden">
+            <div class="options is__hidden">
+              <div class="sound">
+                <div class="sound-img-holder">
+                  <img class="sound-img l-width-fluid" src="public/images/extension/sound-logo-0.svg" alt="sound">
+                </div><!--
+             --><div class="sound-button-holder">
+                  <button id="js-sound-button--off" class="sound-button sound-button--on l-roboto-condensed is__active">
+                    <span class="sound-label sound-label--off">
+                      <span class="l-box-center">
+                        <span class="l-box-center__inner">
+                          <span class="l-box-center__body">
+                            <span class="sound-label--inner">On</span>
+                          </span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="sound-label sound-label--on">
+                      <span class="l-box-center">
+                        <span class="l-box-center__inner">
+                          <span class="l-box-center__body">
+                            <span class="sound-label--inner">On</span>
+                          </span>
+                        </span>
+                      </span>
+                    </span>
+                  </button>
+                </div><!--
+             --><div class="sound-button-holder">
+                  <button id="js-sound-button--off" class="sound-button sound-button--off l-roboto-condensed">
+                    <span class="sound-label sound-label--off">
+                      <span class="l-box-center">
+                        <span class="l-box-center__inner">
+                          <span class="l-box-center__body">
+                            <span class="sound-label--inner">Off</span>
+                          </span>
+                        </span>
+                      </span>
+                    </span>
+                    <span class="sound-label sound-label--on">
+                      <span class="l-box-center">
+                        <span class="l-box-center__inner">
+                          <span class="l-box-center__body">
+                            <span class="sound-label--inner">Off</span>
+                          </span>
+                        </span>
+                      </span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div><!-- /.options -->
+
+            <form id="js-check-out-form" class="check-out-form">
+              <button id="js-check-out-button" class="check-out-button l-roboto-condensed">
+                <span class="check-out-label check-out-label--off">
+                  <span class="l-box-center">
+                    <span class="l-box-center__inner">
+                      <span class="l-box-center__body">
+                        <span class="check-out-label--inner">Check out</span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+                <span class="check-out-label check-out-label--on">
+                  <span class="l-box-center">
+                    <span class="l-box-center__inner">
+                      <span class="l-box-center__body">
+                        <span class="check-out-label--inner">Check out</span>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </button>
+            </form><!-- /.check-out -->
+          </div><!-- /.check-out -->
+        </div><!-- /.main-body -->
+
+      </section><!-- /.main-section -->
+    </div><!-- /.l-container-24 -->
+
+    <div class="loading loading--type_blink is__hidden">
+      <div class="l-box-center">
+        <div class="l-box-center__inner">
+          <div class="l-box-center__body">
+            <div class="loading-inner">
+              <div class="loading-el loading-el--0"></div><!--
+           --><div class="loading-el loading-el--1"></div><!--
+           --><div class="loading-el loading-el--2"></div>
+            </div>
+          </div>
         </div>
-      </div><!-- /.options -->
-    </div><!-- /.check-out -->
+      </div>   
+    </div><!-- /.loading -->
 
-  </body>
+  </div><!-- /.main -->
+</body>
 </html>

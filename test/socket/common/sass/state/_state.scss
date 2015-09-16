@@ -1,7 +1,7 @@
 /* =============================================================================
     State
    ========================================================================== */
-.is-debug {
+.is__debug {
   @include box-shadow(rgb(0, 0, 0) 0px 0px 0px 1px inset);
   background-color: rgba(204, 204, 204, 0.5);
   * {
@@ -10,7 +10,7 @@
 	}
 }
 
-.is-hidden {
+.is__hidden {
   position: fixed;
   top: 0;
   left: 0;
@@ -18,11 +18,11 @@
   clip: rect(0 0 0 0);
 }
 
-.is-invisibility {
+.is__invisibility {
   @include opacity(0.0);
 }
 
-.is-transparent {
+.is__transparent {
   color: transparent;
 }
 

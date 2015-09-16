@@ -84,7 +84,8 @@ module.exports = (App, sn, $, _) ->
         manualRoomForm: "#js-check-in-form--room_manual"
         manualRoomButton: "#js-check-in-button--room_manual"
         checkInRoomIdInput: "#js-check-in-input--room_id"
-        checkInFormAutomaticRoom: "#js-check-in-form--room_automatic"
+        automaticRoomForm: "#js-check-in-form--room_automatic"
+        automaticRoomButton: "#js-check-in-button--room_automatic"
         checkOutForm: "#js-check-out-form"
         checkOutButton: "#js-check-out-button"
 
@@ -94,7 +95,7 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       events:
         "submit @ui.manualRoomForm": "_checkInManualRoomHandler"
-        "submit @ui.checkInFormAutomaticRoom": "_checkInAutomaticRoomHandler"
+        "submit @ui.automaticRoomForm": "_checkInAutomaticRoomHandler"
         "submit @ui.checkOutForm": (e) ->
           e.preventDefault()
           window.bg.appStop()
@@ -121,6 +122,10 @@ module.exports = (App, sn, $, _) ->
       _checkInManualRoomHandler: (e) ->
         console.log "%c[Stage] EntranceItemView -> _checkInManualRoomHandler", debug.style
         e.preventDefault()
+        # 二度押しを防止するためボタンを無効化
+        @ui.manualRoomButton.prop "disabled", true
+        @ui.automaticRoomButton.prop "disabled", true
+        
         window.bg.appRun @model.get "roomId"
 
       # ------------------------------------------------------------
@@ -133,6 +138,10 @@ module.exports = (App, sn, $, _) ->
       _checkInAutomaticRoomHandler: (e) ->
         console.log "%c[Stage] EntranceItemView -> _checkInAutomaticRoomHandler", debug.style
         e.preventDefault()
+        # 二度押しを防止するためボタンを無効化
+        @ui.manualRoomButton.prop "disabled", true
+        @ui.automaticRoomButton.prop "disabled", true
+        
         window.bg.appRun null
 
       # ------------------------------------------------------------

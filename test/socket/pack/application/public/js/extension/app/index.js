@@ -30337,14 +30337,15 @@
 	        manualRoomForm: "#js-check-in-form--room_manual",
 	        manualRoomButton: "#js-check-in-button--room_manual",
 	        checkInRoomIdInput: "#js-check-in-input--room_id",
-	        checkInFormAutomaticRoom: "#js-check-in-form--room_automatic",
+	        automaticRoomForm: "#js-check-in-form--room_automatic",
+	        automaticRoomButton: "#js-check-in-button--room_automatic",
 	        checkOutForm: "#js-check-out-form",
 	        checkOutButton: "#js-check-out-button"
 	      },
 	      template: false,
 	      events: {
 	        "submit @ui.manualRoomForm": "_checkInManualRoomHandler",
-	        "submit @ui.checkInFormAutomaticRoom": "_checkInAutomaticRoomHandler",
+	        "submit @ui.automaticRoomForm": "_checkInAutomaticRoomHandler",
 	        "submit @ui.checkOutForm": function(e) {
 	          e.preventDefault();
 	          return window.bg.appStop();
@@ -30365,11 +30366,15 @@
 	      _checkInManualRoomHandler: function(e) {
 	        console.log("%c[Stage] EntranceItemView -> _checkInManualRoomHandler", debug.style);
 	        e.preventDefault();
+	        this.ui.manualRoomButton.prop("disabled", true);
+	        this.ui.automaticRoomButton.prop("disabled", true);
 	        return window.bg.appRun(this.model.get("roomId"));
 	      },
 	      _checkInAutomaticRoomHandler: function(e) {
 	        console.log("%c[Stage] EntranceItemView -> _checkInAutomaticRoomHandler", debug.style);
 	        e.preventDefault();
+	        this.ui.manualRoomButton.prop("disabled", true);
+	        this.ui.automaticRoomButton.prop("disabled", true);
 	        return window.bg.appRun(null);
 	      },
 	      _changeIsRoomIdValidHandler: function(model, isRoomIdValid) {

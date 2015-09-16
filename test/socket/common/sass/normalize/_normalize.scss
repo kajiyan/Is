@@ -65,9 +65,9 @@ textarea { vertical-align: top; overflow: auto; *font-family: sans-serif; }
       -ms-text-size-adjust: 100%;
        -o-text-size-adjust: 100%;
           text-size-adjust: 100%;
-	text-align: justify;
-	text-justify: inter-ideograph;
-	-webkit-overflow-scrolling: touch;
+	// text-align: justify;
+	// text-justify: inter-ideograph;
+	// -webkit-overflow-scrolling: touch;
 		-webkit-box-sizing: border-box;
 		   -moz-box-sizing: border-box;
 		        box-sizing: border-box;
@@ -75,7 +75,7 @@ textarea { vertical-align: top; overflow: auto; *font-family: sans-serif; }
 	   -moz-font-smoothing: antialiased;
  -moz-osx-font-smoothing: grayscale;
 	        font-smoothing: antialiased;
-	// text-rendering: optimizeLegibility;
+	text-rendering: optimizeLegibility;
 }
 
 html {

@@ -12,7 +12,7 @@ $support-rem-legacy: true;
 
 
 // Base Window Size
-$baseWidth: 980px;
+$baseWidth: 280px;
 $smallBaseWidth: 320px;
 
 // $baseWidth: 660px;
@@ -61,6 +61,7 @@ $radius-base: 4px;
 
 
 // Font Settings
+// $font-family-body: 'Roboto Condensed', sans-serif;
 $font-family-body: Verdana, Roboto, "Droid Sans", "小塚ゴシック Pro R", "Kozuka Gothic Pro R", "游ゴシック", YuGothic, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", "メイリオ", Meiryo, sans-serif;
 // $font-family-body: Verdana, Roboto, "Droid Sans", "游ゴシック", YuGothic, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", "メイリオ", Meiryo, sans-serif;
 // $font-family-body: "Noto Sans Japanese", "游ゴシック体", "Yu Gothic", "YuGothic", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", 'Meiryo', "メイリオ", "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
@@ -85,7 +86,7 @@ $path-common: "/-/hiranomami/common/";
 $grid-columns:              12 !default;
 //** Padding between columns. Gets divided in half for the left and right.
 // $grid-gutter-width:         20px !default;
-$grid-gutter-width:         20px !default;
+$grid-gutter-width:         40px !default;
 
 $baseInnerWidth: $baseWidth - $grid-gutter-width;
 $smallBaseInnerWidth: $smallBaseWidth - $grid-gutter-width;
