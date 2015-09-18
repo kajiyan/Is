@@ -61,18 +61,19 @@ module.exports = (App, sn, $, _) ->
         @port.onMessage.addListener (message) =>
           # isrunが変わった時 join した時 disconnectした時
           if (message.to? and message.to is "popupScript") and (message.from? and message.from is "background") and message.type?
-            # console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
+            console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
             
             switch message.type
               # --------------------------------------------------------------
               when "setup"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message.body
-                @set "extensionState", message.body
+                App.vent.trigger "connectSetup", message.body
+                # @set "extensionState", message.body
 
-              # --------------------------------------------------------------
-              when "changeIsRun"
-                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | changeIsRun", debug.style, message.body
-                @set "extensionState", message.body
+              # # --------------------------------------------------------------
+              # when "changeIsRun"
+              #   console.log "%c[Connect] ConnectModel | Long-lived Receive Message | changeIsRun", debug.style, message.body
+              #   @set "extensionState", message.body
 
               # --------------------------------------------------------------
               when "jointed"
@@ -82,6 +83,11 @@ module.exports = (App, sn, $, _) ->
                   isConnected: message.body.isConnected
                   isRoomJoin: message.body.isRoomJoin
                 App.vent.trigger "connectJointed", message.body
+
+              # --------------------------------------------------------------
+              when "disconnect"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | disconnect", debug.style, message.body
+                App.vent.trigger "connectDisconnect", message.body
 
       # --------------------------------------------------------------
       # /**

@@ -71,6 +71,8 @@ module.exports = (App, sn, $, _) ->
 
             # Long-lived 接続 切断時の処理を登録する
             port.onDisconnect.addListener =>
+              # isRunもfalseにする
+
               App.vent.off "stageChangeIsRun", changeIsRunHandler
               App.vent.off "socketConnected", sendConnectedHandler
               App.vent.off "socketJointed", sendJointedHandler
@@ -447,8 +449,6 @@ module.exports = (App, sn, $, _) ->
             isRoomJoin: App.reqres.request "socketGetIsRoomJoin"
           , _data
 
-          console.log data
-
           if port.name is "popupScript"
             port.postMessage
               to: "popupScript"
@@ -476,7 +476,7 @@ module.exports = (App, sn, $, _) ->
       # -------------------------------------------------------------
       _sendDisconnectHandler: (port) ->
         return (data) =>
-          console.log "%c[Connect] ConnectModel -> _sendDisconnectHandler", debug.style
+          console.log "%c[Connect] ConnectModel -> _sendDisconnectHandler", debug.style, data
 
           port.postMessage
             to: port.name

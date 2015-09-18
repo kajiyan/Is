@@ -3,6 +3,9 @@ do (window=window, document=document, $=jQuery) ->
 
   console.log SETTING
 
+  # デフォルトアイコンをセット
+  chrome.browserAction.setIcon path: "public/images/extension/icon-off-32-0.png"
+
   window.sn = {}
 
   # ============================================================

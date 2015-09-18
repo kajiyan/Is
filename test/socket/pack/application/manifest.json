@@ -1,8 +1,13 @@
 {
   "manifest_version": 2,
-  "name": "Test I\"s Extension",
+  "name": "NOT FOUND",
   "version": "0.1",
-  "description": "I\"s Extension",
+  "description": "404",
+  "icons": {
+    "16": "public/images/extension/icon-16-0.png",
+    "48": "public/images/extension/icon-48-0.png",
+    "128": "public/images/extension/icon-128-0.png"
+  },
   "content_scripts": [
     {
       "matches": [ "<all_urls>" ],
@@ -21,8 +26,8 @@
     ]
   },
   "browser_action": {
-    "default_icon": "public/images/extension/camera.png",
-    "default_title": "",
+    "default_icon": "public/images/extension/icon-off-32-0.png",
+    "default_title": "NOT FOUND",
     "default_popup": "popup.html"
   },
   "permissions": [

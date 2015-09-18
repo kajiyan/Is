@@ -130,8 +130,8 @@ module.exports = (App, sn, $, _) ->
         
         @set 
           "isConnected": false # 接続状態を切断状態へ変更
+          "isRoomJoin": false  # 接続状態を退室状態へ変更
           "residents": []      # 接続ユーザーを空にする
-          # "isRoomJoin": false  # 接続状態を退室状態へ変更
         App.vent.trigger "socketDisconnect"
 
       # ------------------------------------------------------------
@@ -154,7 +154,6 @@ module.exports = (App, sn, $, _) ->
             # 接続状態を入室状態へ変更
             @set "isRoomJoin", true
           else if data.status is "error"
-            console.log "error"
             App.reqres.request "stageStopApp"
             @socket.disconnect()
             @set "isRoomJoin", false

@@ -30296,7 +30296,7 @@
 	    style: "background-color: Black; color: #ffffff;"
 	  };
 	  return App.module("StageModule", function(StageModule, App, Backbone, Marionette, $, _) {
-	    var EntranceItemView, EntranceModel, LoadingItemView;
+	    var CheckInItemView, CheckOutItemView, CheckOutModel, EntranceModel, LoadingItemView;
 	    console.log("%c[Stage] StageModule", debug.style);
 	    Backbone.Validation.configure({
 	      forceUpdate: true
@@ -30343,6 +30343,14 @@
 	          }
 	        }
 	        return results;
+	      }
+	    });
+	    CheckOutModel = Backbone.Model.extend({
+	      defaults: {
+	        isActive: false
+	      },
+	      initialize: function() {
+	        return console.log("%c[Stage] CheckOutModel -> initialize", debug.style);
 	      }
 	    });
 	    LoadingItemView = Backbone.Marionette.ItemView.extend({
@@ -30402,12 +30410,12 @@
 	        })(this)).promise();
 	      }
 	    });
-	    EntranceItemView = Backbone.Marionette.ItemView.extend({
+	    CheckInItemView = Backbone.Marionette.ItemView.extend({
 	      initialize: function() {
-	        console.log("%c[Stage] EntranceItemView -> initialize", debug.style);
+	        console.log("%c[Stage] CheckInItemView -> initialize", debug.style);
 	        Backbone.Validation.bind(this);
+	        App.vent.on("connectSetup", this._setupHandler.bind(this));
 	        App.vent.on("connectJointed", this._jointedHandler.bind(this));
-	        App.vent.on("connectChangeExtensionState", this._changeExtensionStateHandler.bind(this));
 	        return this.listenTo(this.model, "change:isRoomIdValid", this._changeIsRoomIdValidHandler);
 	      },
 	      el: "#js-check-in",
@@ -30435,42 +30443,60 @@
 	        }
 	      },
 	      onRender: function() {
-	        console.log("%c[SignUp] EntranceItemView -> onRender", debug.style);
+	        console.log("%c[SignUp] CheckInItemView -> onRender", debug.style);
 	        return this.stickit();
 	      },
 	      _checkInManualRoomHandler: function(e) {
-	        console.log("%c[Stage] EntranceItemView -> _checkInManualRoomHandler", debug.style);
+	        console.log("%c[Stage] CheckInItemView -> _checkInManualRoomHandler", debug.style);
 	        e.preventDefault();
 	        this.ui.manualRoomButton.prop("disabled", true);
 	        this.ui.automaticRoomButton.prop("disabled", true);
-	        App.execute("loadingShow", 400);
+	        App.reqres.request("loadingShow", 400);
 	        return window.bg.appRun(this.model.get("roomId"));
 	      },
 	      _checkInAutomaticRoomHandler: function(e) {
-	        console.log("%c[Stage] EntranceItemView -> _checkInAutomaticRoomHandler", debug.style);
+	        console.log("%c[Stage] CheckInItemView -> _checkInAutomaticRoomHandler", debug.style);
 	        e.preventDefault();
 	        this.ui.manualRoomButton.prop("disabled", true);
 	        this.ui.automaticRoomButton.prop("disabled", true);
+	        App.reqres.request("loadingShow", 400);
 	        return window.bg.appRun(null);
 	      },
 	      _changeIsRoomIdValidHandler: function(model, isRoomIdValid) {
-	        console.log("%c[Stage] EntranceItemView -> _changeIsRoomIdValidHandler", debug.style, model, isRoomIdValid);
+	        console.log("%c[Stage] CheckInItemView -> _changeIsRoomIdValidHandler", debug.style, model, isRoomIdValid);
 	        if (isRoomIdValid) {
 	          return this.ui.manualRoomButton.prop("disabled", false);
 	        } else {
 	          return this.ui.manualRoomButton.prop("disabled", true);
 	        }
 	      },
-	      _changeExtensionStateHandler: function(extensionState) {
-	        return console.log("%c[Stage] EntranceItemView -> _changeExtensionStateHandler", debug.style, extensionState);
+	      _setupHandler: function(extensionState) {
+	        console.log("%c[Stage] CheckInItemView -> _setupHandler", debug.style, extensionState);
+	        if (!extensionState.isRun && !extensionState.isConnected && !extensionState.isRoomJoin) {
+	          chrome.browserAction.setIcon({
+	            path: "public/images/extension/icon-off-32-0.png"
+	          });
+	          return this.show(600, 200);
+	        }
 	      },
 	      _jointedHandler: function(data) {
-	        console.log("%c[Stage] EntranceItemView -> _jointedHandler", debug.style, data);
+	        console.log("%c[Stage] CheckInItemView -> _jointedHandler", debug.style, data);
+	        this.ui.manualRoomCheckInerrorType0.addClass("is__hidden");
+	        this.ui.manualRoomCheckInerrorType1.addClass("is__hidden");
+	        this.ui.manualRoomCheckInerrorType2.addClass("is__hidden");
 	        if (data.status === "success") {
-	          this.ui.manualRoomCheckInerrorType0.addClass("is__hidden");
-	          this.ui.manualRoomCheckInerrorType1.addClass("is__hidden");
-	          this.ui.manualRoomCheckInerrorType2.addClass("is__hidden");
-	          return App.execute("loadingHide", 400, 600);
+	          return $.when(App.reqres.request("loadingHide", 400, 600)).then((function(_this) {
+	            return function() {
+	              return $.when(_this.hide(600));
+	            };
+	          })(this)).then((function(_this) {
+	            return function() {
+	              chrome.browserAction.setIcon({
+	                path: "public/images/extension/icon-on-32-0.png"
+	              });
+	              return App.reqres.request("checkOutShow", 400, 600);
+	            };
+	          })(this));
 	        } else if (data.status === "error") {
 	          switch (data.type) {
 	            case "CapacityOver":
@@ -30482,41 +30508,231 @@
 	            case "Unknown":
 	              this.ui.manualRoomCheckInerrorType2.removeClass("is__hidden");
 	          }
-	          return App.execute("loadingHide", 400, 600);
+	          this.ui.automaticRoomButton.prop("disabled", false);
+	          return App.reqres.request("loadingHide", 400, 600);
 	        }
+	      },
+	      show: function(duration, delay) {
+	        if (duration == null) {
+	          duration = 600;
+	        }
+	        if (delay == null) {
+	          delay = 0;
+	        }
+	        console.log("%c[Stage] CheckInItemView -> show", debug.style);
+	        return $.Deferred((function(_this) {
+	          return function(defer) {
+	            var to;
+	            _this.ui.automaticRoomButton.prop("disabled", false);
+	            to = {
+	              height: _this.$el.height(),
+	              opacity: 1.0
+	            };
+	            _this.$el.css({
+	              height: 0,
+	              opacity: 0.0
+	            }).removeClass("is__hidden");
+	            return Velocity.animate(_this.$el, to, {
+	              duration: duration,
+	              delay: delay,
+	              easing: "ease",
+	              complete: function() {
+	                _this.$el.removeAttr("style");
+	                return defer.resolve();
+	              }
+	            });
+	          };
+	        })(this)).promise();
+	      },
+	      hide: function(duration, delay) {
+	        if (duration == null) {
+	          duration = 600;
+	        }
+	        if (delay == null) {
+	          delay = 0;
+	        }
+	        console.log("%c[Stage] CheckInItemView -> hide", debug.style);
+	        return $.Deferred((function(_this) {
+	          return function(defer) {
+	            return Velocity.animate(_this.$el, {
+	              height: 0,
+	              opacity: 0.0
+	            }, {
+	              duration: duration,
+	              delay: delay,
+	              easing: "ease",
+	              complete: function() {
+	                _this.ui.checkInRoomIdInput.val("");
+	                _this.$el.addClass("is__hidden").removeAttr("style");
+	                return defer.resolve();
+	              }
+	            });
+	          };
+	        })(this)).promise();
+	      }
+	    });
+	    CheckOutItemView = Backbone.Marionette.ItemView.extend({
+	      initialize: function() {
+	        console.log("%c[Stage] LoadingItemView -> initialize", debug.style);
+	        App.vent.on("connectSetup", this._setupHandler.bind(this));
+	        return App.vent.on("connectDisconnect", this._disconnectHandler.bind(this));
+	      },
+	      el: "#js-check-out",
+	      ui: {
+	        checkOutForm: "#js-check-out-form",
+	        checkOutButton: "#js-check-out-button"
+	      },
+	      template: false,
+	      events: {
+	        "submit @ui.checkOutForm": "_checkOutHandler"
+	      },
+	      _setupHandler: function(extensionState) {
+	        console.log("%c[Stage] CheckOutItemView -> _setupHandler", debug.style, extensionState);
+	        if (extensionState.isRun && extensionState.isConnected && extensionState.isRoomJoin) {
+	          chrome.browserAction.setIcon({
+	            path: "public/images/extension/icon-on-32-0.png"
+	          });
+	          this.model.set("isActive", true);
+	          return this.show(600, 200);
+	        }
+	      },
+	      _checkOutHandler: function(e) {
+	        console.log("%c[Stage] CheckOutItemView -> _checkOutHandler", debug.style);
+	        e.preventDefault();
+	        App.reqres.request("loadingShow", 400);
+	        return window.bg.appStop();
+	      },
+	      _disconnectHandler: function(data) {
+	        console.log("%c[Stage] CheckOutItemView -> _disconnectHandler", debug.style);
+	        if (this.model.get("isActive")) {
+	          return $.when(App.reqres.request("loadingHide", 400, 600)).then((function(_this) {
+	            return function() {
+	              return $.when(_this.hide(600));
+	            };
+	          })(this)).then((function(_this) {
+	            return function() {
+	              chrome.browserAction.setIcon({
+	                path: "public/images/extension/icon-off-32-0.png"
+	              });
+	              return App.reqres.request("checkInShow", 400, 600);
+	            };
+	          })(this));
+	        }
+	      },
+	      show: function(duration, delay) {
+	        if (duration == null) {
+	          duration = 600;
+	        }
+	        if (delay == null) {
+	          delay = 0;
+	        }
+	        console.log("%c[Stage] CheckOutItemView -> show", debug.style);
+	        return $.Deferred((function(_this) {
+	          return function(defer) {
+	            var to;
+	            to = {
+	              height: _this.$el.height(),
+	              opacity: 1.0
+	            };
+	            _this.$el.css({
+	              height: 0,
+	              opacity: 0.0
+	            }).removeClass("is__hidden");
+	            return Velocity.animate(_this.$el, to, {
+	              duration: duration,
+	              delay: delay,
+	              easing: "ease",
+	              complete: function() {
+	                _this.model.set("isActive", true);
+	                _this.$el.removeAttr("style");
+	                return defer.resolve();
+	              }
+	            });
+	          };
+	        })(this)).promise();
+	      },
+	      hide: function(duration, delay) {
+	        if (duration == null) {
+	          duration = 600;
+	        }
+	        if (delay == null) {
+	          delay = 0;
+	        }
+	        console.log("%c[Stage] CheckOutItemView -> hide", debug.style);
+	        return $.Deferred((function(_this) {
+	          return function(defer) {
+	            return Velocity.animate(_this.$el, {
+	              height: 0,
+	              opacity: 0.0
+	            }, {
+	              duration: duration,
+	              delay: delay,
+	              easing: "ease",
+	              complete: function() {
+	                _this.model.set("isActive", false);
+	                _this.$el.addClass("is__hidden").removeAttr("style");
+	                return defer.resolve();
+	              }
+	            });
+	          };
+	        })(this)).promise();
 	      }
 	    });
 	    StageModule.addInitializer(function(options) {
 	      var models, views;
 	      console.log("%c[Stage] addInitializer", debug.style, options);
 	      models = {
-	        entrance: new EntranceModel()
+	        entrance: new EntranceModel(),
+	        checkOut: new CheckOutModel()
 	      };
 	      views = {
-	        entrance: new EntranceItemView({
+	        checkIn: new CheckInItemView({
 	          model: models.entrance
+	        }),
+	        checkOut: new CheckOutItemView({
+	          model: models.checkOut
 	        }),
 	        loading: new LoadingItemView()
 	      };
-	      views.entrance.render();
-	      App.commands.setHandler("loadingShow", function(duration, delay) {
+	      views.checkIn.render();
+	      App.reqres.setHandler("checkInShow", function(duration, delay) {
 	        if (duration == null) {
 	          duration = 400;
 	        }
 	        if (delay == null) {
 	          delay = 0;
 	        }
-	        console.log("%c[Connect] Commands | loadingShow", debug.style);
+	        console.log("%c[Stage] Commands | checkInShow", debug.style);
+	        return views.checkIn.show(duration, delay);
+	      });
+	      App.reqres.setHandler("checkOutShow", function(duration, delay) {
+	        if (duration == null) {
+	          duration = 400;
+	        }
+	        if (delay == null) {
+	          delay = 0;
+	        }
+	        console.log("%c[Stage] Commands | checkOutShow", debug.style);
+	        return views.checkOut.show(duration, delay);
+	      });
+	      App.reqres.setHandler("loadingShow", function(duration, delay) {
+	        if (duration == null) {
+	          duration = 400;
+	        }
+	        if (delay == null) {
+	          delay = 0;
+	        }
+	        console.log("%c[Stage] Commands | loadingShow", debug.style);
 	        return views.loading.show(duration, delay);
 	      });
-	      return App.commands.setHandler("loadingHide", function(duration, delay) {
+	      return App.reqres.setHandler("loadingHide", function(duration, delay) {
 	        if (duration == null) {
 	          duration = 400;
 	        }
 	        if (delay == null) {
 	          delay = 0;
 	        }
-	        console.log("%c[Connect] Commands | loadingHide", debug.style);
+	        console.log("%c[Stage] Commands | loadingHide", debug.style);
 	        return views.loading.hide(duration, delay);
 	      });
 	    });
@@ -30561,13 +30777,11 @@
 	        return this.port.onMessage.addListener((function(_this) {
 	          return function(message) {
 	            if (((message.to != null) && message.to === "popupScript") && ((message.from != null) && message.from === "background") && (message.type != null)) {
+	              console.log("%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message);
 	              switch (message.type) {
 	                case "setup":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | setup", debug.style, message.body);
-	                  return _this.set("extensionState", message.body);
-	                case "changeIsRun":
-	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | changeIsRun", debug.style, message.body);
-	                  return _this.set("extensionState", message.body);
+	                  return App.vent.trigger("connectSetup", message.body);
 	                case "jointed":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | jointed", debug.style, message.body);
 	                  _this.set("extensionState", {
@@ -30576,6 +30790,9 @@
 	                    isRoomJoin: message.body.isRoomJoin
 	                  });
 	                  return App.vent.trigger("connectJointed", message.body);
+	                case "disconnect":
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | disconnect", debug.style, message.body);
+	                  return App.vent.trigger("connectDisconnect", message.body);
 	              }
 	            }
 	          };

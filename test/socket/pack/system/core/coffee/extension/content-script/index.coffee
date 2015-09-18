@@ -131,6 +131,7 @@ do (window=window, document=document, $=jQuery) ->
           }
 
           .is .lover .landscape {
+            background-color: #ffffff;
             background-repeat: no-repeat;
             background-position: center;
             width: 100%;

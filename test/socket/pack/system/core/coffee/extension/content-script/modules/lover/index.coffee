@@ -301,7 +301,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
               opacity: 0.0
             ,
               duration: 400
-              delay: 100
+              delay: 200
               easing: "easeOutQuart"
               complete: () =>
                 @ui.landscape.addClass "is-hidden"

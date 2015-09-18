@@ -56,12 +56,17 @@ module.exports = (App, sn, $, _) ->
         # background へのLong-lived 接続
         @port = chrome.runtime.connect name: "contentScript"
         # @port = chrome.extension.connect name: "contentScript"
+
+        # @port.onDisconnect.addListener =>
+        #   console.log "disconnect"
+        #   @port.disconnect()
         
         # セットアップを行う
         @port.postMessage
           to: "background"
           from: "contentScript"
           type: "setup"
+
 
         @port.onMessage.addListener (message) =>
           # console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message

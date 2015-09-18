@@ -48,6 +48,9 @@
 	  "use strict";
 	  var Background;
 	  console.log(SETTING);
+	  chrome.browserAction.setIcon({
+	    path: "public/images/extension/icon-off-32-0.png"
+	  });
 	  window.sn = {};
 	  sn.tf = new TypeFrameWork();
 	  __webpack_require__(6);
@@ -25296,7 +25299,6 @@
 	              isConnected: App.reqres.request("socketGetIsConnected"),
 	              isRoomJoin: App.reqres.request("socketGetIsRoomJoin")
 	            }, _data);
-	            console.log(data);
 	            if (port.name === "popupScript") {
 	              port.postMessage({
 	                to: "popupScript",
@@ -25321,7 +25323,7 @@
 	      _sendDisconnectHandler: function(port) {
 	        return (function(_this) {
 	          return function(data) {
-	            console.log("%c[Connect] ConnectModel -> _sendDisconnectHandler", debug.style);
+	            console.log("%c[Connect] ConnectModel -> _sendDisconnectHandler", debug.style, data);
 	            return port.postMessage({
 	              to: port.name,
 	              from: "background",
@@ -25525,6 +25527,7 @@
 	        console.log("%c[Socket] SocketModel -> _disconnectHandler", debug.style);
 	        this.set({
 	          "isConnected": false,
+	          "isRoomJoin": false,
 	          "residents": []
 	        });
 	        return App.vent.trigger("socketDisconnect");
@@ -25541,7 +25544,6 @@
 	            if (data.status === "success") {
 	              _this.set("isRoomJoin", true);
 	            } else if (data.status === "error") {
-	              console.log("error");
 	              App.reqres.request("stageStopApp");
 	              _this.socket.disconnect();
 	              _this.set("isRoomJoin", false);

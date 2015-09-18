@@ -596,6 +596,9 @@ body {
 /* ============================================================================= */
 /* ============================================================================= */
 /*  CHECK-IN                                                                     */
+.check-in {
+  overflow: hidden;
+}
 .check-in .check-in-h1 {
   border-bottom: 2px solid #222222;
   padding: 0 0 8px 0;
@@ -761,6 +764,9 @@ body {
 /* ============================================================================= */
 /* ============================================================================= */
 /*  CHECK-OUT                                                                    */
+.check-out {
+  overflow: hidden;
+}
 .check-out .options {
   margin: 0 0 20px 0;
 }
@@ -915,6 +921,7 @@ body {
 }
 .sound .sound-button .sound-label--inner {
   display: inline-block;
+  line-height: 18px;
   width: 30px;
   height: 18px;
 }
