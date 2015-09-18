@@ -159,8 +159,8 @@ module.exports = (App, sn, $, _) ->
           isRun: true
           roomId: roomId
 
-      App.reqres.setHandler "stopAppRun", () =>
-        console.log "%c[Stage] Request Response | stopAppRun", debug.style
+      App.reqres.setHandler "stageStopApp", () =>
+        console.log "%c[Stage] Request Response | stageStopApp", debug.style
         @models.stage.set
           isRun: false
 

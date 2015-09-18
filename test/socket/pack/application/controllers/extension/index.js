@@ -160,6 +160,7 @@ Extension = (function() {
                 );
               },
               function(error) {
+                console.log(error);
                 // 該当のRoomがない場合、新たにRoomを作成する
                 if (error.status === 'error' && error.type === 'NoneData') {
                   _this._dayModel.addManualRoom({
@@ -197,10 +198,20 @@ Extension = (function() {
                     },
                     function(error) { callback(error); }
                   );
+                } else {
+                  // クエリにエラーがあろ場合、もしくはデータの問い合わせに失敗
+                  callback(error);
                 }
               }
             )
-            .catch(function (error) { console.log(error); })
+            .catch(function (error) {
+              console.log(error);
+              callback({
+                status: 'error',
+                type: 'Unknown',
+                body: { message: 'Unknown error.' }
+              });
+            })
             .done();
 
 
@@ -278,7 +289,9 @@ Extension = (function() {
                     }
                   }
                 )
-                .catch(function (error) { console.log(error); })
+                .catch(function (error) {
+                  console.log(error);
+                })
                 .done();
               };
             };

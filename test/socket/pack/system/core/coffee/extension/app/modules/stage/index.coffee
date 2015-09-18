@@ -65,11 +65,68 @@ module.exports = (App, sn, $, _) ->
     # ============================================================
     # View
     # ============================================================
+
+    # ============================================================
+    # View - LoadingItemView
+    LoadingItemView = Backbone.Marionette.ItemView.extend
+      # ------------------------------------------------------------
+      initialize: () ->
+        console.log "%c[Stage] LoadingItemView -> initialize", debug.style
+
+      # ------------------------------------------------------------
+      el: "#js-loading"
+
+      # ------------------------------------------------------------
+      template: false
+
+      # ------------------------------------------------------------
+      show: (duration=400, delay=0) ->
+        console.log "%c[Stage] LoadingItemView -> show", debug.style
+        
+        return $.Deferred (defer) =>
+          @$el
+            .css
+              opacity: 0.0
+            .removeClass "is__hidden"
+          
+          Velocity.animate @$el,
+            opacity: 1.0
+          ,
+            duration: duration
+            delay: delay
+            easing: "easeOutQuart"
+            complete: () =>
+              defer.resolve()
+        .promise()
+
+      # ------------------------------------------------------------
+      hide: (duration=400, delay=0) ->
+        console.log "%c[Stage] LoadingItemView -> hide", debug.style
+        
+        return $.Deferred (defer) =>
+          Velocity.animate @$el,
+            opacity: 0.0
+          ,
+            duration: duration
+            delay: delay
+            easing: "easeOutQuart"
+            complete: () =>
+              @$el.addClass "is__hidden"
+              defer.resolve()
+        .promise()
+    # END View - LoadingItemView
+    # ============================================================
+
+    # ============================================================
+
     EntranceItemView = Backbone.Marionette.ItemView.extend
       # ------------------------------------------------------------
       initialize: () ->
         console.log "%c[Stage] EntranceItemView -> initialize", debug.style
         Backbone.Validation.bind @
+
+        # background scriptの socket.ioが特定のRoomへの入室処理が完了した時のイベントリスナー
+        App.vent.on "connectJointed", @_jointedHandler.bind @
 
         # エクステンションの起動状態に変化があった時のイベントリスナー
         App.vent.on "connectChangeExtensionState", @_changeExtensionStateHandler.bind @
@@ -77,17 +134,20 @@ module.exports = (App, sn, $, _) ->
         @listenTo @model, "change:isRoomIdValid", @_changeIsRoomIdValidHandler
 
       # ------------------------------------------------------------
-      el: "#js-is-body"
+      el: "#js-check-in"
 
       # ------------------------------------------------------------
       ui: 
         manualRoomForm: "#js-check-in-form--room_manual"
         manualRoomButton: "#js-check-in-button--room_manual"
+        manualRoomCheckInerrorType0: "#check-in-error--type-0"
+        manualRoomCheckInerrorType1: "#check-in-error--type-1"
+        manualRoomCheckInerrorType2: "#check-in-error--type-2"
         checkInRoomIdInput: "#js-check-in-input--room_id"
         automaticRoomForm: "#js-check-in-form--room_automatic"
         automaticRoomButton: "#js-check-in-button--room_automatic"
-        checkOutForm: "#js-check-out-form"
-        checkOutButton: "#js-check-out-button"
+        # checkOutForm: "#js-check-out-form"
+        # checkOutButton: "#js-check-out-button"
 
       # ------------------------------------------------------------
       template: false
@@ -96,9 +156,9 @@ module.exports = (App, sn, $, _) ->
       events:
         "submit @ui.manualRoomForm": "_checkInManualRoomHandler"
         "submit @ui.automaticRoomForm": "_checkInAutomaticRoomHandler"
-        "submit @ui.checkOutForm": (e) ->
-          e.preventDefault()
-          window.bg.appStop()
+        # "submit @ui.checkOutForm": (e) ->
+        #   e.preventDefault()
+        #   window.bg.appStop()
 
       # ------------------------------------------------------------
       bindings: 
@@ -125,6 +185,9 @@ module.exports = (App, sn, $, _) ->
         # 二度押しを防止するためボタンを無効化
         @ui.manualRoomButton.prop "disabled", true
         @ui.automaticRoomButton.prop "disabled", true
+
+        # 画面をローディング中に
+        App.execute "loadingShow", 400
         
         window.bg.appRun @model.get "roomId"
 
@@ -161,7 +224,7 @@ module.exports = (App, sn, $, _) ->
 
       # --------------------------------------------------------------
       # /**
-      #  * StageItemView#_changeExtensionStateHandler
+      #  * EntranceItemView#_changeExtensionStateHandler
       #  * エクステンションの起動状態が変わった時に呼ばれるイベントハンドラー
       #  * @param {Object} extensionState
       #  * @prop {boolean} extensionState.isRun - エクステンションの起動状態
@@ -171,7 +234,28 @@ module.exports = (App, sn, $, _) ->
       _changeExtensionStateHandler: (extensionState) ->
         console.log "%c[Stage] EntranceItemView -> _changeExtensionStateHandler", debug.style, extensionState
 
+      # --------------------------------------------------------------
+      # /**
+      #  * EntranceItemView#_jointedHandler
+      #  */
+      # --------------------------------------------------------------
+      _jointedHandler: (data) ->
+        console.log "%c[Stage] EntranceItemView -> _jointedHandler", debug.style, data
 
+        if data.status is "success"
+          @ui.manualRoomCheckInerrorType0.addClass "is__hidden"
+          @ui.manualRoomCheckInerrorType1.addClass "is__hidden"
+          @ui.manualRoomCheckInerrorType2.addClass "is__hidden"
+          App.execute "loadingHide", 400, 600
+        else if data.status is "error"
+          switch data.type
+            when "CapacityOver"
+              @ui.manualRoomCheckInerrorType0.removeClass "is__hidden"
+            when "BudQuery"
+              @ui.manualRoomCheckInerrorType1.removeClass "is__hidden"
+            when "Unknown"
+              @ui.manualRoomCheckInerrorType2.removeClass "is__hidden"
+          App.execute "loadingHide", 400, 600
 
     # ============================================================
     StageModule.addInitializer (options) ->
@@ -183,8 +267,19 @@ module.exports = (App, sn, $, _) ->
       views =
         entrance: new EntranceItemView
           model: models.entrance
+        loading: new LoadingItemView()
 
       views.entrance.render()
+
+      # ============================================================
+      # COMMANDS
+      App.commands.setHandler "loadingShow", (duration=400, delay=0) ->
+        console.log "%c[Connect] Commands | loadingShow", debug.style
+        views.loading.show duration, delay
+
+      App.commands.setHandler "loadingHide", (duration=400, delay=0) ->
+        console.log "%c[Connect] Commands | loadingHide", debug.style
+        views.loading.hide duration, delay
 
     # ============================================================
     StageModule.addFinalizer () ->

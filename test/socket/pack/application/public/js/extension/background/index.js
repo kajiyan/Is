@@ -66,7 +66,7 @@
 	  };
 	  window.appStop = function() {
 	    console.log("APP STOP");
-	    return Background.reqres.request("stopAppRun");
+	    return Background.reqres.request("stageStopApp");
 	  };
 	  return $(function() {
 	    sn.tf.setup(function() {
@@ -24945,9 +24945,9 @@
 	          });
 	        };
 	      })(this));
-	      App.reqres.setHandler("stopAppRun", (function(_this) {
+	      App.reqres.setHandler("stageStopApp", (function(_this) {
 	        return function() {
-	          console.log("%c[Stage] Request Response | stopAppRun", debug.style);
+	          console.log("%c[Stage] Request Response | stageStopApp", debug.style);
 	          return _this.models.stage.set({
 	            isRun: false
 	          });
@@ -25288,19 +25288,21 @@
 	      },
 	      _sendJointedHandler: function(port) {
 	        return (function(_this) {
-	          return function() {
-	            var activeInfo;
+	          return function(_data) {
+	            var activeInfo, data;
 	            console.log("%c[Connect] ConnectModel -> _sendJointedHandler", debug.style);
+	            data = _.extend({
+	              isRun: _this.get("isRun"),
+	              isConnected: App.reqres.request("socketGetIsConnected"),
+	              isRoomJoin: App.reqres.request("socketGetIsRoomJoin")
+	            }, _data);
+	            console.log(data);
 	            if (port.name === "popupScript") {
 	              port.postMessage({
 	                to: "popupScript",
 	                from: "background",
 	                type: "jointed",
-	                body: {
-	                  isRun: _this.get("isRun"),
-	                  isConnected: App.reqres.request("socketGetIsConnected"),
-	                  isRoomJoin: App.reqres.request("socketGetIsRoomJoin")
-	                }
+	                body: data
 	              });
 	              return;
 	            }
@@ -25310,7 +25312,7 @@
 	                to: "contentScript",
 	                from: "background",
 	                type: "jointed",
-	                body: {}
+	                body: data
 	              });
 	            }
 	          };
@@ -25523,7 +25525,6 @@
 	        console.log("%c[Socket] SocketModel -> _disconnectHandler", debug.style);
 	        this.set({
 	          "isConnected": false,
-	          "isRoomJoin": false,
 	          "residents": []
 	        });
 	        return App.vent.trigger("socketDisconnect");
@@ -25537,8 +25538,15 @@
 	        return this.socket.emit("join", data, (function(_this) {
 	          return function(data) {
 	            console.log("%c[Socket] SocketModel -> jointed", debug.style, data);
-	            _this.set("isRoomJoin", true);
-	            return App.vent.trigger("socketJointed");
+	            if (data.status === "success") {
+	              _this.set("isRoomJoin", true);
+	            } else if (data.status === "error") {
+	              console.log("error");
+	              App.reqres.request("stageStopApp");
+	              _this.socket.disconnect();
+	              _this.set("isRoomJoin", false);
+	            }
+	            return App.vent.trigger("socketJointed", data);
 	          };
 	        })(this));
 	      },

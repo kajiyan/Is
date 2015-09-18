@@ -37,7 +37,8 @@
             <form id="js-check-in-form--room_manual" class="check-in-form check-in-form--room_manual">
               <!-- <label class="check-in-label" for="check-in-input--room_id"></label> -->
               <input id="js-check-in-input--room_id" class="check-in-input l-roboto" type="text" maxlength="6" placeholder="Room ID"><!--
-           --><button id="js-check-in-button--room_manual" class="check-in-button l-roboto-condensed" type="submit" disabled>
+           --><!-- <button id="js-check-in-button--room_manual" class="check-in-button l-roboto-condensed" type="submit" disabled> --><!--
+           --><button id="js-check-in-button--room_manual" class="check-in-button l-roboto-condensed" type="submit">
                 <span class="check-in-label check-in-label--off">
                   <span class="l-box-center">
                     <span class="l-box-center__inner">
@@ -60,9 +61,9 @@
             </form><!-- /.check-in-form room_manual -->
 
             <p class="check-in-errors l-roboto-condensed">
-              <span class="check-in-error check-in-error--type-0 is__hidden">* If there is a problem on the service side, check in will not be possible</span>
-              <span class="check-in-error check-in-error--type-1 is__hidden">* Some characters cannot be used for IDs</span>
-              <span class="check-in-error check-in-error--type-2 is__hidden">* The designated ID's room has reached its capacity</span>
+              <span id="check-in-error--type-0" class="check-in-error is__hidden">* The designated ID's room has reached its capacity</span>
+              <span id="check-in-error--type-1" class="check-in-error is__hidden">* Some characters cannot be used for IDs</span>
+              <span id="check-in-error--type-2" class="check-in-error is__hidden">* If there is a problem on the service side, check in will not be possible</span>
             </p>
 
             <p class="check-in-hr l-roboto-condensed">
@@ -178,7 +179,7 @@
       </section><!-- /.main-section -->
     </div><!-- /.l-container-24 -->
 
-    <div class="loading loading--type_blink is__hidden">
+    <div id="js-loading" class="loading loading--type_blink is__hidden">
       <div class="l-box-center">
         <div class="l-box-center__inner">
           <div class="l-box-center__body">

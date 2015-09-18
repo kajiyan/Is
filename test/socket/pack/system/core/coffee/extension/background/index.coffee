@@ -34,7 +34,7 @@ do (window=window, document=document, $=jQuery) ->
 
   window.appStop = () ->
     console.log "APP STOP"
-    Background.reqres.request "stopAppRun"
+    Background.reqres.request "stageStopApp"
     # Background.execute "stopAppRun"
 
   $ ->

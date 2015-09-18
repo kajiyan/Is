@@ -6,7 +6,8 @@ do (window=window, document=document, $=jQuery) ->
   require "backbone.validation"
   require "backbone.marionette"
   require "backbone.stickit/backbone.stickit"
-
+  require "velocity/velocity.min"
+  require "velocity/velocity.ui.min"
   require "pepjs/dist/pep.min"
 
   # ============================================================

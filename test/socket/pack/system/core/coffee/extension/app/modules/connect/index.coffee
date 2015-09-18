@@ -61,7 +61,7 @@ module.exports = (App, sn, $, _) ->
         @port.onMessage.addListener (message) =>
           # isrunが変わった時 join した時 disconnectした時
           if (message.to? and message.to is "popupScript") and (message.from? and message.from is "background") and message.type?
-            console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
+            # console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message
             
             switch message.type
               # --------------------------------------------------------------
@@ -73,6 +73,15 @@ module.exports = (App, sn, $, _) ->
               when "changeIsRun"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | changeIsRun", debug.style, message.body
                 @set "extensionState", message.body
+
+              # --------------------------------------------------------------
+              when "jointed"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | jointed", debug.style, message.body
+                @set "extensionState",
+                  isRun: message.body.isRun
+                  isConnected: message.body.isConnected
+                  isRoomJoin: message.body.isRoomJoin
+                App.vent.trigger "connectJointed", message.body
 
       # --------------------------------------------------------------
       # /**

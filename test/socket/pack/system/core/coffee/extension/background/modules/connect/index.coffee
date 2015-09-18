@@ -431,18 +431,30 @@ module.exports = (App, sn, $, _) ->
       #  */
       # -------------------------------------------------------------
       _sendJointedHandler: (port) ->
-        return () =>
+        # /**
+        #  * @param {Object} _data
+        #  * @prop {string} status - roomにjoinできたか success | error
+        #  * @prop {string} type - errorだった場合、その種類
+        #  * @param {Object} body
+        #  * @prop {string} body.message - errorだった場合、その内容
+        #  */
+        return (_data) =>
           console.log "%c[Connect] ConnectModel -> _sendJointedHandler", debug.style
+
+          data = _.extend
+            isRun: @get "isRun"
+            isConnected: App.reqres.request "socketGetIsConnected"
+            isRoomJoin: App.reqres.request "socketGetIsRoomJoin"
+          , _data
+
+          console.log data
 
           if port.name is "popupScript"
             port.postMessage
               to: "popupScript"
               from: "background"
               type: "jointed"
-              body: 
-                isRun: @get "isRun"
-                isConnected: App.reqres.request "socketGetIsConnected"
-                isRoomJoin: App.reqres.request "socketGetIsRoomJoin"
+              body: data
             return
 
           # 現在選択されているTabの情報を取得する
@@ -454,7 +466,7 @@ module.exports = (App, sn, $, _) ->
               to: "contentScript"
               from: "background"
               type: "jointed"
-              body: {}
+              body: data
 
       # --------------------------------------------------------------
       # /**
