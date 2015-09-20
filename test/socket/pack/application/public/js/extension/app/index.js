@@ -30486,15 +30486,15 @@
 	        this.ui.manualRoomCheckInerrorType1.addClass("is__hidden");
 	        this.ui.manualRoomCheckInerrorType2.addClass("is__hidden");
 	        if (data.status === "success") {
+	          chrome.browserAction.setIcon({
+	            path: "public/images/extension/icon-on-32-0.png"
+	          });
 	          return $.when(App.reqres.request("loadingHide", 400, 600)).then((function(_this) {
 	            return function() {
 	              return $.when(_this.hide(600));
 	            };
 	          })(this)).then((function(_this) {
 	            return function() {
-	              chrome.browserAction.setIcon({
-	                path: "public/images/extension/icon-on-32-0.png"
-	              });
 	              return App.reqres.request("checkOutShow", 400, 600);
 	            };
 	          })(this));
@@ -30612,6 +30612,9 @@
 	      _checkOutHandler: function(e) {
 	        console.log("%c[Stage] CheckOutItemView -> _checkOutHandler", debug.style);
 	        e.preventDefault();
+	        chrome.browserAction.setIcon({
+	          path: "public/images/extension/icon-off-32-0.png"
+	        });
 	        App.reqres.request("loadingShow", 400);
 	        return window.bg.appStop();
 	      },
@@ -30638,9 +30641,6 @@
 	            };
 	          })(this)).then((function(_this) {
 	            return function() {
-	              chrome.browserAction.setIcon({
-	                path: "public/images/extension/icon-off-32-0.png"
-	              });
 	              return App.reqres.request("checkInShow", 400, 600);
 	            };
 	          })(this));

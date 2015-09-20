@@ -182,7 +182,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
           offsetY = (stageWindowSize.height - windowSize.height) / 2
 
           @ui.body.css
-            transform: "translate(#{positions[0].x + offsetX}px, #{positions[0].y + offsetY}px)"          
+            transform: "translate3d(#{positions[0].x + offsetX}px, #{positions[0].y + offsetY}px, 0)"          
 
         $.when(
           loadImg()

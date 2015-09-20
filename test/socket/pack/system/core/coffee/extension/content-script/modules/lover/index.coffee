@@ -20,6 +20,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
     LoverModel = Backbone.Model.extend
       # ------------------------------------------------------------
       defaults:
+        id: ""
         position:
           x: 0
           y: 0
@@ -62,7 +63,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         App.vent.on "connectDisconnect", @_resetUserHandler.bind @
         App.vent.on "connectAddUser", @_addUserHandler.bind @
         App.vent.on "connectAddResident", @_addUserHandler.bind @
-        App.vent.on "connectCheckOut", @_removeUserHandler.bind @
+        # App.vent.on "connectCheckOut", @_removeUserHandler.bind @
         App.vent.on "connectUpdateLocation", @_updateLocationHandler.bind @
         App.vent.on "connectUpdateWindowSize", @_updateWindowSizeHandler.bind @
         App.vent.on "connectUpdatePointer", @_updatePointerHandler.bind @
@@ -99,9 +100,9 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       #  * @prop {string} id - 同じRoomに所属していたユーザーのSocketID
       #  */
       # --------------------------------------------------------------
-      _removeUserHandler: (data) ->
-        console.log "%c[Lover] LoversCollection -> _removeUserHandler", debug.style, data
-        @remove id: data.id
+      # _removeUserHandler: (data) ->
+      #   console.log "%c[Lover] LoversCollection -> _removeUserHandler", debug.style, data
+      #   @remove id: data.id
 
       # --------------------------------------------------------------
       # /**
@@ -109,7 +110,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       #  */
       # --------------------------------------------------------------
       _resetUserHandler: () ->
-        console.log "%c[Lover] LoversCollection -> _removeUserHandler", debug.style
+        console.log "%c[Lover] LoversCollection -> _resetUserHandler", debug.style
         @reset()
 
       # --------------------------------------------------------------
@@ -181,16 +182,30 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         # ------------------------------------------------------------
         initialize: () ->
           console.log "%c[Lover] LoverItemView -> initialize", debug.style
+          App.vent.on "connectCheckOut", @_checkOutHandler.bind @
+
           @listenTo @model, "change:link", @_changeLinkHandler
           @listenTo @model, "change:position", @_changePositionHandler
           @listenTo @model, "change:window", @_changeWindowHandler
           @listenTo @model, "change:landscape", @_changeLandscapeHandler
 
+          chrome.storage.onChanged.addListener (changes, ns) =>
+            if ns is "local"
+              if changes.isSound?
+                @_isSound = changes.isSound.newValue
+                if not @_isSound then @_soundInstance.stop()
+
+          chrome.storage.local.get isSound: true,
+            (result) =>
+              @_isSound = result.isSound
+
+          @_soundInstance = createjs.Sound.createInstance "soundSignal0"
+
         # ------------------------------------------------------------
         tagName: "div"
       
         # ------------------------------------------------------------
-        className: "lover"
+        className: "lover is-hidden"
 
         # ------------------------------------------------------------
         template: _.template(isElShadowRoot.querySelector("#lover-template").innerHTML)
@@ -208,6 +223,76 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
 
         # --------------------------------------------------------------
         onRender: () ->
+          @_show()
+
+        # ------------------------------------------------------------
+        onDestroy: () ->
+          console.log "%c[Lover] LoverItemView -> onDestroy", debug.style
+
+        # --------------------------------------------------------------
+        # /**
+        #  * LoverItemView#_show
+        #  */
+        # --------------------------------------------------------------
+        _show: (duration=400, delay=0) ->
+          console.log "%c[Lover] LoverItemView -> _show", debug.style
+
+          @ui.body.css
+            "-webkit-filter": "blur(10px)"
+            "opacity": 0.0
+
+          @$el.removeClass "is-hidden"
+
+          return $.Deferred (defer) =>
+            Velocity.animate @ui.body,
+              blur: 0
+              opacity: 1.0
+            ,
+              duration: duration
+              delay: delay
+              easing: "easeOutQuart"
+              complete: () =>
+                defer.resolve()
+          .promise()
+
+        # --------------------------------------------------------------
+        # /**
+        #  * LoverItemView#_hide
+        #  */
+        # --------------------------------------------------------------
+        _hide: (duration=400, delay=0) ->
+          console.log "%c[Lover] LoverItemView -> _hide", debug.style
+
+          return $.Deferred (defer) =>
+            Velocity.animate @ui.body,
+              blur: 10
+              opacity: 0.0
+            ,
+              duration: duration
+              delay: delay
+              easing: "easeOutQuart"
+              complete: () =>
+                defer.resolve()
+          .promise()
+
+        # --------------------------------------------------------------
+        # /**
+        #  * LoversCollection#_checkOutHandler
+        #  * @param {Object} data
+        #  * @prop {string} id - 同じRoomに所属していたユーザーのSocketID
+        #  */
+        # --------------------------------------------------------------
+        _checkOutHandler: (data) ->
+          console.log "%c[Lover] LoverItemView -> _checkOutHandler", debug.style, data
+
+          if @model.get("id") is data.id
+            $.when(
+              @_hide()
+            )
+            .then(
+              =>
+                @triggerMethod 'hideMemory', @model.get "id"
+            )
 
         # --------------------------------------------------------------
         # /**
@@ -255,7 +340,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
           offsetY = (stageWindowSize.height - windowSize.height) / 2
 
           @ui.body.css
-            transform: "translate(#{position.x + offsetX}px, #{position.y + offsetY}px)"
+            transform: "translate3d(#{position.x + offsetX}px, #{position.y + offsetY}px, 0)"
 
         # --------------------------------------------------------------
         # /**
@@ -283,6 +368,8 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
        
           Velocity @ui.landscape, "stop"
 
+          if @_isSound then @_soundInstance.play()
+
           @ui.landscape
             .css
               opacity: 1.0
@@ -301,7 +388,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
               opacity: 0.0
             ,
               duration: 400
-              delay: 200
+              delay: 250
               easing: "easeOutQuart"
               complete: () =>
                 @ui.landscape.addClass "is-hidden"
@@ -327,6 +414,12 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
 
       # ------------------------------------------------------------
       childView: LoverItemView
+
+      # ------------------------------------------------------------
+      childEvents: 
+        hideMemory: (child, id) ->
+          console.log "%c[Lover] LoversCollectionView -> hideMemory", debug.style, child, id
+          @collection.remove id: id
 
 
 

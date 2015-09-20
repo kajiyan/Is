@@ -37512,6 +37512,7 @@
 	    console.log("%c[Lover] LoverModule", debug.style);
 	    LoverModel = Backbone.Model.extend({
 	      defaults: {
+	        id: "",
 	        position: {
 	          x: 0,
 	          y: 0
@@ -37536,7 +37537,6 @@
 	        App.vent.on("connectDisconnect", this._resetUserHandler.bind(this));
 	        App.vent.on("connectAddUser", this._addUserHandler.bind(this));
 	        App.vent.on("connectAddResident", this._addUserHandler.bind(this));
-	        App.vent.on("connectCheckOut", this._removeUserHandler.bind(this));
 	        App.vent.on("connectUpdateLocation", this._updateLocationHandler.bind(this));
 	        App.vent.on("connectUpdateWindowSize", this._updateWindowSizeHandler.bind(this));
 	        App.vent.on("connectUpdatePointer", this._updatePointerHandler.bind(this));
@@ -37547,14 +37547,8 @@
 	        console.log("%c[Lover] LoversCollection -> _addUserHandler", debug.style, data);
 	        return this.add(data);
 	      },
-	      _removeUserHandler: function(data) {
-	        console.log("%c[Lover] LoversCollection -> _removeUserHandler", debug.style, data);
-	        return this.remove({
-	          id: data.id
-	        });
-	      },
 	      _resetUserHandler: function() {
-	        console.log("%c[Lover] LoversCollection -> _removeUserHandler", debug.style);
+	        console.log("%c[Lover] LoversCollection -> _resetUserHandler", debug.style);
 	        return this.reset();
 	      },
 	      _updateLocationHandler: function(data) {
@@ -37599,13 +37593,34 @@
 	    }, LoverItemView = Backbone.Marionette.ItemView.extend({
 	      initialize: function() {
 	        console.log("%c[Lover] LoverItemView -> initialize", debug.style);
+	        App.vent.on("connectCheckOut", this._checkOutHandler.bind(this));
 	        this.listenTo(this.model, "change:link", this._changeLinkHandler);
 	        this.listenTo(this.model, "change:position", this._changePositionHandler);
 	        this.listenTo(this.model, "change:window", this._changeWindowHandler);
-	        return this.listenTo(this.model, "change:landscape", this._changeLandscapeHandler);
+	        this.listenTo(this.model, "change:landscape", this._changeLandscapeHandler);
+	        chrome.storage.onChanged.addListener((function(_this) {
+	          return function(changes, ns) {
+	            if (ns === "local") {
+	              if (changes.isSound != null) {
+	                _this._isSound = changes.isSound.newValue;
+	                if (!_this._isSound) {
+	                  return _this._soundInstance.stop();
+	                }
+	              }
+	            }
+	          };
+	        })(this));
+	        chrome.storage.local.get({
+	          isSound: true
+	        }, (function(_this) {
+	          return function(result) {
+	            return _this._isSound = result.isSound;
+	          };
+	        })(this));
+	        return this._soundInstance = createjs.Sound.createInstance("soundSignal0");
 	      },
 	      tagName: "div",
-	      className: "lover",
+	      className: "lover is-hidden",
 	      template: _.template(isElShadowRoot.querySelector("#lover-template").innerHTML),
 	      ui: {
 	        location: ".location",
@@ -37616,7 +37631,75 @@
 	        "mouseenter @ui.body": "_bodyMouseenterHandler",
 	        "mouseleave @ui.body": "_bodyMouseleaveHandler"
 	      },
-	      onRender: function() {},
+	      onRender: function() {
+	        return this._show();
+	      },
+	      onDestroy: function() {
+	        return console.log("%c[Lover] LoverItemView -> onDestroy", debug.style);
+	      },
+	      _show: function(duration, delay) {
+	        if (duration == null) {
+	          duration = 400;
+	        }
+	        if (delay == null) {
+	          delay = 0;
+	        }
+	        console.log("%c[Lover] LoverItemView -> _show", debug.style);
+	        this.ui.body.css({
+	          "-webkit-filter": "blur(10px)",
+	          "opacity": 0.0
+	        });
+	        this.$el.removeClass("is-hidden");
+	        return $.Deferred((function(_this) {
+	          return function(defer) {
+	            return Velocity.animate(_this.ui.body, {
+	              blur: 0,
+	              opacity: 1.0
+	            }, {
+	              duration: duration,
+	              delay: delay,
+	              easing: "easeOutQuart",
+	              complete: function() {
+	                return defer.resolve();
+	              }
+	            });
+	          };
+	        })(this)).promise();
+	      },
+	      _hide: function(duration, delay) {
+	        if (duration == null) {
+	          duration = 400;
+	        }
+	        if (delay == null) {
+	          delay = 0;
+	        }
+	        console.log("%c[Lover] LoverItemView -> _hide", debug.style);
+	        return $.Deferred((function(_this) {
+	          return function(defer) {
+	            return Velocity.animate(_this.ui.body, {
+	              blur: 10,
+	              opacity: 0.0
+	            }, {
+	              duration: duration,
+	              delay: delay,
+	              easing: "easeOutQuart",
+	              complete: function() {
+	                return defer.resolve();
+	              }
+	            });
+	          };
+	        })(this)).promise();
+	      },
+	      _checkOutHandler: function(data) {
+	        console.log("%c[Lover] LoverItemView -> _checkOutHandler", debug.style, data);
+	        if (this.model.get("id") === data.id) {
+	          return $.when(this._hide()).then((function(_this) {
+	            return function() {
+	              return _this.triggerMethod('hideMemory', _this.model.get("id"));
+	            };
+	          })(this));
+	        }
+	      },
 	      _changeLinkHandler: function(model, link) {
 	        console.log("%c[Lover] LoverItemView -> _changeWindowHandler", debug.style, link);
 	        return this.ui.location.attr("href", link);
@@ -37634,7 +37717,7 @@
 	        offsetX = (stageWindowSize.width - windowSize.width) / 2;
 	        offsetY = (stageWindowSize.height - windowSize.height) / 2;
 	        return this.ui.body.css({
-	          transform: "translate(" + (position.x + offsetX) + "px, " + (position.y + offsetY) + "px)"
+	          transform: "translate3d(" + (position.x + offsetX) + "px, " + (position.y + offsetY) + "px, 0)"
 	        });
 	      },
 	      _changeLandscapeHandler: function(model, landscape) {
@@ -37646,6 +37729,9 @@
 	      _bodyMouseenterHandler: function() {
 	        console.log("%c[Lover] LoverItemView -> _bodyMouseenterHandler");
 	        Velocity(this.ui.landscape, "stop");
+	        if (this._isSound) {
+	          this._soundInstance.play();
+	        }
 	        return this.ui.landscape.css({
 	          opacity: 1.0
 	        }).removeClass("is-hidden");
@@ -37658,7 +37744,7 @@
 	              opacity: 0.0
 	            }, {
 	              duration: 400,
-	              delay: 200,
+	              delay: 250,
 	              easing: "easeOutQuart",
 	              complete: function() {
 	                _this.ui.landscape.addClass("is-hidden");
@@ -37675,7 +37761,15 @@
 	      },
 	      tagName: "div",
 	      className: "lovers",
-	      childView: LoverItemView
+	      childView: LoverItemView,
+	      childEvents: {
+	        hideMemory: function(child, id) {
+	          console.log("%c[Lover] LoversCollectionView -> hideMemory", debug.style, child, id);
+	          return this.collection.remove({
+	            id: id
+	          });
+	        }
+	      }
 	    });
 	    LoverModule.addInitializer(function(options) {
 	      var loversCollection, loversCollectionView;
@@ -37851,7 +37945,7 @@
 	            offsetX = (stageWindowSize.width - windowSize.width) / 2;
 	            offsetY = (stageWindowSize.height - windowSize.height) / 2;
 	            return _this.ui.body.css({
-	              transform: "translate(" + (positions[0].x + offsetX) + "px, " + (positions[0].y + offsetY) + "px)"
+	              transform: "translate3d(" + (positions[0].x + offsetX) + "px, " + (positions[0].y + offsetY) + "px, 0)"
 	            });
 	          };
 	        })(this);

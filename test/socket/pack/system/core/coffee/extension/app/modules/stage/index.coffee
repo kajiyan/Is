@@ -297,6 +297,7 @@ module.exports = (App, sn, $, _) ->
         @ui.manualRoomCheckInerrorType2.addClass "is__hidden"
 
         if data.status is "success"
+          chrome.browserAction.setIcon path: "public/images/extension/icon-on-32-0.png"
           $.when(
             App.reqres.request "loadingHide", 400, 600
           )
@@ -308,7 +309,7 @@ module.exports = (App, sn, $, _) ->
           )
           .then(
             =>
-              chrome.browserAction.setIcon path: "public/images/extension/icon-on-32-0.png"
+              # chrome.browserAction.setIcon path: "public/images/extension/icon-on-32-0.png"
               App.reqres.request "checkOutShow", 400, 600
           )
         else if data.status is "error"
@@ -450,6 +451,7 @@ module.exports = (App, sn, $, _) ->
       _checkOutHandler: (e) ->
         console.log "%c[Stage] CheckOutItemView -> _checkOutHandler", debug.style
         e.preventDefault()
+        chrome.browserAction.setIcon path: "public/images/extension/icon-off-32-0.png"
         App.reqres.request "loadingShow", 400
         window.bg.appStop()
 
@@ -485,7 +487,7 @@ module.exports = (App, sn, $, _) ->
           )
           .then(
             =>
-              chrome.browserAction.setIcon path: "public/images/extension/icon-off-32-0.png"
+              # chrome.browserAction.setIcon path: "public/images/extension/icon-off-32-0.png"
               App.reqres.request "checkInShow", 400, 600
           )
 

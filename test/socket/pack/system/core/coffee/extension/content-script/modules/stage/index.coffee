@@ -31,7 +31,6 @@ module.exports = (App, sn, $, _) ->
     #     console.log "%c[Stage] SoundModel -> initialize", debug.style
 
 
-
     StageModel = Backbone.Model.extend
       # /** 
       #  * @type {Object}
