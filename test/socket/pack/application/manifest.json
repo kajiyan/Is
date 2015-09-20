@@ -12,6 +12,8 @@
     {
       "matches": [ "<all_urls>" ],
       "js": [
+        "public/js/extension/content-script/lib/preloadjs-0.6.1.min.js",
+        "public/js/extension/content-script/lib/soundjs-0.6.1.min.js",
         "public/common/js/common.js",
         "public/js/extension/content-script/index.js"
       ]
@@ -35,10 +37,13 @@
     "tabs",
     "tabCapture",
     "activeTab",
+    "storage",
     "http://*/*",
     "https://*/*" 
   ],
-  "externally_connectable": {
-    "matches": ["<all_urls>"]
-  }
+  "web_accessible_resources": [
+    "public/images/extension/noise-0.gif",
+    "public/sounds/extension/content-script/sound-effect-signal-0.ogg",
+    "public/sounds/extension/content-script/sound-effect-noise-0.ogg"
+  ]
 }

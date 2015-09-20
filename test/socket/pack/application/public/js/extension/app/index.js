@@ -30347,7 +30347,8 @@
 	    });
 	    CheckOutModel = Backbone.Model.extend({
 	      defaults: {
-	        isActive: false
+	        isActive: false,
+	        isSound: null
 	      },
 	      initialize: function() {
 	        return console.log("%c[Stage] CheckOutModel -> initialize", debug.style);
@@ -30575,17 +30576,29 @@
 	      initialize: function() {
 	        console.log("%c[Stage] LoadingItemView -> initialize", debug.style);
 	        App.vent.on("connectSetup", this._setupHandler.bind(this));
-	        return App.vent.on("connectDisconnect", this._disconnectHandler.bind(this));
+	        App.vent.on("connectDisconnect", this._disconnectHandler.bind(this));
+	        this.listenTo(this.model, "change:isSound", this._changeIsSoundHandler.bind(this));
+	        this.events = {
+	          "submit @ui.checkOutForm": "_checkOutHandler",
+	          "click @ui.soundOnButton": this._changeSoundHandler(true),
+	          "click @ui.soundOffButton": this._changeSoundHandler(false)
+	        };
+	        return chrome.storage.local.get({
+	          isSound: true
+	        }, (function(_this) {
+	          return function(result) {
+	            return _this.model.set(result);
+	          };
+	        })(this));
 	      },
 	      el: "#js-check-out",
 	      ui: {
 	        checkOutForm: "#js-check-out-form",
-	        checkOutButton: "#js-check-out-button"
+	        checkOutButton: "#js-check-out-button",
+	        soundOnButton: "#js-sound-button--on",
+	        soundOffButton: "#js-sound-button--off"
 	      },
 	      template: false,
-	      events: {
-	        "submit @ui.checkOutForm": "_checkOutHandler"
-	      },
 	      _setupHandler: function(extensionState) {
 	        console.log("%c[Stage] CheckOutItemView -> _setupHandler", debug.style, extensionState);
 	        if (extensionState.isRun && extensionState.isConnected && extensionState.isRoomJoin) {
@@ -30602,6 +30615,20 @@
 	        App.reqres.request("loadingShow", 400);
 	        return window.bg.appStop();
 	      },
+	      _changeSoundHandler: function(isSound) {
+	        return (function(_this) {
+	          return function(e) {
+	            console.log("%c[Stage] CheckOutItemView -> _changeSoundHandler", debug.style, isSound);
+	            e.preventDefault();
+	            chrome.storage.local.set({
+	              isSound: isSound
+	            });
+	            return _this.model.set({
+	              isSound: isSound
+	            });
+	          };
+	        })(this);
+	      },
 	      _disconnectHandler: function(data) {
 	        console.log("%c[Stage] CheckOutItemView -> _disconnectHandler", debug.style);
 	        if (this.model.get("isActive")) {
@@ -30617,6 +30644,16 @@
 	              return App.reqres.request("checkInShow", 400, 600);
 	            };
 	          })(this));
+	        }
+	      },
+	      _changeIsSoundHandler: function(model, isSound) {
+	        console.log("%c[Stage] CheckOutItemView -> _changeIsSoundHandler", debug.style, isSound);
+	        if (isSound) {
+	          this.ui.soundOnButton.addClass("is__active");
+	          return this.ui.soundOffButton.removeClass("is__active");
+	        } else if (!isSound) {
+	          this.ui.soundOnButton.removeClass("is__active");
+	          return this.ui.soundOffButton.addClass("is__active");
 	        }
 	      },
 	      show: function(duration, delay) {
@@ -30695,6 +30732,7 @@
 	        loading: new LoadingItemView()
 	      };
 	      views.checkIn.render();
+	      views.checkOut.render();
 	      App.reqres.setHandler("checkInShow", function(duration, delay) {
 	        if (duration == null) {
 	          duration = 400;

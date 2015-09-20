@@ -28,7 +28,7 @@ do (window=window, document=document, $=jQuery) ->
     stage: require("./modules/stage/")(Background, sn, $, _)
     connect: require("./modules/connect/")(Background, sn, $, _)
     socket: require("./modules/socket/")(Background, sn, $, _)
-
+    
 
   window.appRun = (roomId=null) ->
     console.log "APP RUN"

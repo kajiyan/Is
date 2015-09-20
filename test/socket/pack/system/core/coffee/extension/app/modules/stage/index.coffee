@@ -67,6 +67,7 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       defaults:
         isActive: false
+        isSound: null
       # ------------------------------------------------------------
       # /**
       #  * CheckOutModel#initialize
@@ -385,10 +386,27 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       initialize: () ->
         console.log "%c[Stage] LoadingItemView -> initialize", debug.style
+        
         # エクステンションのポップアップが表示された時のイベントリスナー
         App.vent.on "connectSetup", @_setupHandler.bind @
         # background scriptがsocketサーバーとのが通信が切断された時のイベントリスナー
         App.vent.on "connectDisconnect", @_disconnectHandler.bind @
+
+        # console.log  @_changeIsSoundHandler.bind @
+        @listenTo @model, "change:isSound", @_changeIsSoundHandler.bind @
+
+        @events =
+          "submit @ui.checkOutForm": "_checkOutHandler"
+          "click @ui.soundOnButton": @_changeSoundHandler true
+          "click @ui.soundOffButton": @_changeSoundHandler false
+
+        chrome.storage.local.get isSound: true,
+          (result) =>
+            @model.set result
+
+        # @model.set "isSound"
+        # chrome.storage.onChanged.addListener (changes, ns) ->
+          # console.log changes, ns
 
       # ------------------------------------------------------------
       el: "#js-check-out"
@@ -397,13 +415,11 @@ module.exports = (App, sn, $, _) ->
       ui: 
         checkOutForm: "#js-check-out-form"
         checkOutButton: "#js-check-out-button"
+        soundOnButton: "#js-sound-button--on"
+        soundOffButton: "#js-sound-button--off"
 
       # ------------------------------------------------------------
       template: false
-
-      # ------------------------------------------------------------
-      events:
-        "submit @ui.checkOutForm": "_checkOutHandler"
 
       # --------------------------------------------------------------
       # /**
@@ -439,6 +455,18 @@ module.exports = (App, sn, $, _) ->
 
       # ------------------------------------------------------------
       # /**
+      #  * CheckOutItemView#_changeSoundHandler
+      #  */
+      # ------------------------------------------------------------
+      _changeSoundHandler: (isSound) ->
+        return (e) =>
+          console.log "%c[Stage] CheckOutItemView -> _changeSoundHandler", debug.style, isSound
+          e.preventDefault()
+          chrome.storage.local.set isSound: isSound
+          @model.set isSound: isSound
+
+      # ------------------------------------------------------------
+      # /**
       #  * CheckOutItemView#_disconnectHandler
       #  */
       # ------------------------------------------------------------
@@ -460,6 +488,21 @@ module.exports = (App, sn, $, _) ->
               chrome.browserAction.setIcon path: "public/images/extension/icon-off-32-0.png"
               App.reqres.request "checkInShow", 400, 600
           )
+
+      # ------------------------------------------------------------
+      # /**
+      #  * CheckOutItemView#_changeIsSoundHandler
+      #  */
+      # ------------------------------------------------------------
+      _changeIsSoundHandler: (model, isSound) ->
+        console.log "%c[Stage] CheckOutItemView -> _changeIsSoundHandler", debug.style, isSound
+
+        if isSound
+          @ui.soundOnButton.addClass "is__active"
+          @ui.soundOffButton.removeClass "is__active"
+        else if not isSound
+          @ui.soundOnButton.removeClass "is__active"
+          @ui.soundOffButton.addClass "is__active"
 
       # ------------------------------------------------------------
       # /**
@@ -535,6 +578,7 @@ module.exports = (App, sn, $, _) ->
         loading: new LoadingItemView()
 
       views.checkIn.render()
+      views.checkOut.render()
 
       # ============================================================
       # REQUEST RESPONSE

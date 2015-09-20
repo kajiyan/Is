@@ -71,12 +71,11 @@ module.exports = (App, sn, $, _) ->
 
             # Long-lived 接続 切断時の処理を登録する
             port.onDisconnect.addListener =>
-              # isRunもfalseにする
-
               App.vent.off "stageChangeIsRun", changeIsRunHandler
               App.vent.off "socketConnected", sendConnectedHandler
               App.vent.off "socketJointed", sendJointedHandler
               App.vent.off "socketDisconnect", sendDisconnectHandler
+              # App.reqres.request "stageStopApp"
 
             # エクステンションの起動状態に変化があった時のイベントリスナー
             App.vent.on "stageChangeIsRun", changeIsRunHandler

@@ -18,6 +18,8 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
     # ============================================================
     # MODEL
     # ============================================================
+    # ============================================================
+    # MODEL - MemoryModel
     MemoryModel = Backbone.Model.extend
       # ------------------------------------------------------------
       defaults:
@@ -33,7 +35,9 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       # --------------------------------------------------------------
       initialize: () ->
         console.log "%c[Memory] MemorysModel -> initialize", debug.style
-
+    # End. MODEL - MemoryModel
+    # ============================================================
+    
 
 
     # ============================================================
@@ -71,6 +75,12 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       initialize: () ->
         console.log "%c[Memory] MemoryItemView -> initialize", debug.style
 
+        chrome.storage.onChanged.addListener (changes, ns) =>
+          if ns is "local"
+            if changes.isSound?
+              @_isSound = changes.isSound.newValue
+              if not @_isSound then @_soundInstance.stop()
+
         @_getTime = ->
           now = window.perfomance and (perfomance.now or perfomance.webkitNow or perfomance.mozNow or perfomance.msNow or perfomance.oNow)
           return ( now and now.cell perfomance ) or ( new Date().getTime() )
@@ -81,17 +91,17 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         @_startTime = 0
         @_updateProcess = $.noop
 
-        # @_update =>
-        #   positions = @model.get "positions"
-        #   @ui.body.css
-        #     transform: "translate(#{positions[0].x}px, #{positions[0].y}px)"
-        #   # positions.shift
+        chrome.storage.local.get isSound: true,
+          (result) =>
+            @_isSound = result.isSound
+
+        @_soundInstance = createjs.Sound.createInstance "soundNoise0"
 
       # ------------------------------------------------------------
       tagName: "div"
       
       # ------------------------------------------------------------
-      className: "memory"
+      className: "memory is-hidden"
 
       # ------------------------------------------------------------
       template: _.template(isElShadowRoot.querySelector("#memory-template").innerHTML)
@@ -102,6 +112,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         body: ".body"
         bodyImg: ".body-img"
         createAt: ".create-at"
+        createAtInner: ".create-at--inner"
         landscape: ".landscape"
 
       # ------------------------------------------------------------
@@ -118,7 +129,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         ,
           @_frameRate
 
-        @_currentFrame = Math.floor((@_getTime() - @_startTime) / (1000 / @_frameRate) % 2)
+        @_currentFrame = Math.floor(@_getTime() / (1000 / @_frameRate) % 2)
         
         if @_currentFrame isnt @_oldFrame then process()
 
@@ -179,7 +190,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
           ($imgs) =>
             setPosition()
             @ui.landscape.css
-              "background-image": "url(#{landscape})"
+              "background-image": "url(chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/images/extension/noise-0.gif), url(#{landscape})"
         
             return @_showBodyImg()
         ).then(
@@ -215,11 +226,12 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         console.log "%c[Memory] MemoryItemView -> _hide", debug.style
         return $.Deferred (defer) =>
           Velocity.animate @$el,
+            blur: 10
             opacity: 0.0
           ,
             duration: 500
             delay: 1000
-            easing: "ease"
+            easing: "easeOutQuart"
             complete: () =>
               @$el.addClass "is-hidden"
               defer.resolve()
@@ -233,12 +245,24 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       _showBodyImg: () ->
         console.log "%c[Memory] MemoryItemView -> _showBodyImg", debug.style
         return $.Deferred (defer) =>
+          @ui.createAtInner.css
+            width: @ui.createAt.width()
+
+          @ui.createAt.css
+            width: 0
+
+          @ui.bodyImg.css
+            "-webkit-filter": "blur(10px)"
+
+          @$el.removeClass "is-hidden"
+
           Velocity.animate @ui.bodyImg,
+            blur: 0
             opacity: 1.0
           ,
-            duration: 500
+            duration: 400
             delay: 0
-            easing: "ease"
+            easing: "easeOutQuart"
             complete: () =>
               defer.resolve()
         .promise()
@@ -251,14 +275,10 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       _showCreateAt: () ->
         console.log "%c[Memory] MemoryItemView -> _showCreateAt", debug.style
         return $.Deferred (defer) =>
-
-          @ui.createAt
-            .removeClass "is-hidden"
-
           Velocity.animate @ui.createAt,
-            opacity: 1.0
+            width: @ui.createAtInner.width()
           ,
-            duration: 200
+            duration: 400
             delay: 0
             easing: "easeOutQuart"
             complete: () =>
@@ -274,6 +294,8 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         # console.log "%c[Memory] MemoryItemView -> _bodyMouseenterHandler", debug.style
      
         Velocity @ui.landscape, "stop"
+
+        if @_isSound then @_soundInstance.play()
 
         @ui.landscape
           .css
@@ -293,7 +315,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
             opacity: 0.0
           ,
             duration: 400
-            delay: 200
+            delay: 250
             easing: "easeOutQuart"
             complete: () =>
               try
@@ -341,8 +363,8 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       createAt = sn.moment(SETTING.CONFIG.MEMORY.createAt)
       SETTING.CONFIG.MEMORY.createAt = createAt.format("DD MMMM YYYY [at] HH:mm")
 
-      # memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY])
-      memorysCollection = new MemorysCollection()
+      memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY])
+      # memorysCollection = new MemorysCollection()
 
       memorysCollectionView = new MemorysCollectionView
         collection: memorysCollection

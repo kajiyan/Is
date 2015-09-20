@@ -46,6 +46,32 @@ do (window=window, document=document, $=jQuery) ->
   jQBridget = require "jquery-bridget"
   
   sn.moment = require "moment"
+
+  # do ->
+  #   loadQueue = new createjs.LoadQueue()
+
+  #   loadQueue.addEventListener "fileload", (e) -> console.log e
+  #   loadQueue.addEventListener "complete", (e) ->
+  #     console.log e
+  #     # createjs.Sound.play "signal"
+
+  #   # createjs.Sound.alternateExtensions = ["mp3"]
+  #   loadQueue.installPlugin createjs.Sound
+  #   loadQueue.loadManifest [
+  #     { id: "signal", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-signal-0.ogg" }
+  #     { id: "noise", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-noise-0.ogg" }
+  #   ]
+
+
+
+    # createjs.Sound.addEventListener "fileload", (e) -> console.log "Preloaded:", e.id, e.src
+    # createjs.Sound.registerSounds([
+    #   { id: "signal", src: "sound-effect-signal-0.ogg" }
+    #   { id: "noise", src: "sound-effect-noise-0.ogg" }
+    # ], soundAssetsPath)
+  # console.log require "PreloadJS/lib/preloadjs-0.6.1.min.js"
+  # console.log require "PreloadJS/lib/preloadjs-0.6.1.combined.js"
+
   require "pepjs/dist/pep.min"
   require "backbone.marionette/lib/backbone.marionette.min"
   require "velocity/velocity.min"
@@ -169,7 +195,7 @@ do (window=window, document=document, $=jQuery) ->
 
           .is .memory .body-img {
             display: inline-block;
-            vertical-align: top;
+            vertical-align: middle;
             width: 16px;
             height: 22px;
             opacity: 0.0;
@@ -177,21 +203,33 @@ do (window=window, document=document, $=jQuery) ->
 
           .is .memory .create-at {
             display: inline-block;
-            vertical-align: top;
+            vertical-align: middle;
             color: #ffffff;
             font-size: 12px;
-            line-height: 22px;
-            margin: 0 0 0 8px;
-            opacity: 0.0
+            font-weight: normal;
+            line-height: 18px;
+            margin: 0 0 0 10px;
+            overflow: hidden;
+            /* opacity: 0.0; */
           }
 
           .is .memory .create-at--inner {
+            display: inline-block;
             background-color: #000000;
+            padding: 0 8px;
           }
 
           .is .memory .landscape {
-            background-repeat: no-repeat;
-            background-position: center;
+            background-color: #ffffff;
+            background-repeat:
+              repeat,
+              no-repeat;
+            background-position:
+              center,
+              center;
+            background-blend-mode:
+              multiply,
+              normal;
             width: 100%;
             height: 100%;
             position: fixed;
@@ -229,11 +267,11 @@ do (window=window, document=document, $=jQuery) ->
           <a class="location" href="<%- link %>" target="_blank">
             <div class="body" style="transform: translate(<%- positions[0].x %>px, <%- positions[0].y %>px);">
               <img class="body-img" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgJy0vL1czQy8vRFREIFNWRyAxLjEvL0VOJyAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdmVyc2lvbj0iMS4xIiB5PSIwcHgiIHg9IjBweCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxNiAyMiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTYgMjIiPjxpbWFnZSBvcGFjaXR5PSIuMiIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFCSUFBQUFaQ0FZQUFBQThDWDZVQUFBQUNYQklXWE1BQUFzU0FBQUxFZ0hTM1g3OEFBQUEgR1hSRldIUlRiMlowZDJGeVpRQkJaRzlpWlNCSmJXRm5aVkpsWVdSNWNjbGxQQUFBQVpWSlJFRlVlTnFrbGMxTHcwQVF4YlBKcXJWVSBDNjFmMEJZL0Rub1ZQdzZlRlB6VDllQkpQWWpvUlFRVlViRm9wYWh0emZvRzNzcVlOdGl0Z1Y5TDA5MlhtWjAzRXhPRlh5YnoyOGxIIEVpZ1NnM0V3Q2NhVWtBc1JrclZGTUE4V1FRVjhnVStRSmdFaUVrVWRiSUVkc0FCYTRBVjBiSUJJQTJ5RFhiQU1yc0FsRUExakEwWDIgd1NaVGJQSzg1TndpR3lnaTN6WHd3ZitOcmtLSVNJUFI5TzJ6STRqayt1SmZrUXdTR2xsRUM4WEtKOEVpWHNEUTdqTmdIZXpSZEhXSyB4OFAyVGtRL3pJRTFzQUxLM21qRDlvOVZqZGVqNVcrVTBhcU0xZ3dyMUFIMzRBZzhnZzB3QWFaVWwvK01qRHdoSDAyVDNlellTMTAvIEl0U2FsUHZTdkloU3RYQ2FiVkJoaW82alFoN1VaZ0ZTOWRBK1p5ZE1wY2F5bDNsUEluc0FaK0NXMVozMTQ4TkhaOVg0bEUwRlVPTDkgTGlOcGMyUWNnQXRHdWdSZXdUTXorVFVoWXg1c2tZS0dpK1R3VDhBaE9HZFV3alc0QTI4U2xja0lGZWduOGRLcU92UlRjTXpLT2o3USBNYlZlVmtoSFZXSUtWVzZRTTNvQzd3TXM0S0ljb3hrS1dsYk4rNnc3cU94NTc2Zy8zMTk1MTdjQUF3QlJabU1PRlQ0U0lBQUFBQUJKIFJVNUVya0pnZ2c9PSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMikiIGhlaWdodD0iMjUiIHdpZHRoPSIxOCIgb3ZlcmZsb3c9InZpc2libGUiPjwvaW1hZ2U+PHBvbHlnb24gcG9pbnRzPSI5LjI0MTcgMTguNDc4IDcuMzc4OSAxNy40NzUgNS43NjQyIDE2LjYzNSA4LjMzMiAxMS44MiA0IDExLjgyIDE1LjM3OSAwLjQxMTcgMTUuMzc5IDE2LjQyNyAxMi4wNjMgMTMuMjA2IiBmaWxsPSIjZmZmIi8+PHJlY3QgeT0iOS4wMDU1IiB4PSI4LjY2MzkiIGhlaWdodD0iNy45OTg5IiB0cmFuc2Zvcm09Im1hdHJpeCgtLjg4MjUgLS40NzA0IC40NzA0IC0uODgyNSAxMi4wNzUgMjkuMDI3KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iMTQuMDk1IDIuODE5IDE0LjA5NSAxNC4wMDcgMTAuODM4IDEwLjg2MiA2LjA3MDUgMTAuODYyIi8+PC9zdmc+"><!--
-              --><div class="create-at is-roboto is-hidden">
-                <span class="create-at--inner"><%- createAt %></span>
+              --><div class="create-at"><!-- is-hidden -->
+                <span class="create-at--inner is-roboto"><%- createAt %></span>
               </div>
             </div>
-            <div class="landscape is-hidden" style="background-size: <%- window.width %>px <%- window.height %>px;"></div>
+            <div class="landscape is-hidden" style="background-size: auto, <%- window.width %>px <%- window.height %>px;"></div>
           </a>
         <\/script>
       """
@@ -297,25 +335,34 @@ do (window=window, document=document, $=jQuery) ->
           memorys: "#is-region__memorys"
 
 
+      # 最終的にアプリ起動タイミング（connect setup）に移す
+      $.when(
+        $.Deferred (defer) =>
+          loadQueue = new createjs.LoadQueue()
+          loadQueue.setMaxConnections 10
 
-      App.addRegions
-        content: appRegion
+          # loadQueue.addEventListener "fileload", (e) -> console.log e
+          loadQueue.addEventListener "complete", (e) ->
+            defer.resolve()  
 
-      App.content.show(new AppLayoutView())
+          # createjs.Sound.alternateExtensions = ["mp3"]
+          loadQueue.installPlugin createjs.Sound
+          loadQueue.loadManifest [
+            { id: "imageNoise0", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/images/extension/noise-0.gif" }
+            { id: "soundSignal0", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-signal-0.ogg" }
+            { id: "soundNoise0", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-noise-0.ogg" }
+          ]
+        .promise()
+      )
+      .then(
+        () ->
+          App.addRegions
+            content: appRegion
 
-      App.start()
+          App.content.show(new AppLayoutView())
 
-      # # $.when(
-      # #   for key, model of sn.bb.models
-      # #     model.setup?()
-      # # ).then( =>
-      # #   $.when(
-      # #     sn.bb.views.stage.setup()
-      # #   )
-      # # ).then( =>
-      # #   console.log "- SETUP CONTENT SCRIPT -"
-      # # )
-
+          App.start()
+      )
 
     # --------------------------------------------------------------
     sn.tf.update ->

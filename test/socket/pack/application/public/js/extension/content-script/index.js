@@ -76,10 +76,10 @@
 	      isEl = document.createElement("div");
 	      isEl.id = chrome.runtime.id;
 	      isElShadowRoot = isEl.createShadowRoot();
-	      isElShadowRoot.innerHTML = "<style>\n  @import url(https://fonts.googleapis.com/css?family=Roboto+Condensed);\n\n  .is-debug {\n    -moz-box-shadow: black 0px 0px 0px 1px inset;\n    -webkit-box-shadow: black 0px 0px 0px 1px inset;\n    box-shadow: black 0px 0px 0px 1px inset;\n    background-color: rgba(204, 204, 204, 0.5);\n  }\n\n  .is-debug * {\n    -moz-box-shadow: black 0px 0px 0px 1px inset;\n    -webkit-box-shadow: black 0px 0px 0px 1px inset;\n    box-shadow: black 0px 0px 0px 1px inset;\n    background-color: rgba(204, 204, 204, 0.5);\n  }\n\n  .is-hidden {\n    position: fixed;\n    top: 0;\n    left: 0;\n    visibility: hidden;\n    clip: rect(0 0 0 0);\n  }\n\n  .is-roboto {\n    font-family: 'Roboto Condensed', sans-serif;   \n  }\n\n  .is {}\n\n  .is .lover {\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483647;\n  }\n\n  .is .lover .location {\n    width: 0;\n    height: 0;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n    cursor: default;\n  }\n\n  .is .lover .body {\n    vertical-align: top;\n    width: 16px;\n    height: 22px;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483647;\n  }\n\n  .is .lover .landscape {\n    background-color: #ffffff;\n    background-repeat: no-repeat;\n    background-position: center;\n    width: 100%;\n    height: 100%;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n  }\n\n  .is .memory {\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n  }\n\n  .is .memory .location {\n    width: 0;\n    height: 0;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n    cursor: default;\n  }\n\n  .is .memory .body {\n    height: 22px;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483647;\n  }\n\n  .is .memory .body-img {\n    display: inline-block;\n    vertical-align: top;\n    width: 16px;\n    height: 22px;\n    opacity: 0.0;\n  }\n\n  .is .memory .create-at {\n    display: inline-block;\n    vertical-align: top;\n    color: #ffffff;\n    font-size: 12px;\n    line-height: 22px;\n    margin: 0 0 0 8px;\n    opacity: 0.0\n  }\n\n  .is .memory .create-at--inner {\n    background-color: #000000;\n  }\n\n  .is .memory .landscape {\n    background-repeat: no-repeat;\n    background-position: center;\n    width: 100%;\n    height: 100%;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n    -webkit-filter: grayscale(100%);\n       -moz-filter: grayscale(100%);\n        -ms-filter: grayscale(100%);\n         -o-filter: grayscale(100%);\n            filter: grayscale(100%);\n  }\n</style>";
+	      isElShadowRoot.innerHTML = "<style>\n  @import url(https://fonts.googleapis.com/css?family=Roboto+Condensed);\n\n  .is-debug {\n    -moz-box-shadow: black 0px 0px 0px 1px inset;\n    -webkit-box-shadow: black 0px 0px 0px 1px inset;\n    box-shadow: black 0px 0px 0px 1px inset;\n    background-color: rgba(204, 204, 204, 0.5);\n  }\n\n  .is-debug * {\n    -moz-box-shadow: black 0px 0px 0px 1px inset;\n    -webkit-box-shadow: black 0px 0px 0px 1px inset;\n    box-shadow: black 0px 0px 0px 1px inset;\n    background-color: rgba(204, 204, 204, 0.5);\n  }\n\n  .is-hidden {\n    position: fixed;\n    top: 0;\n    left: 0;\n    visibility: hidden;\n    clip: rect(0 0 0 0);\n  }\n\n  .is-roboto {\n    font-family: 'Roboto Condensed', sans-serif;   \n  }\n\n  .is {}\n\n  .is .lover {\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483647;\n  }\n\n  .is .lover .location {\n    width: 0;\n    height: 0;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n    cursor: default;\n  }\n\n  .is .lover .body {\n    vertical-align: top;\n    width: 16px;\n    height: 22px;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483647;\n  }\n\n  .is .lover .landscape {\n    background-color: #ffffff;\n    background-repeat: no-repeat;\n    background-position: center;\n    width: 100%;\n    height: 100%;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n  }\n\n  .is .memory {\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n  }\n\n  .is .memory .location {\n    width: 0;\n    height: 0;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n    cursor: default;\n  }\n\n  .is .memory .body {\n    height: 22px;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483647;\n  }\n\n  .is .memory .body-img {\n    display: inline-block;\n    vertical-align: middle;\n    width: 16px;\n    height: 22px;\n    opacity: 0.0;\n  }\n\n  .is .memory .create-at {\n    display: inline-block;\n    vertical-align: middle;\n    color: #ffffff;\n    font-size: 12px;\n    font-weight: normal;\n    line-height: 18px;\n    margin: 0 0 0 10px;\n    overflow: hidden;\n    /* opacity: 0.0; */\n  }\n\n  .is .memory .create-at--inner {\n    display: inline-block;\n    background-color: #000000;\n    padding: 0 8px;\n  }\n\n  .is .memory .landscape {\n    background-color: #ffffff;\n    background-repeat:\n      repeat,\n      no-repeat;\n    background-position:\n      center,\n      center;\n    background-blend-mode:\n      multiply,\n      normal;\n    width: 100%;\n    height: 100%;\n    position: fixed;\n    left: 0;\n    top: 0;\n    z-index: 2147483646;\n    -webkit-filter: grayscale(100%);\n       -moz-filter: grayscale(100%);\n        -ms-filter: grayscale(100%);\n         -o-filter: grayscale(100%);\n            filter: grayscale(100%);\n  }\n</style>";
 	      isTemplate = document.createElement("template");
 	      isTemplate.id = "is-template-" + chrome.runtime.id;
-	      isTemplate.innerHTML = "<div id=\"is\" class=\"is\">\n  <script id=\"is-template\" type=\"text/html\">\n    <div id=\"is-region__lovers\">lovers</div>\n    <div id=\"is-region__memorys\">memorys</div>\n  <\/script>\n</div>\n\n<script id=\"lover-template\" type=\"text/html\">\n  <a class=\"location\" href=\"<%- link %>\" target=\"_blank\">\n    <img class=\"body\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgJy0vL1czQy8vRFREIFNWRyAxLjEvL0VOJyAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdmVyc2lvbj0iMS4xIiB5PSIwcHgiIHg9IjBweCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxNiAyMiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTYgMjIiPjxpbWFnZSBvcGFjaXR5PSIuMiIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFCSUFBQUFaQ0FZQUFBQThDWDZVQUFBQUNYQklXWE1BQUFzU0FBQUxFZ0hTM1g3OEFBQUEgR1hSRldIUlRiMlowZDJGeVpRQkJaRzlpWlNCSmJXRm5aVkpsWVdSNWNjbGxQQUFBQVpWSlJFRlVlTnFrbGMxTHcwQVF4YlBKcXJWVSBDNjFmMEJZL0Rub1ZQdzZlRlB6VDllQkpQWWpvUlFRVlViRm9wYWh0emZvRzNzcVlOdGl0Z1Y5TDA5MlhtWjAzRXhPRlh5YnoyOGxIIEVpZ1NnM0V3Q2NhVWtBc1JrclZGTUE4V1FRVjhnVStRSmdFaUVrVWRiSUVkc0FCYTRBVjBiSUJJQTJ5RFhiQU1yc0FsRUExakEwWDIgd1NaVGJQSzg1TndpR3lnaTN6WHd3ZitOcmtLSVNJUFI5TzJ6STRqayt1SmZrUXdTR2xsRUM4WEtKOEVpWHNEUTdqTmdIZXpSZEhXSyB4OFAyVGtRL3pJRTFzQUxLM21qRDlvOVZqZGVqNVcrVTBhcU0xZ3dyMUFIMzRBZzhnZzB3QWFaVWwvK01qRHdoSDAyVDNlellTMTAvIEl0U2FsUHZTdkloU3RYQ2FiVkJoaW82alFoN1VaZ0ZTOWRBK1p5ZE1wY2F5bDNsUEluc0FaK0NXMVozMTQ4TkhaOVg0bEUwRlVPTDkgTGlOcGMyUWNnQXRHdWdSZXdUTXorVFVoWXg1c2tZS0dpK1R3VDhBaE9HZFV3alc0QTI4U2xja0lGZWduOGRLcU92UlRjTXpLT2o3USBNYlZlVmtoSFZXSUtWVzZRTTNvQzd3TXM0S0ljb3hrS1dsYk4rNnc3cU94NTc2Zy8zMTk1MTdjQUF3QlJabU1PRlQ0U0lBQUFBQUJKIFJVNUVya0pnZ2c9PSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMikiIGhlaWdodD0iMjUiIHdpZHRoPSIxOCIgb3ZlcmZsb3c9InZpc2libGUiPjwvaW1hZ2U+PHBvbHlnb24gcG9pbnRzPSI5LjI0MTcgMTguNDc4IDcuMzc4OSAxNy40NzUgNS43NjQyIDE2LjYzNSA4LjMzMiAxMS44MiA0IDExLjgyIDE1LjM3OSAwLjQxMTcgMTUuMzc5IDE2LjQyNyAxMi4wNjMgMTMuMjA2IiBmaWxsPSIjZmZmIi8+PHJlY3QgeT0iOS4wMDU1IiB4PSI4LjY2MzkiIGhlaWdodD0iNy45OTg5IiB0cmFuc2Zvcm09Im1hdHJpeCgtLjg4MjUgLS40NzA0IC40NzA0IC0uODgyNSAxMi4wNzUgMjkuMDI3KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iMTQuMDk1IDIuODE5IDE0LjA5NSAxNC4wMDcgMTAuODM4IDEwLjg2MiA2LjA3MDUgMTAuODYyIi8+PC9zdmc+\" style=\"transform: translate(<%- position.x %>px, <%- position.y %>px);\">\n    <div class=\"landscape is-hidden\" style=\"background-image: url(<%- landscape %>); background-size: <%- window.width %>px <%- window.height %>px;\"></div>\n  </a>\n<\/script>\n\n<script id=\"memory-template\" type=\"text/html\">\n  <a class=\"location\" href=\"<%- link %>\" target=\"_blank\">\n    <div class=\"body\" style=\"transform: translate(<%- positions[0].x %>px, <%- positions[0].y %>px);\">\n      <img class=\"body-img\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgJy0vL1czQy8vRFREIFNWRyAxLjEvL0VOJyAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdmVyc2lvbj0iMS4xIiB5PSIwcHgiIHg9IjBweCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxNiAyMiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTYgMjIiPjxpbWFnZSBvcGFjaXR5PSIuMiIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFCSUFBQUFaQ0FZQUFBQThDWDZVQUFBQUNYQklXWE1BQUFzU0FBQUxFZ0hTM1g3OEFBQUEgR1hSRldIUlRiMlowZDJGeVpRQkJaRzlpWlNCSmJXRm5aVkpsWVdSNWNjbGxQQUFBQVpWSlJFRlVlTnFrbGMxTHcwQVF4YlBKcXJWVSBDNjFmMEJZL0Rub1ZQdzZlRlB6VDllQkpQWWpvUlFRVlViRm9wYWh0emZvRzNzcVlOdGl0Z1Y5TDA5MlhtWjAzRXhPRlh5YnoyOGxIIEVpZ1NnM0V3Q2NhVWtBc1JrclZGTUE4V1FRVjhnVStRSmdFaUVrVWRiSUVkc0FCYTRBVjBiSUJJQTJ5RFhiQU1yc0FsRUExakEwWDIgd1NaVGJQSzg1TndpR3lnaTN6WHd3ZitOcmtLSVNJUFI5TzJ6STRqayt1SmZrUXdTR2xsRUM4WEtKOEVpWHNEUTdqTmdIZXpSZEhXSyB4OFAyVGtRL3pJRTFzQUxLM21qRDlvOVZqZGVqNVcrVTBhcU0xZ3dyMUFIMzRBZzhnZzB3QWFaVWwvK01qRHdoSDAyVDNlellTMTAvIEl0U2FsUHZTdkloU3RYQ2FiVkJoaW82alFoN1VaZ0ZTOWRBK1p5ZE1wY2F5bDNsUEluc0FaK0NXMVozMTQ4TkhaOVg0bEUwRlVPTDkgTGlOcGMyUWNnQXRHdWdSZXdUTXorVFVoWXg1c2tZS0dpK1R3VDhBaE9HZFV3alc0QTI4U2xja0lGZWduOGRLcU92UlRjTXpLT2o3USBNYlZlVmtoSFZXSUtWVzZRTTNvQzd3TXM0S0ljb3hrS1dsYk4rNnc3cU94NTc2Zy8zMTk1MTdjQUF3QlJabU1PRlQ0U0lBQUFBQUJKIFJVNUVya0pnZ2c9PSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMikiIGhlaWdodD0iMjUiIHdpZHRoPSIxOCIgb3ZlcmZsb3c9InZpc2libGUiPjwvaW1hZ2U+PHBvbHlnb24gcG9pbnRzPSI5LjI0MTcgMTguNDc4IDcuMzc4OSAxNy40NzUgNS43NjQyIDE2LjYzNSA4LjMzMiAxMS44MiA0IDExLjgyIDE1LjM3OSAwLjQxMTcgMTUuMzc5IDE2LjQyNyAxMi4wNjMgMTMuMjA2IiBmaWxsPSIjZmZmIi8+PHJlY3QgeT0iOS4wMDU1IiB4PSI4LjY2MzkiIGhlaWdodD0iNy45OTg5IiB0cmFuc2Zvcm09Im1hdHJpeCgtLjg4MjUgLS40NzA0IC40NzA0IC0uODgyNSAxMi4wNzUgMjkuMDI3KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iMTQuMDk1IDIuODE5IDE0LjA5NSAxNC4wMDcgMTAuODM4IDEwLjg2MiA2LjA3MDUgMTAuODYyIi8+PC9zdmc+\"><!--\n      --><div class=\"create-at is-roboto is-hidden\">\n        <span class=\"create-at--inner\"><%- createAt %></span>\n      </div>\n    </div>\n    <div class=\"landscape is-hidden\" style=\"background-size: <%- window.width %>px <%- window.height %>px;\"></div>\n  </a>\n<\/script>";
+	      isTemplate.innerHTML = "<div id=\"is\" class=\"is\">\n  <script id=\"is-template\" type=\"text/html\">\n    <div id=\"is-region__lovers\">lovers</div>\n    <div id=\"is-region__memorys\">memorys</div>\n  <\/script>\n</div>\n\n<script id=\"lover-template\" type=\"text/html\">\n  <a class=\"location\" href=\"<%- link %>\" target=\"_blank\">\n    <img class=\"body\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgJy0vL1czQy8vRFREIFNWRyAxLjEvL0VOJyAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdmVyc2lvbj0iMS4xIiB5PSIwcHgiIHg9IjBweCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxNiAyMiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTYgMjIiPjxpbWFnZSBvcGFjaXR5PSIuMiIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFCSUFBQUFaQ0FZQUFBQThDWDZVQUFBQUNYQklXWE1BQUFzU0FBQUxFZ0hTM1g3OEFBQUEgR1hSRldIUlRiMlowZDJGeVpRQkJaRzlpWlNCSmJXRm5aVkpsWVdSNWNjbGxQQUFBQVpWSlJFRlVlTnFrbGMxTHcwQVF4YlBKcXJWVSBDNjFmMEJZL0Rub1ZQdzZlRlB6VDllQkpQWWpvUlFRVlViRm9wYWh0emZvRzNzcVlOdGl0Z1Y5TDA5MlhtWjAzRXhPRlh5YnoyOGxIIEVpZ1NnM0V3Q2NhVWtBc1JrclZGTUE4V1FRVjhnVStRSmdFaUVrVWRiSUVkc0FCYTRBVjBiSUJJQTJ5RFhiQU1yc0FsRUExakEwWDIgd1NaVGJQSzg1TndpR3lnaTN6WHd3ZitOcmtLSVNJUFI5TzJ6STRqayt1SmZrUXdTR2xsRUM4WEtKOEVpWHNEUTdqTmdIZXpSZEhXSyB4OFAyVGtRL3pJRTFzQUxLM21qRDlvOVZqZGVqNVcrVTBhcU0xZ3dyMUFIMzRBZzhnZzB3QWFaVWwvK01qRHdoSDAyVDNlellTMTAvIEl0U2FsUHZTdkloU3RYQ2FiVkJoaW82alFoN1VaZ0ZTOWRBK1p5ZE1wY2F5bDNsUEluc0FaK0NXMVozMTQ4TkhaOVg0bEUwRlVPTDkgTGlOcGMyUWNnQXRHdWdSZXdUTXorVFVoWXg1c2tZS0dpK1R3VDhBaE9HZFV3alc0QTI4U2xja0lGZWduOGRLcU92UlRjTXpLT2o3USBNYlZlVmtoSFZXSUtWVzZRTTNvQzd3TXM0S0ljb3hrS1dsYk4rNnc3cU94NTc2Zy8zMTk1MTdjQUF3QlJabU1PRlQ0U0lBQUFBQUJKIFJVNUVya0pnZ2c9PSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMikiIGhlaWdodD0iMjUiIHdpZHRoPSIxOCIgb3ZlcmZsb3c9InZpc2libGUiPjwvaW1hZ2U+PHBvbHlnb24gcG9pbnRzPSI5LjI0MTcgMTguNDc4IDcuMzc4OSAxNy40NzUgNS43NjQyIDE2LjYzNSA4LjMzMiAxMS44MiA0IDExLjgyIDE1LjM3OSAwLjQxMTcgMTUuMzc5IDE2LjQyNyAxMi4wNjMgMTMuMjA2IiBmaWxsPSIjZmZmIi8+PHJlY3QgeT0iOS4wMDU1IiB4PSI4LjY2MzkiIGhlaWdodD0iNy45OTg5IiB0cmFuc2Zvcm09Im1hdHJpeCgtLjg4MjUgLS40NzA0IC40NzA0IC0uODgyNSAxMi4wNzUgMjkuMDI3KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iMTQuMDk1IDIuODE5IDE0LjA5NSAxNC4wMDcgMTAuODM4IDEwLjg2MiA2LjA3MDUgMTAuODYyIi8+PC9zdmc+\" style=\"transform: translate(<%- position.x %>px, <%- position.y %>px);\">\n    <div class=\"landscape is-hidden\" style=\"background-image: url(<%- landscape %>); background-size: <%- window.width %>px <%- window.height %>px;\"></div>\n  </a>\n<\/script>\n\n<script id=\"memory-template\" type=\"text/html\">\n  <a class=\"location\" href=\"<%- link %>\" target=\"_blank\">\n    <div class=\"body\" style=\"transform: translate(<%- positions[0].x %>px, <%- positions[0].y %>px);\">\n      <img class=\"body-img\" src=\"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgJy0vL1czQy8vRFREIFNWRyAxLjEvL0VOJyAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdmVyc2lvbj0iMS4xIiB5PSIwcHgiIHg9IjBweCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHZpZXdCb3g9IjAgMCAxNiAyMiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTYgMjIiPjxpbWFnZSBvcGFjaXR5PSIuMiIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFCSUFBQUFaQ0FZQUFBQThDWDZVQUFBQUNYQklXWE1BQUFzU0FBQUxFZ0hTM1g3OEFBQUEgR1hSRldIUlRiMlowZDJGeVpRQkJaRzlpWlNCSmJXRm5aVkpsWVdSNWNjbGxQQUFBQVpWSlJFRlVlTnFrbGMxTHcwQVF4YlBKcXJWVSBDNjFmMEJZL0Rub1ZQdzZlRlB6VDllQkpQWWpvUlFRVlViRm9wYWh0emZvRzNzcVlOdGl0Z1Y5TDA5MlhtWjAzRXhPRlh5YnoyOGxIIEVpZ1NnM0V3Q2NhVWtBc1JrclZGTUE4V1FRVjhnVStRSmdFaUVrVWRiSUVkc0FCYTRBVjBiSUJJQTJ5RFhiQU1yc0FsRUExakEwWDIgd1NaVGJQSzg1TndpR3lnaTN6WHd3ZitOcmtLSVNJUFI5TzJ6STRqayt1SmZrUXdTR2xsRUM4WEtKOEVpWHNEUTdqTmdIZXpSZEhXSyB4OFAyVGtRL3pJRTFzQUxLM21qRDlvOVZqZGVqNVcrVTBhcU0xZ3dyMUFIMzRBZzhnZzB3QWFaVWwvK01qRHdoSDAyVDNlellTMTAvIEl0U2FsUHZTdkloU3RYQ2FiVkJoaW82alFoN1VaZ0ZTOWRBK1p5ZE1wY2F5bDNsUEluc0FaK0NXMVozMTQ4TkhaOVg0bEUwRlVPTDkgTGlOcGMyUWNnQXRHdWdSZXdUTXorVFVoWXg1c2tZS0dpK1R3VDhBaE9HZFV3alc0QTI4U2xja0lGZWduOGRLcU92UlRjTXpLT2o3USBNYlZlVmtoSFZXSUtWVzZRTTNvQzd3TXM0S0ljb3hrS1dsYk4rNnc3cU94NTc2Zy8zMTk1MTdjQUF3QlJabU1PRlQ0U0lBQUFBQUJKIFJVNUVya0pnZ2c9PSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMikiIGhlaWdodD0iMjUiIHdpZHRoPSIxOCIgb3ZlcmZsb3c9InZpc2libGUiPjwvaW1hZ2U+PHBvbHlnb24gcG9pbnRzPSI5LjI0MTcgMTguNDc4IDcuMzc4OSAxNy40NzUgNS43NjQyIDE2LjYzNSA4LjMzMiAxMS44MiA0IDExLjgyIDE1LjM3OSAwLjQxMTcgMTUuMzc5IDE2LjQyNyAxMi4wNjMgMTMuMjA2IiBmaWxsPSIjZmZmIi8+PHJlY3QgeT0iOS4wMDU1IiB4PSI4LjY2MzkiIGhlaWdodD0iNy45OTg5IiB0cmFuc2Zvcm09Im1hdHJpeCgtLjg4MjUgLS40NzA0IC40NzA0IC0uODgyNSAxMi4wNzUgMjkuMDI3KSIgd2lkdGg9IjIuMDAwMiIvPjxwb2x5Z29uIHBvaW50cz0iMTQuMDk1IDIuODE5IDE0LjA5NSAxNC4wMDcgMTAuODM4IDEwLjg2MiA2LjA3MDUgMTAuODYyIi8+PC9zdmc+\"><!--\n      --><div class=\"create-at\"><!-- is-hidden -->\n        <span class=\"create-at--inner is-roboto\"><%- createAt %></span>\n      </div>\n    </div>\n    <div class=\"landscape is-hidden\" style=\"background-size: auto, <%- window.width %>px <%- window.height %>px;\"></div>\n  </a>\n<\/script>";
 	      isTemplateCloneNode = document.importNode(isTemplate.content, true);
 	      document.body.appendChild(isEl);
 	      isElShadowRoot.appendChild(isTemplateCloneNode);
@@ -104,11 +104,35 @@
 	          memorys: "#is-region__memorys"
 	        }
 	      });
-	      App.addRegions({
-	        content: appRegion
+	      return $.when($.Deferred((function(_this) {
+	        return function(defer) {
+	          var loadQueue;
+	          loadQueue = new createjs.LoadQueue();
+	          loadQueue.setMaxConnections(10);
+	          loadQueue.addEventListener("complete", function(e) {
+	            return defer.resolve();
+	          });
+	          loadQueue.installPlugin(createjs.Sound);
+	          return loadQueue.loadManifest([
+	            {
+	              id: "imageNoise0",
+	              src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/images/extension/noise-0.gif"
+	            }, {
+	              id: "soundSignal0",
+	              src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-signal-0.ogg"
+	            }, {
+	              id: "soundNoise0",
+	              src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-noise-0.ogg"
+	            }
+	          ]);
+	        };
+	      })(this)).promise()).then(function() {
+	        App.addRegions({
+	          content: appRegion
+	        });
+	        App.content.show(new AppLayoutView());
+	        return App.start();
 	      });
-	      App.content.show(new AppLayoutView());
-	      return App.start();
 	    });
 	    sn.tf.update(function() {});
 	    sn.tf.draw(function() {});
@@ -37719,6 +37743,18 @@
 	    MemoryItemView = Backbone.Marionette.ItemView.extend({
 	      initialize: function() {
 	        console.log("%c[Memory] MemoryItemView -> initialize", debug.style);
+	        chrome.storage.onChanged.addListener((function(_this) {
+	          return function(changes, ns) {
+	            if (ns === "local") {
+	              if (changes.isSound != null) {
+	                _this._isSound = changes.isSound.newValue;
+	                if (!_this._isSound) {
+	                  return _this._soundInstance.stop();
+	                }
+	              }
+	            }
+	          };
+	        })(this));
 	        this._getTime = function() {
 	          var now;
 	          now = window.perfomance && (perfomance.now || perfomance.webkitNow || perfomance.mozNow || perfomance.msNow || perfomance.oNow);
@@ -37728,16 +37764,25 @@
 	        this._currentFrame = 0;
 	        this._oldFrame = 0;
 	        this._startTime = 0;
-	        return this._updateProcess = $.noop;
+	        this._updateProcess = $.noop;
+	        chrome.storage.local.get({
+	          isSound: true
+	        }, (function(_this) {
+	          return function(result) {
+	            return _this._isSound = result.isSound;
+	          };
+	        })(this));
+	        return this._soundInstance = createjs.Sound.createInstance("soundNoise0");
 	      },
 	      tagName: "div",
-	      className: "memory",
+	      className: "memory is-hidden",
 	      template: _.template(isElShadowRoot.querySelector("#memory-template").innerHTML),
 	      ui: {
 	        location: ".location",
 	        body: ".body",
 	        bodyImg: ".body-img",
 	        createAt: ".create-at",
+	        createAtInner: ".create-at--inner",
 	        landscape: ".landscape"
 	      },
 	      events: {
@@ -37753,7 +37798,7 @@
 	            return _this._update(process);
 	          };
 	        })(this), this._frameRate);
-	        this._currentFrame = Math.floor((this._getTime() - this._startTime) / (1000 / this._frameRate) % 2);
+	        this._currentFrame = Math.floor(this._getTime() / (1000 / this._frameRate) % 2);
 	        if (this._currentFrame !== this._oldFrame) {
 	          process();
 	        }
@@ -37814,7 +37859,7 @@
 	          return function($imgs) {
 	            setPosition();
 	            _this.ui.landscape.css({
-	              "background-image": "url(" + landscape + ")"
+	              "background-image": "url(chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/images/extension/noise-0.gif), url(" + landscape + ")"
 	            });
 	            return _this._showBodyImg();
 	          };
@@ -37844,11 +37889,12 @@
 	        return $.Deferred((function(_this) {
 	          return function(defer) {
 	            return Velocity.animate(_this.$el, {
+	              blur: 10,
 	              opacity: 0.0
 	            }, {
 	              duration: 500,
 	              delay: 1000,
-	              easing: "ease",
+	              easing: "easeOutQuart",
 	              complete: function() {
 	                _this.$el.addClass("is-hidden");
 	                return defer.resolve();
@@ -37861,12 +37907,23 @@
 	        console.log("%c[Memory] MemoryItemView -> _showBodyImg", debug.style);
 	        return $.Deferred((function(_this) {
 	          return function(defer) {
+	            _this.ui.createAtInner.css({
+	              width: _this.ui.createAt.width()
+	            });
+	            _this.ui.createAt.css({
+	              width: 0
+	            });
+	            _this.ui.bodyImg.css({
+	              "-webkit-filter": "blur(10px)"
+	            });
+	            _this.$el.removeClass("is-hidden");
 	            return Velocity.animate(_this.ui.bodyImg, {
+	              blur: 0,
 	              opacity: 1.0
 	            }, {
-	              duration: 500,
+	              duration: 400,
 	              delay: 0,
-	              easing: "ease",
+	              easing: "easeOutQuart",
 	              complete: function() {
 	                return defer.resolve();
 	              }
@@ -37878,11 +37935,10 @@
 	        console.log("%c[Memory] MemoryItemView -> _showCreateAt", debug.style);
 	        return $.Deferred((function(_this) {
 	          return function(defer) {
-	            _this.ui.createAt.removeClass("is-hidden");
 	            return Velocity.animate(_this.ui.createAt, {
-	              opacity: 1.0
+	              width: _this.ui.createAtInner.width()
 	            }, {
-	              duration: 200,
+	              duration: 400,
 	              delay: 0,
 	              easing: "easeOutQuart",
 	              complete: function() {
@@ -37894,6 +37950,9 @@
 	      },
 	      _bodyMouseenterHandler: function() {
 	        Velocity(this.ui.landscape, "stop");
+	        if (this._isSound) {
+	          this._soundInstance.play();
+	        }
 	        return this.ui.landscape.css({
 	          opacity: 1.0
 	        }).removeClass("is-hidden");
@@ -37905,7 +37964,7 @@
 	              opacity: 0.0
 	            }, {
 	              duration: 400,
-	              delay: 200,
+	              delay: 250,
 	              easing: "easeOutQuart",
 	              complete: function() {
 	                var error;
@@ -37946,7 +38005,7 @@
 	      console.log("%c[Memory] addInitializer", debug.style, options);
 	      createAt = sn.moment(SETTING.CONFIG.MEMORY.createAt);
 	      SETTING.CONFIG.MEMORY.createAt = createAt.format("DD MMMM YYYY [at] HH:mm");
-	      memorysCollection = new MemorysCollection();
+	      memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY]);
 	      memorysCollectionView = new MemorysCollectionView({
 	        collection: memorysCollection
 	      });
