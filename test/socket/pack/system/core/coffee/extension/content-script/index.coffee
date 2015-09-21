@@ -293,14 +293,14 @@ do (window=window, document=document, $=jQuery) ->
         connect: require("./modules/connect/index")(App, sn, $, _)
         lover: require("./modules/lover/index")(App, sn, $, _, isElShadowRoot)
         memory: require("./modules/memory/index")(App, sn, $, _, isElShadowRoot)
-
-
+        
 
       # ============================================================
       # REGION
       # ============================================================
       appRegion = new Backbone.Marionette.Region
-        el: "##{chrome.runtime.id} /deep/ #is"
+        el: $(isElShadowRoot).find("#is")
+        # el: "##{chrome.runtime.id} /deep/ #is"
 
 
 
@@ -312,7 +312,7 @@ do (window=window, document=document, $=jQuery) ->
         tagName: "div"
           
         # ------------------------------------------------------------
-        className: "is-layout is__debug"
+        className: "is-layout"
 
         # ------------------------------------------------------------
         initialize: () ->

@@ -57,16 +57,20 @@ module.exports = (App, sn, $, _) ->
         @port = chrome.runtime.connect name: "contentScript"
         # @port = chrome.extension.connect name: "contentScript"
 
-        # @port.onDisconnect.addListener =>
-        #   console.log "disconnect"
-        #   @port.disconnect()
-        
-        # セットアップを行う
         @port.postMessage
           to: "background"
           from: "contentScript"
           type: "setup"
 
+        @port.onDisconnect.addListener =>
+          console.log "%c[Connect] ConnectModel | disconnect", debug.style
+          App.vent.off "stageInitializeUser"
+          App.vent.off "stageInitializeSpace"
+          App.vent.off "stageWindowScroll"
+          App.vent.off "stageWindowResize"
+          App.vent.off "stagePointerMove"
+          App.vent.off "stageAddMemory"
+          App.vent.off "stageGetMemory"
 
         @port.onMessage.addListener (message) =>
           # console.log "%c[Connect] ConnectModel | Long-lived Receive Message", debug.style, message

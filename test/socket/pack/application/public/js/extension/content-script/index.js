@@ -90,11 +90,11 @@
 	        memory: __webpack_require__(102)(App, sn, $, _, isElShadowRoot)
 	      };
 	      appRegion = new Backbone.Marionette.Region({
-	        el: "#" + chrome.runtime.id + " /deep/ #is"
+	        el: $(isElShadowRoot).find("#is")
 	      });
 	      AppLayoutView = Backbone.Marionette.LayoutView.extend({
 	        tagName: "div",
-	        className: "is-layout is__debug",
+	        className: "is-layout",
 	        initialize: function() {
 	          return console.log("AppLayoutView -> initialize");
 	        },
@@ -160,7 +160,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * jQuery JavaScript Library v2.1.3
+	 * jQuery JavaScript Library v2.1.4
 	 * http://jquery.com/
 	 *
 	 * Includes Sizzle.js
@@ -170,7 +170,7 @@
 	 * Released under the MIT license
 	 * http://jquery.org/license
 	 *
-	 * Date: 2014-12-18T15:11Z
+	 * Date: 2015-04-28T16:01Z
 	 */
 	
 	(function( global, factory ) {
@@ -228,7 +228,7 @@
 		// Use the correct document accordingly with window argument (sandbox)
 		document = window.document,
 	
-		version = "2.1.3",
+		version = "2.1.4",
 	
 		// Define a local copy of jQuery
 		jQuery = function( selector, context ) {
@@ -692,7 +692,12 @@
 	});
 	
 	function isArraylike( obj ) {
-		var length = obj.length,
+	
+		// Support: iOS 8.2 (not reproducible in simulator)
+		// `in` check used to prevent JIT error (gh-2145)
+		// hasOwn isn't used here due to false negatives
+		// regarding Nodelist length in IE
+		var length = "length" in obj && obj.length,
 			type = jQuery.type( obj );
 	
 		if ( type === "function" || jQuery.isWindow( obj ) ) {
@@ -37327,6 +37332,18 @@
 	          from: "contentScript",
 	          type: "setup"
 	        });
+	        this.port.onDisconnect.addListener((function(_this) {
+	          return function() {
+	            console.log("%c[Connect] ConnectModel | disconnect", debug.style);
+	            App.vent.off("stageInitializeUser");
+	            App.vent.off("stageInitializeSpace");
+	            App.vent.off("stageWindowScroll");
+	            App.vent.off("stageWindowResize");
+	            App.vent.off("stagePointerMove");
+	            App.vent.off("stageAddMemory");
+	            return App.vent.off("stageGetMemory");
+	          };
+	        })(this));
 	        return this.port.onMessage.addListener((function(_this) {
 	          return function(message) {
 	            if (((message.to != null) && message.to === "contentScript") && ((message.from != null) && message.from === "background") && (message.type != null)) {
@@ -37730,6 +37747,7 @@
 	        console.log("%c[Lover] LoverItemView -> _bodyMouseenterHandler");
 	        Velocity(this.ui.landscape, "stop");
 	        if (this._isSound) {
+	          this._soundInstance.stop();
 	          this._soundInstance.play();
 	        }
 	        return this.ui.landscape.css({
@@ -38045,6 +38063,7 @@
 	      _bodyMouseenterHandler: function() {
 	        Velocity(this.ui.landscape, "stop");
 	        if (this._isSound) {
+	          this._soundInstance.stop();
 	          this._soundInstance.play();
 	        }
 	        return this.ui.landscape.css({

@@ -78,6 +78,8 @@ Extension = (function() {
         socket.on('disconnect', function() {
           console.log('[Controller] Extension -> disconnect', joinRoomId, joinRoomDocId);
 
+          capacity = config.roomCapacity - _.keys(_this._extensionSocketIo.adapter.rooms[joinRoomId]).length;
+
           // 同じRoom に所属するユーザーにSocket ID を送信する
           _this._extensionSocketIo
             .to(joinRoomId)
@@ -92,9 +94,10 @@ Extension = (function() {
                 '_id': joinRoomDocId
               },
               'update': {
-                '$inc': {
-                  'capacity': 1
-                }
+                'capacity': capacity
+                // '$inc': {
+                //   'capacity': capacity
+                // }
               }
             }
           });

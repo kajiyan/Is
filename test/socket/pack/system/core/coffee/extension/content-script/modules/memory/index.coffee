@@ -295,7 +295,9 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
      
         Velocity @ui.landscape, "stop"
 
-        if @_isSound then @_soundInstance.play()
+        if @_isSound
+          @_soundInstance.stop()
+          @_soundInstance.play()
 
         @ui.landscape
           .css
