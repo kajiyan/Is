@@ -53,14 +53,21 @@ module.exports = (App, sn, $, _) ->
 
         # エクステンションの起動状態に変化があった時のイベントリスナー
         App.vent.on "connectChangeIsRun", @_changeIsRunHandler.bind @
+        # サーバーでMemoryの追加処理が終了した時に呼び出される
+        App.vent.on "connectAddedMemory", @_addedMemoryHandler.bind @
+
+        @_isMemoryProcessed = true
 
         @_getTime = ->
           now = window.perfomance and (perfomance.now or perfomance.webkitNow or perfomance.mozNow or perfomance.msNow or perfomance.oNow)
           return ( now and now.cell perfomance ) or ( new Date().getTime() )
 
-        @_recInterval = 10000 / 1000
-        @_memoryGetInterval = 10000 / 1000
-        @_memoryGetMaxLimit = 3
+        @_frameRate = SETTING.CONFIG.FRAME_RATE
+
+        @_recInterval = @_frameRate * (SETTING.CONFIG.REC_INTERVAL / 1000)
+        
+        @_memoryGetInterval = @_frameRate * (SETTING.CONFIG.MEMORY_GET_INTERVAL / 1000)
+        @_memoryGetMaxLimit = 2
         
         @_updateProcess = $.noop
         @_startTime = 0
@@ -68,10 +75,8 @@ module.exports = (App, sn, $, _) ->
         @_currentFrame = 0
 
         @_recordingTime = 6000
-        @_frameRate = 24
 
         @_positionsSize = @_recordingTime / 1000 * @_frameRate
-
         # 最短の録画時間 (2000ms)
         @_positionsSelectOffset = 2000 / 1000 * @_frameRate
 
@@ -126,23 +131,36 @@ module.exports = (App, sn, $, _) ->
             @_positions.unshift(@get "position")
             @_positions.pop()
             
-            ### 一旦コメントアウト
-            if (~~(Math.random() * (@_frameRate * @_recInterval))) is 1
+            if (~~(Math.random() * @_recInterval)) is 1
               console.log "%c[Stage] StageModel | REC", debug.style
-              limit = ~~(Math.random() * (@_positionsSize - @_positionsSelectOffset) + @_positionsSelectOffset)
-              positions = _.first(@_positions, limit)
+              if @_isMemoryProcessed
+                # フラグを処理中にする
+                @_isMemoryProcessed = false
+                limit = ~~(Math.random() * (@_positionsSize - @_positionsSelectOffset) + @_positionsSelectOffset)
+                positions = _.first(@_positions, limit)
 
-              App.vent.trigger "stageAddMemory",
-                window: @get "window"
-                positions: positions
-            if (~~(Math.random() * (@_frameRate * @_recInterval))) is 1
+                App.vent.trigger "stageAddMemory",
+                  window: @get "window"
+                  positions: positions
+            
+            if (~~(Math.random() * @_memoryGetInterval)) is 1
               console.log "%c[Stage] StageModel | getMemory Request", debug.style
               App.vent.trigger "stageGetMemory",
                 limit: (~~(Math.random() * @_memoryGetMaxLimit + 1))
+            ### 一旦コメントアウト
             ###
         else
           @_stop()
-        
+
+      # ------------------------------------------------------------
+      # /**
+      #  * StageModel#_addedMemoryHandler
+      #  */
+      # ------------------------------------------------------------
+      _addedMemoryHandler: (status) ->
+        console.log "%c[Stage] StageModel -> _addedMemoryHandler", debug.style, status
+        # フラグを処理完了状態にする
+        @_isMemoryProcessed = true
 
 
     # ============================================================

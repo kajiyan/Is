@@ -489,17 +489,27 @@ Extension = (function() {
           function(data, callback) {
             console.log('[Controller] Extension -> Socket Receive Message | addMemory');
             // 通知されたデータをデータベースに保存する
-            Q.fcall(function(){
-              _this._dayModel.addMemory(data);
-            })
-            .then(function(memory) {
-            })
+            Q.fcall(
+              function(){
+                _this._dayModel.addMemory(data);
+              }
+            )
+            .then(
+              function(memory) {
+                callback({
+                  status: 'success'
+                });  
+              }
+            )
             .catch(function (error) {
-              console.log(error);
+              // console.log(error);
+              callback({
+                status: 'error',
+                type: 'Unknown',
+                body: { message: 'Unknown error.' }
+              });
             })
-            .done(function(){
-              callback();
-            });
+            .done();
           }
         );
 

@@ -148,6 +148,7 @@ module.exports = (App, sn, $, _) ->
             sendUpdatePointerHandler = @_sendUpdatePointerHandler.bind(@)(port)
             sendUpdateLandscapeHandler = @_sendUpdateLandscapeHandler.bind(@)(port)
             sendMemoryHandler = @_sendMemoryHandler.bind(@)(port)
+            sendAddedMemoryHandler = @_sendAddedMemoryHandler.bind(@)(port)
 
             # Long-lived 接続 切断時の処理を登録する
             port.onDisconnect.addListener =>
@@ -163,6 +164,7 @@ module.exports = (App, sn, $, _) ->
               App.vent.off "socketUpdatePointer", sendUpdatePointerHandler
               App.vent.off "socketUpdateLandscape", sendUpdateLandscapeHandler
               App.vent.off "socketResponseMemory", sendMemoryHandler
+              App.vent.off "socketAddedMemory", sendAddedMemoryHandler
               port.disconnect()
               console.log "%c[Connect] ConnectModel | onDisconnect", debug.style
 
@@ -191,6 +193,8 @@ module.exports = (App, sn, $, _) ->
             App.vent.on "socketUpdateLandscape", sendUpdateLandscapeHandler
             # サーバーに保存されているMemoryを取得した時に呼び出される
             App.vent.on "socketResponseMemory", sendMemoryHandler
+            # サーバーでMemoryの追加処理が終了した時に呼び出される
+            App.vent.on "socketAddedMemory", sendAddedMemoryHandler
 
             # メッセージを受信した時の処理
             port.onMessage.addListener (message) =>
@@ -698,6 +702,23 @@ module.exports = (App, sn, $, _) ->
             from: "background"
             type: "receiveMemory"
             body: data
+
+      # --------------------------------------------------------------
+      # /**
+      #  * ConnectModel#_sendAddedMemoryHandler
+      #  * サーバーでMemoryの追加処理が終了した時に呼び出される
+      #  * @param {Object} port - Chrome Extentions Port Object
+      #  */
+      # --------------------------------------------------------------
+      _sendAddedMemoryHandler: (port) ->
+        (status) =>
+          console.log "%c[Connect] ConnectModel -> _sendAddedMemoryHandler", debug.style, status
+
+          port.postMessage
+            to: "contentScript"
+            from: "background"
+            type: "addedMemory"
+            body: status
 
       # # --------------------------------------------------------------
       # _poupChangeIsRunHandler: (port) ->

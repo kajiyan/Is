@@ -128,6 +128,10 @@ module.exports = (App, sn, $, _) ->
                 # 更新を検知したらconnectUpdateLandscape イベントを発火させる
                 App.vent.trigger "connectUpdateLandscape", message.body
 
+              when "addedMemory"
+                console.log "%c[Connect] ConnectModel | Long-lived Receive Message | addedMemory", debug.style, message.body
+                App.vent.trigger "connectAddedMemory", message.body
+
               when "receiveMemory"
                 console.log "%c[Connect] ConnectModel | Long-lived Receive Message | receiveMemory", debug.style, message.body
                 App.vent.trigger "connectReceiveMemory", message.body

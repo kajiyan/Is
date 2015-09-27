@@ -11,6 +11,8 @@ do (window=window, document=document, $=jQuery) ->
 
   window.sn = {}
 
+  console.log SETTING
+
   window.requestAnimationFrame = do ->
     return window.requestAnimationFrame or
       window.webkitRequestAnimationFrame or
@@ -293,7 +295,7 @@ do (window=window, document=document, $=jQuery) ->
         connect: require("./modules/connect/index")(App, sn, $, _)
         lover: require("./modules/lover/index")(App, sn, $, _, isElShadowRoot)
         memory: require("./modules/memory/index")(App, sn, $, _, isElShadowRoot)
-        
+
 
       # ============================================================
       # REGION

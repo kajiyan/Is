@@ -265,8 +265,8 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] Socket -> _addMemoryHandler", debug.style, data
 
         if @get "isConnected"
-          @socket.emit "addMemory", data, () ->
-            App.vent.trigger "socketAddedMemory"
+          @socket.emit "addMemory", data, (status) ->
+            App.vent.trigger "socketAddedMemory", status
 
       # ------------------------------------------------------------
       # /**

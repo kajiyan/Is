@@ -48,6 +48,7 @@
 	  "use strict";
 	  var App, jQBridget;
 	  window.sn = {};
+	  console.log(SETTING);
 	  window.requestAnimationFrame = (function() {
 	    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback, fps) {
 	      window.setTimeout(callback, 1000 / fps);
@@ -37128,20 +37129,22 @@
 	      initialize: function() {
 	        console.log("%c[Stage] StageModel -> initialize", debug.style);
 	        App.vent.on("connectChangeIsRun", this._changeIsRunHandler.bind(this));
+	        App.vent.on("connectAddedMemory", this._addedMemoryHandler.bind(this));
+	        this._isMemoryProcessed = true;
 	        this._getTime = function() {
 	          var now;
 	          now = window.perfomance && (perfomance.now || perfomance.webkitNow || perfomance.mozNow || perfomance.msNow || perfomance.oNow);
 	          return (now && now.cell(perfomance)) || (new Date().getTime());
 	        };
-	        this._recInterval = 10000 / 1000;
-	        this._memoryGetInterval = 10000 / 1000;
-	        this._memoryGetMaxLimit = 3;
+	        this._frameRate = SETTING.CONFIG.FRAME_RATE;
+	        this._recInterval = this._frameRate * (SETTING.CONFIG.REC_INTERVAL / 1000);
+	        this._memoryGetInterval = this._frameRate * (SETTING.CONFIG.MEMORY_GET_INTERVAL / 1000);
+	        this._memoryGetMaxLimit = 2;
 	        this._updateProcess = $.noop;
 	        this._startTime = 0;
 	        this._oldFrame = 0;
 	        this._currentFrame = 0;
 	        this._recordingTime = 6000;
-	        this._frameRate = 24;
 	        this._positionsSize = this._recordingTime / 1000 * this._frameRate;
 	        return this._positionsSelectOffset = 2000 / 1000 * this._frameRate;
 	      },
@@ -37180,28 +37183,39 @@
 	          })(this._positionsSize);
 	          return this._update((function(_this) {
 	            return function() {
+	              var limit, positions;
 	              _this._positions.unshift(_this.get("position"));
-	              return _this._positions.pop();
+	              _this._positions.pop();
+	              if ((~~(Math.random() * _this._recInterval)) === 1) {
+	                console.log("%c[Stage] StageModel | REC", debug.style);
+	                if (_this._isMemoryProcessed) {
+	                  _this._isMemoryProcessed = false;
+	                  limit = ~~(Math.random() * (_this._positionsSize - _this._positionsSelectOffset) + _this._positionsSelectOffset);
+	                  positions = _.first(_this._positions, limit);
+	                  App.vent.trigger("stageAddMemory", {
+	                    window: _this.get("window"),
+	                    positions: positions
+	                  });
+	                }
+	              }
+	              if ((~~(Math.random() * _this._memoryGetInterval)) === 1) {
+	                console.log("%c[Stage] StageModel | getMemory Request", debug.style);
+	                return App.vent.trigger("stageGetMemory", {
+	                  limit: ~~(Math.random() * _this._memoryGetMaxLimit + 1)
+	                });
+	              }
 	
 	              /* 一旦コメントアウト
-	              if (~~(Math.random() * (@_frameRate * @_recInterval))) is 1
-	                console.log "%c[Stage] StageModel | REC", debug.style
-	                limit = ~~(Math.random() * (@_positionsSize - @_positionsSelectOffset) + @_positionsSelectOffset)
-	                positions = _.first(@_positions, limit)
-	              
-	                App.vent.trigger "stageAddMemory",
-	                  window: @get "window"
-	                  positions: positions
-	              if (~~(Math.random() * (@_frameRate * @_recInterval))) is 1
-	                console.log "%c[Stage] StageModel | getMemory Request", debug.style
-	                App.vent.trigger "stageGetMemory",
-	                  limit: (~~(Math.random() * @_memoryGetMaxLimit + 1))
 	               */
 	            };
 	          })(this));
 	        } else {
 	          return this._stop();
 	        }
+	      },
+	      _addedMemoryHandler: function(status) {
+	        console.log("%c[Stage] StageModel -> _addedMemoryHandler", debug.style, status);
+	        return this._isMemoryProcessed = true;
 	      }
 	    });
 	    StageItemView = Backbone.Marionette.ItemView.extend({
@@ -37383,6 +37397,9 @@
 	                case "updateLandscape":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | updateLandscape", debug.style, message.body);
 	                  return App.vent.trigger("connectUpdateLandscape", message.body);
+	                case "addedMemory":
+	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | addedMemory", debug.style, message.body);
+	                  return App.vent.trigger("connectAddedMemory", message.body);
 	                case "receiveMemory":
 	                  console.log("%c[Connect] ConnectModel | Long-lived Receive Message | receiveMemory", debug.style, message.body);
 	                  return App.vent.trigger("connectReceiveMemory", message.body);

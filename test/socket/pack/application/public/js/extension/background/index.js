@@ -104,7 +104,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * jQuery JavaScript Library v2.1.3
+	 * jQuery JavaScript Library v2.1.4
 	 * http://jquery.com/
 	 *
 	 * Includes Sizzle.js
@@ -114,7 +114,7 @@
 	 * Released under the MIT license
 	 * http://jquery.org/license
 	 *
-	 * Date: 2014-12-18T15:11Z
+	 * Date: 2015-04-28T16:01Z
 	 */
 	
 	(function( global, factory ) {
@@ -172,7 +172,7 @@
 		// Use the correct document accordingly with window argument (sandbox)
 		document = window.document,
 	
-		version = "2.1.3",
+		version = "2.1.4",
 	
 		// Define a local copy of jQuery
 		jQuery = function( selector, context ) {
@@ -636,7 +636,12 @@
 	});
 	
 	function isArraylike( obj ) {
-		var length = obj.length,
+	
+		// Support: iOS 8.2 (not reproducible in simulator)
+		// `in` check used to prevent JIT error (gh-2145)
+		// hasOwn isn't used here due to false negatives
+		// regarding Nodelist length in IE
+		var length = "length" in obj && obj.length,
 			type = jQuery.type( obj );
 	
 		if ( type === "function" || jQuery.isWindow( obj ) ) {
@@ -24996,7 +25001,7 @@
 	        console.log("%c[Connect] ConnectModel -> initialize", debug.style);
 	        return chrome.runtime.onConnect.addListener((function(_this) {
 	          return function(port) {
-	            var changeActiveInfoHandler, changeIsRunHandler, getLandscape, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendCheckOutHandler, sendConnectedHandler, sendDisconnectHandler, sendJointedHandler, sendMemoryHandler, sendUpdateLandscapeHandler, sendUpdateLocation, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
+	            var changeActiveInfoHandler, changeIsRunHandler, getLandscape, initializedResidents, landscape, link, sendAddResident, sendAddUser, sendAddedMemoryHandler, sendCheckOutHandler, sendConnectedHandler, sendDisconnectHandler, sendJointedHandler, sendMemoryHandler, sendUpdateLandscapeHandler, sendUpdateLocation, sendUpdatePointerHandler, sendUpdateWindowSize, tabId, windowId;
 	            if (port.name === "popupScript") {
 	              console.log("%c[Connect] ConnectModel | popupScript - onConnect", debug.style);
 	              changeIsRunHandler = _this._changeIsRunHandler.bind(_this)(port);
@@ -25069,6 +25074,7 @@
 	              sendUpdatePointerHandler = _this._sendUpdatePointerHandler.bind(_this)(port);
 	              sendUpdateLandscapeHandler = _this._sendUpdateLandscapeHandler.bind(_this)(port);
 	              sendMemoryHandler = _this._sendMemoryHandler.bind(_this)(port);
+	              sendAddedMemoryHandler = _this._sendAddedMemoryHandler.bind(_this)(port);
 	              port.onDisconnect.addListener(function() {
 	                App.vent.off("stageChangeIsRun", changeIsRunHandler);
 	                App.vent.off("stageChangeActiveInfo", changeActiveInfoHandler);
@@ -25082,6 +25088,7 @@
 	                App.vent.off("socketUpdatePointer", sendUpdatePointerHandler);
 	                App.vent.off("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	                App.vent.off("socketResponseMemory", sendMemoryHandler);
+	                App.vent.off("socketAddedMemory", sendAddedMemoryHandler);
 	                port.disconnect();
 	                return console.log("%c[Connect] ConnectModel | onDisconnect", debug.style);
 	              });
@@ -25097,6 +25104,7 @@
 	              App.vent.on("socketUpdatePointer", sendUpdatePointerHandler);
 	              App.vent.on("socketUpdateLandscape", sendUpdateLandscapeHandler);
 	              App.vent.on("socketResponseMemory", sendMemoryHandler);
+	              App.vent.on("socketAddedMemory", sendAddedMemoryHandler);
 	              return port.onMessage.addListener(function(message) {
 	                var activeInfo;
 	                if (((message.from != null) && message.from === "contentScript") && (message.type != null)) {
@@ -25455,6 +25463,19 @@
 	            });
 	          };
 	        })(this);
+	      },
+	      _sendAddedMemoryHandler: function(port) {
+	        return (function(_this) {
+	          return function(status) {
+	            console.log("%c[Connect] ConnectModel -> _sendAddedMemoryHandler", debug.style, status);
+	            return port.postMessage({
+	              to: "contentScript",
+	              from: "background",
+	              type: "addedMemory",
+	              body: status
+	            });
+	          };
+	        })(this);
 	      }
 	    });
 	    ConnectModule.addInitializer(function(options) {
@@ -25582,8 +25603,8 @@
 	      _addMemoryHandler: function(data) {
 	        console.log("%c[Socket] Socket -> _addMemoryHandler", debug.style, data);
 	        if (this.get("isConnected")) {
-	          return this.socket.emit("addMemory", data, function() {
-	            return App.vent.trigger("socketAddedMemory");
+	          return this.socket.emit("addMemory", data, function(status) {
+	            return App.vent.trigger("socketAddedMemory", status);
 	          });
 	        }
 	      },
