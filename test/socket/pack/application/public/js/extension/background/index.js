@@ -25454,13 +25454,17 @@
 	      _sendMemoryHandler: function(port) {
 	        return (function(_this) {
 	          return function(data) {
+	            var activeInfo;
 	            console.log("%c[Connect] ConnectModel -> _sendMemoryHandler", debug.style, data);
-	            return port.postMessage({
-	              to: "contentScript",
-	              from: "background",
-	              type: "receiveMemory",
-	              body: data
-	            });
+	            activeInfo = App.reqres.request("stageGetActiveInfo");
+	            if (port.sender.tab.id === activeInfo.tabId) {
+	              return port.postMessage({
+	                to: "contentScript",
+	                from: "background",
+	                type: "receiveMemory",
+	                body: data
+	              });
+	            }
 	          };
 	        })(this);
 	      },

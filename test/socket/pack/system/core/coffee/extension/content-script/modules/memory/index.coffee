@@ -60,10 +60,11 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       # --------------------------------------------------------------
       _receiveMemoryHandler: (memorys) ->
         console.log "%c[Memory] MemorysCollection -> _receiveMemoryHandler", debug.style, memorys
+
         for memory, i in memorys
+          createAt = sn.moment memory.createAt
+          memory.createAt = createAt.format "DD MMMM YYYY [at] HH:mm"
           @add memory
-          # console.log memory, i
-        # @add data
 
 
 
@@ -225,7 +226,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       _hide: () ->
         console.log "%c[Memory] MemoryItemView -> _hide", debug.style
         return $.Deferred (defer) =>
-          Velocity.animate @$el,
+          Velocity.animate @ui.body,
             blur: 10
             opacity: 0.0
           ,

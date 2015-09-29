@@ -47,6 +47,7 @@
     "pepjs": "~0.3.0",
     "pixi": "~2.2.8",
     "underscore": "~1.8.2",
-    "velocity": "~1.2.2"
+    "velocity": "~1.2.2",
+    "webfontloader": "~1.6.7"
   }
 }

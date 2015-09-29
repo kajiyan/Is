@@ -697,11 +697,16 @@ module.exports = (App, sn, $, _) ->
         (data) =>
           console.log "%c[Connect] ConnectModel -> _sendMemoryHandler", debug.style, data
 
-          port.postMessage
-            to: "contentScript"
-            from: "background"
-            type: "receiveMemory"
-            body: data
+          # 現在選択されているTabの情報を取得する
+          activeInfo = App.reqres.request "stageGetActiveInfo"
+
+          # アクティブなタブだけにメッセージを送る
+          if port.sender.tab.id is activeInfo.tabId
+            port.postMessage
+              to: "contentScript"
+              from: "background"
+              type: "receiveMemory"
+              body: data
 
       # --------------------------------------------------------------
       # /**

@@ -1,11 +1,3 @@
-# popupとの連携
-# chrome.runtime.onMessage.addListener ( msg, sender, sendResponse ) ->
-#   console.log(msg, sender, sendResponse)
-  
-#   ret = $('title').text()
-#   dev = $('title').text()
-#   sendResponse { title: ret }
-
 do (window=window, document=document, $=jQuery) ->
   "use strict"
 
@@ -46,34 +38,9 @@ do (window=window, document=document, $=jQuery) ->
   # Library
   # ============================================================
   jQBridget = require "jquery-bridget"
-  
+
   sn.moment = require "moment"
-
-  # do ->
-  #   loadQueue = new createjs.LoadQueue()
-
-  #   loadQueue.addEventListener "fileload", (e) -> console.log e
-  #   loadQueue.addEventListener "complete", (e) ->
-  #     console.log e
-  #     # createjs.Sound.play "signal"
-
-  #   # createjs.Sound.alternateExtensions = ["mp3"]
-  #   loadQueue.installPlugin createjs.Sound
-  #   loadQueue.loadManifest [
-  #     { id: "signal", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-signal-0.ogg" }
-  #     { id: "noise", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-noise-0.ogg" }
-  #   ]
-
-
-
-    # createjs.Sound.addEventListener "fileload", (e) -> console.log "Preloaded:", e.id, e.src
-    # createjs.Sound.registerSounds([
-    #   { id: "signal", src: "sound-effect-signal-0.ogg" }
-    #   { id: "noise", src: "sound-effect-noise-0.ogg" }
-    # ], soundAssetsPath)
-  # console.log require "PreloadJS/lib/preloadjs-0.6.1.min.js"
-  # console.log require "PreloadJS/lib/preloadjs-0.6.1.combined.js"
-
+  sn.webFontLoader = require "webfontloader/webfontloader"
   require "pepjs/dist/pep.min"
   require "backbone.marionette/lib/backbone.marionette.min"
   require "velocity/velocity.min"
@@ -88,7 +55,6 @@ do (window=window, document=document, $=jQuery) ->
   $ ->
     # --------------------------------------------------------------
     sn.tf.setup ->
-
       debug = style: "background-color: DarkBlue; color: #ffffff;"
 
       # App のベースになるDOM を生成する
@@ -101,8 +67,6 @@ do (window=window, document=document, $=jQuery) ->
 
       isElShadowRoot.innerHTML = """
         <style>
-          @import url(https://fonts.googleapis.com/css?family=Roboto+Condensed);
-
           .is-debug {
             -moz-box-shadow: black 0px 0px 0px 1px inset;
             -webkit-box-shadow: black 0px 0px 0px 1px inset;
@@ -345,7 +309,7 @@ do (window=window, document=document, $=jQuery) ->
 
           # loadQueue.addEventListener "fileload", (e) -> console.log e
           loadQueue.addEventListener "complete", (e) ->
-            defer.resolve()  
+            defer.resolve()
 
           # createjs.Sound.alternateExtensions = ["mp3"]
           loadQueue.installPlugin createjs.Sound
@@ -354,9 +318,19 @@ do (window=window, document=document, $=jQuery) ->
             { id: "soundSignal0", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-signal-0.ogg" }
             { id: "soundNoise0", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-noise-0.ogg" }
           ]
+        .promise(),
+        $.Deferred (defer) =>
+          sn.webFontLoader.load(
+            google:
+              families: ["Roboto Condensed"]
+            active: () ->
+              defer.resolve()
+            inactive: () ->
+              defer.reject()
+          )
         .promise()
       )
-      .then(
+      .always(
         () ->
           App.addRegions
             content: appRegion

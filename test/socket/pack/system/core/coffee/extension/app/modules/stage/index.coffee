@@ -371,7 +371,17 @@ module.exports = (App, sn, $, _) ->
               @$el
                 .addClass "is__hidden"
                 .removeAttr "style"
+
+              console.log $("#js-main").height()
+
+              # $("#js-is")
+              #   .css
+              #     height: $("#js-main").height()
+              
+              # .removeAttr "style"
+
               defer.resolve()
+
         .promise()
     # End ItemView - CheckInItemView
     # ============================================================

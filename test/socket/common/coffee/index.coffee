@@ -14,8 +14,8 @@ do (window=window, document=document, $=jQuery) ->
 
   # ============================================================
   # Library
-  require "imports?this=>window!modernizr/modernizr"
-  require "devicejs/lib/device.min.js"
+  # require "imports?this=>window!modernizr/modernizr"
+  # require "devicejs/lib/device.min.js"
 
   # ============================================================
   # Detect / Normalize event names
