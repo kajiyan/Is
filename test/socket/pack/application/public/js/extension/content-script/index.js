@@ -37986,30 +37986,19 @@
 	        loadImg = (function(_this) {
 	          return function() {
 	            return $.Deferred(function(defer) {
-	              var images, imgNames, imgSrcs, key, loader, value;
-	              images = {
-	                landscape: landscape
-	              };
-	              imgNames = [];
-	              imgSrcs = [];
-	              for (key in images) {
-	                value = images[key];
-	                imgNames.push(key);
-	                imgSrcs.push(value);
-	              }
-	              loader = new $.ImgLoader({
-	                srcs: imgSrcs
+	              var loadQueue, result;
+	              result = [];
+	              loadQueue = new createjs.LoadQueue(false);
+	              loadQueue.setMaxConnections(1);
+	              loadQueue.addEventListener("complete", function(e) {
+	                return defer.resolve();
 	              });
-	              loader.on("allload", function($imgs) {
-	                var $img, index, j, len, result;
-	                result = {};
-	                for (index = j = 0, len = $imgs.length; j < len; index = ++j) {
-	                  $img = $imgs[index];
-	                  result[imgNames[index]] = $img;
+	              return loadQueue.loadManifest([
+	                {
+	                  id: "landscape",
+	                  src: landscape
 	                }
-	                return defer.resolve(result);
-	              });
-	              return loader.load();
+	              ]);
 	            }).promise();
 	          };
 	        })(this);
@@ -38026,7 +38015,7 @@
 	          };
 	        })(this);
 	        return $.when(loadImg()).then((function(_this) {
-	          return function($imgs) {
+	          return function(loadQueue) {
 	            setPosition();
 	            _this.ui.landscape.css({
 	              "background-image": "url(chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/images/extension/noise-0.gif), url(" + landscape + ")"

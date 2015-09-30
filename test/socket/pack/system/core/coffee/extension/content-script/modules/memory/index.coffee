@@ -153,26 +153,18 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
 
         loadImg = () =>
           return $.Deferred (defer) =>
-            images = 
-              landscape: landscape
+            result = []
+            loadQueue = new createjs.LoadQueue(false)
+            loadQueue.setMaxConnections 1
 
-            imgNames = []
-            imgSrcs = []
-            for key, value of images
-              imgNames.push key
-              imgSrcs.push value 
+            # loadQueue.addEventListener "fileload", (e) ->
 
-            loader = new $.ImgLoader
-              srcs: imgSrcs
+            loadQueue.addEventListener "complete", (e) ->
+              defer.resolve()
 
-            loader.on "allload", ($imgs) =>
-              result = {}
-              for $img, index in $imgs
-                result[imgNames[index]] = $img
-
-              defer.resolve result
-
-            loader.load()
+            loadQueue.loadManifest [
+              { id: "landscape", src: landscape }
+            ]
           .promise()
 
         setPosition = () =>
@@ -188,7 +180,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         $.when(
           loadImg()
         ).then(
-          ($imgs) =>
+          (loadQueue) =>
             setPosition()
             @ui.landscape.css
               "background-image": "url(chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/images/extension/noise-0.gif), url(#{landscape})"
