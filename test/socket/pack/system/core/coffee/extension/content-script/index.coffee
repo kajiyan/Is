@@ -45,7 +45,6 @@ do (window=window, document=document, $=jQuery) ->
   require "backbone.marionette/lib/backbone.marionette.min"
   require "velocity/velocity.min"
   require "velocity/velocity.ui.min"
-  require "jquery.imgloader"
 
   # ============================================================
   # APPLICATION

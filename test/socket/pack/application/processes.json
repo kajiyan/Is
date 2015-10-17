@@ -3,8 +3,6 @@
     {
       "name": "notFound",
       "script": "bin/www",
-      // "exec_mode": "fork_mode",
-      // "instances": 0,
       "watch": true
     }
   ]

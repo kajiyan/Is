@@ -46,20 +46,10 @@ RouteIndex = (function() {
     // ルーティングを設定する
     // ------------------------------------------------------------
     router.get('/', function(req, res, next) {
-      var keyData = {};
-      res.render('index.swig.html', keyData);
-    });
-
-
-    router.get('/test', function(req, res, next) {
-      var keyData = {};
-      
-      console.log(req.headers);
-
-      res.end('end');
+      res.end();
+      // var keyData = {};
       // res.render('index.swig.html', keyData);
     });
-
 
     this.app.use( this.rootURL, router );
   };

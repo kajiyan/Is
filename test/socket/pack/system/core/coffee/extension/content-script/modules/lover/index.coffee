@@ -364,7 +364,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         #  */
         # --------------------------------------------------------------
         _bodyMouseenterHandler: () ->
-          console.log "%c[Lover] LoverItemView -> _bodyMouseenterHandler"
+          # console.log "%c[Lover] LoverItemView -> _bodyMouseenterHandler", debug.style
        
           Velocity @ui.landscape, "stop"
 
