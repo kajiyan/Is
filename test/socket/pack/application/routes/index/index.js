@@ -18,19 +18,6 @@ RouteIndex = (function() {
 
     this.app = {};
     this.rootURL = options.rootURL;
-
-
-    // this.RouteIndex = {
-    //   // day: (function() {
-    //   //   var Day = require(config.RouteIndex + 'day');
-    //   //   var day = new Day({
-    //   //     'mongoose': mongoose
-    //   //   });
-    //   //   return day;
-    //   // })()
-    // };
-
-    // // this.RouteIndex.day.setup();
   }
 
 
@@ -47,6 +34,7 @@ RouteIndex = (function() {
     // ------------------------------------------------------------
     router.get('/', function(req, res, next) {
       res.end();
+      
       // var keyData = {};
       // res.render('index.swig.html', keyData);
     });
