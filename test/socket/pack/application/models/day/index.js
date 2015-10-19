@@ -107,6 +107,7 @@ Day = (function() {
           port = ':' + config['port'];
         }
 
+        // process.env
         result = config.protocol + '://' + config.host + port + '/memorys/' + this.dayId + '/' + this._id;
         return result;
       });

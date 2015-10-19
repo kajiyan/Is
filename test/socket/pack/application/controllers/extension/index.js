@@ -65,10 +65,18 @@ Extension = (function() {
   // --------------------------------------------------------------
   Extension.prototype._setupSocket = function() {
     console.log('[Controller] Extension -> _setupSocket');
-    
+
     (function(_this) {
       _this._extensionSocketIo.on('connection', function(socket) {
         console.log('[Controller] Extension -> connection');
+
+        // console.log(socket.handshake);
+        // console.log(socket.handshake.headers.host.split(":").shift());
+        // console.log(socket.handshake.headers.origin);
+
+        // if (socket.handshake.headers.origin !== "") {
+        //   return;
+        // }
 
         var joinRoomDocId = ''; // 所属するRoom Document のID
         var joinRoomId = ''; // 所属するRoom ID

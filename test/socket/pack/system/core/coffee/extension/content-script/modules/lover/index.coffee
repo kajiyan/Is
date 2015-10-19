@@ -200,6 +200,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
               @_isSound = result.isSound
 
           @_soundInstance = createjs.Sound.createInstance "soundSignal0"
+          @_soundInstance.pan = 0.0001
 
         # ------------------------------------------------------------
         tagName: "div"

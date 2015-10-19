@@ -88,8 +88,13 @@ module.exports = (App, sn, $, _) ->
       # --------------------------------------------------------------
       _connect: () ->
         console.log "%c[Socket] SocketModel -> _connect", debug.style
+        
+        if SETTING.MODE is "PRODUCTION"
+          @socket = io.connect("#{SETTING.PROTOCOL}://#{SETTING.PRODUCTION_HOST}:#{ SETTING.PORT + (~~(Math.random() * 4)) }/extension")
+        else
+          @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
 
-        @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
+        # @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
         # @socket = io("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
 
         @socket.on "connect", @_connectHandler.bind(@) # WebSocket が接続された時

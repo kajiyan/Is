@@ -3,9 +3,14 @@ module.exports = function( options ){
     options = {};
   };
 
+  // var defaults = {
+  //   m: "DEBUG", // mode
+  //   l: true     // is localhost
+  // };
+
   var defaults = {
-    m: "DEBUG", // mode
-    l: true     // is localhost
+    m: "PRODUCTION",
+    l: false
   };
 
   for (var key in options) {
@@ -27,7 +32,7 @@ module.exports = function( options ){
     index: ""
   };
 
-  setting.PRODUCTION_HOST = "54.65.140.79";
+  setting.PRODUCTION_HOST = "160.16.230.26";
   setting.PRODUCTION_PORT = 8001;
 
   setting.DEBUG_HOST = "localhost";
@@ -108,7 +113,7 @@ module.exports = function( options ){
         window.console = { log: noop };
       }
     } else if (setting.MODE === "PRODUCTION") {
-      window.console = { log: noop };
+      // window.console = { log: noop };
     }
 
     if ( window.location.hostname.indexOf(setting.PRODUCTION_HOST) >= 0 ) {
@@ -188,7 +193,7 @@ module.exports = function( options ){
     },
     FRAME_RATE: 24,
     REC_INTERVAL: 1000 * 60 * 1,
-    MEMORY_GET_INTERVAL: 1000 * 20,
+    MEMORY_GET_INTERVAL: 1000 * 30,
     MEMORY: {
       _id: '55e5c4b75ae10c89bf74c8fd',
       dayId: '20150902',

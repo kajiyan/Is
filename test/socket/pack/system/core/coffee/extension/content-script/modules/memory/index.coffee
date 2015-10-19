@@ -95,8 +95,9 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         chrome.storage.local.get isSound: true,
           (result) =>
             @_isSound = result.isSound
-
+        
         @_soundInstance = createjs.Sound.createInstance "soundNoise0"
+        @_soundInstance.pan = 0.0001
 
       # ------------------------------------------------------------
       tagName: "div"
@@ -355,11 +356,12 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
     MemoryModule.addInitializer (options) ->
       console.log "%c[Memory] addInitializer", debug.style, options
 
-      createAt = sn.moment(SETTING.CONFIG.MEMORY.createAt)
-      SETTING.CONFIG.MEMORY.createAt = createAt.format("DD MMMM YYYY [at] HH:mm")
+      # DEBUG
+      # createAt = sn.moment(SETTING.CONFIG.MEMORY.createAt)
+      # SETTING.CONFIG.MEMORY.createAt = createAt.format("DD MMMM YYYY [at] HH:mm")
+      # memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY])
 
-      memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY])
-      # memorysCollection = new MemorysCollection()
+      memorysCollection = new MemorysCollection()
 
       memorysCollectionView = new MemorysCollectionView
         collection: memorysCollection

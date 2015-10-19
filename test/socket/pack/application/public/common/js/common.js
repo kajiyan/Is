@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "//localhost:8001/";
+/******/ 	__webpack_require__.p = "//160.16.230.26/";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -9300,9 +9300,14 @@
 	    options = {};
 	  };
 	
+	  // var defaults = {
+	  //   m: "DEBUG", // mode
+	  //   l: true     // is localhost
+	  // };
+	
 	  var defaults = {
-	    m: "DEBUG", // mode
-	    l: true     // is localhost
+	    m: "PRODUCTION",
+	    l: false
 	  };
 	
 	  for (var key in options) {
@@ -9324,7 +9329,7 @@
 	    index: ""
 	  };
 	
-	  setting.PRODUCTION_HOST = "54.65.140.79";
+	  setting.PRODUCTION_HOST = "160.16.230.26";
 	  setting.PRODUCTION_PORT = 8001;
 	
 	  setting.DEBUG_HOST = "localhost";
@@ -9405,7 +9410,7 @@
 	        window.console = { log: noop };
 	      }
 	    } else if (setting.MODE === "PRODUCTION") {
-	      window.console = { log: noop };
+	      // window.console = { log: noop };
 	    }
 	
 	    if ( window.location.hostname.indexOf(setting.PRODUCTION_HOST) >= 0 ) {
@@ -9416,7 +9421,7 @@
 	      setting.BASE_PATH = "top/";
 	      setting.BASE_VIDEO_URL = "";
 	      setting.BASE_SOUND_URL = "";
-	      setting.BASE_IMG_URL = ""; 
+	      setting.BASE_IMG_URL = "";
 	    } else if ( window.location.hostname.indexOf(setting.DEBUG_HOST) >= 0 ){
 	      setting.PROTOCOL = "http";
 	      setting.HOST = setting.DEBUG_HOST;
@@ -9485,7 +9490,7 @@
 	    },
 	    FRAME_RATE: 24,
 	    REC_INTERVAL: 1000 * 60 * 1,
-	    MEMORY_GET_INTERVAL: 1000 * 20,
+	    MEMORY_GET_INTERVAL: 1000 * 30,
 	    MEMORY: {
 	      _id: '55e5c4b75ae10c89bf74c8fd',
 	      dayId: '20150902',

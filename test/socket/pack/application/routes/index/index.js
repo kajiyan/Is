@@ -34,7 +34,6 @@ RouteIndex = (function() {
     // ------------------------------------------------------------
     router.get('/', function(req, res, next) {
       res.end();
-      
       // var keyData = {};
       // res.render('index.swig.html', keyData);
     });

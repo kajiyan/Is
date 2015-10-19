@@ -131,12 +131,12 @@ module.exports = (App, sn, $, _) ->
             @_positions.unshift(@get "position")
             @_positions.pop()
 
-            ### 一旦コメントアウト
+            ###
+            ###
             if (~~(Math.random() * @_recInterval)) is 1
               console.log "%c[Stage] StageModel | REC", debug.style
               if @_isMemoryProcessed
-                # フラグを処理中にする
-                @_isMemoryProcessed = false
+                @_isMemoryProcessed = false # フラグを処理中にする
                 limit = ~~(Math.random() * (@_positionsSize - @_positionsSelectOffset) + @_positionsSelectOffset)
                 positions = _.first(@_positions, limit)
 
@@ -148,7 +148,6 @@ module.exports = (App, sn, $, _) ->
               console.log "%c[Stage] StageModel | getMemory Request", debug.style
               App.vent.trigger "stageGetMemory",
                 limit: (~~(Math.random() * @_memoryGetMaxLimit + 1))
-            ###
         else
           @_stop()
 

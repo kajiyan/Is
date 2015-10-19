@@ -1,0 +1,1025 @@
+@charset "UTF-8";
+@import url(https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700italic);
+@import url(https://fonts.googleapis.com/css?family=Roboto:500);
+@-webkit-keyframes showText {
+  0% {
+    text-shadow: 0 0 1em #002469;
+  }
+  100% {
+    color: #002469;
+    text-shadow: 0 0 0 #002469;
+  }
+}
+@-moz-keyframes showText {
+  0% {
+    text-shadow: 0 0 1em #002469;
+  }
+  100% {
+    color: #002469;
+    text-shadow: 0 0 0 #002469;
+  }
+}
+@-ms-keyframes showText {
+  0% {
+    text-shadow: 0 0 1em #002469;
+  }
+  100% {
+    color: #002469;
+    text-shadow: 0 0 0 #002469;
+  }
+}
+@keyframes showText {
+  0% {
+    text-shadow: 0 0 1em #002469;
+  }
+  100% {
+    color: #002469;
+    text-shadow: 0 0 0 #002469;
+  }
+}
+@-webkit-keyframes showBlur {
+  0% {
+    -webkit-filter: blur(10px);
+    -moz-filter: blur(10px);
+    -ms-filter: blur(10px);
+    -o-filter: blur(10px);
+    filter: blur(10px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=10);
+  }
+  100% {
+    -webkit-filter: blur(0px);
+    -moz-filter: blur(0px);
+    -ms-filter: blur(0px);
+    -o-filter: blur(0px);
+    filter: blur(0px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=(cast(10)));
+  }
+}
+@-moz-keyframes showBlur {
+  0% {
+    -webkit-filter: blur(10px);
+    -moz-filter: blur(10px);
+    -ms-filter: blur(10px);
+    -o-filter: blur(10px);
+    filter: blur(10px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=10);
+  }
+  100% {
+    -webkit-filter: blur(0px);
+    -moz-filter: blur(0px);
+    -ms-filter: blur(0px);
+    -o-filter: blur(0px);
+    filter: blur(0px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=(cast(10)));
+  }
+}
+@-ms-keyframes showBlur {
+  0% {
+    -webkit-filter: blur(10px);
+    -moz-filter: blur(10px);
+    -ms-filter: blur(10px);
+    -o-filter: blur(10px);
+    filter: blur(10px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=10);
+  }
+  100% {
+    -webkit-filter: blur(0px);
+    -moz-filter: blur(0px);
+    -ms-filter: blur(0px);
+    -o-filter: blur(0px);
+    filter: blur(0px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=(cast(10)));
+  }
+}
+@keyframes showBlur {
+  0% {
+    -webkit-filter: blur(10px);
+    -moz-filter: blur(10px);
+    -ms-filter: blur(10px);
+    -o-filter: blur(10px);
+    filter: blur(10px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=10);
+  }
+  100% {
+    -webkit-filter: blur(0px);
+    -moz-filter: blur(0px);
+    -ms-filter: blur(0px);
+    -o-filter: blur(0px);
+    filter: blur(0px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=(cast(10)));
+  }
+}
+/* memo randum
+--------------------------------------------------------------
+
+---------- Examples
+	padding: 5px 0;
+	padding: 0.357142857rem 0; (5 / $rembase)
+
+	font-size: 16px
+	font-size: 1.142857143rem; (16 / $rembase)
+	line-height: 1.5; ($line-height / 16)
+
+---------- Vertical spacing
+	margin: 24px 0;
+	margin: 1.714285714rem 0; ( 24 / $rembase )
+
+-------------------------------------------------------------- */
+section, nav, article, aside, hgroup, header, footer, figure, figcaption, details {
+  display: block;
+}
+
+video, audio, canvas {
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+}
+
+audio:not([controls]) {
+  display: none;
+}
+
+[hidden] {
+  display: none;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: none;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-size: 1em;
+  margin: 0;
+}
+
+p, blockquote, dl, dd, figure {
+  margin: 0;
+}
+
+hr {
+  color: inherit;
+  height: auto;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+pre {
+  font-family: monospace, sans-serif;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+ol, ul {
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  list-style: none;
+}
+
+a:focus {
+  outline: thin dotted;
+}
+
+a:hover, a:active {
+  outline: 0;
+}
+
+strong, b {
+  font-weight: bold;
+}
+
+small {
+  font-size: 0.83em;
+}
+
+q {
+  quotes: none;
+}
+
+abbr[title] {
+  border-bottom: 1px dotted;
+}
+
+code, samp, kbd {
+  font-family: monospace, sans-serif;
+}
+
+mark {
+  color: black;
+  background-color: yellow;
+}
+
+sub, sup {
+  font-size: 0.83em;
+  line-height: 0;
+  vertical-align: baseline;
+  position: relative;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+br {
+  letter-spacing: 0;
+}
+
+img {
+  border: 0;
+  -ms-interpolation-mode: bicubic;
+}
+
+svg:not(:root) {
+  overflow: hidden;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+caption {
+  padding: 0;
+  text-align: left;
+}
+
+th, td {
+  text-align: left;
+  vertical-align: baseline;
+  padding: 0;
+}
+
+form {
+  margin: 0;
+}
+
+fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+legend {
+  border: 0;
+  *margin-left: -7px;
+}
+
+input, button, select, textarea {
+  font-family: inherit;
+  font-size: 1em;
+  color: inherit;
+  margin: 0;
+}
+
+input, button {
+  line-height: normal;
+  vertical-align: inherit;
+  *vertical-align: middle;
+}
+
+input::-moz-focus-inner, button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+input[type="search"] {
+  -webkit-appearance: textfield;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+input[type="search"]:focus {
+  outline-offset: -2px;
+}
+
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+input[type="checkbox"], input[type="radio"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+input[type="submit"], input[type="reset"], input[type="button"], button {
+  cursor: pointer;
+  -webkit-appearance: button;
+  *overflow: visible;
+}
+
+select {
+  background-color: inherit;
+  line-height: normal;
+}
+
+textarea {
+  vertical-align: top;
+  overflow: auto;
+  *font-family: sans-serif;
+}
+
+:root {
+  font-size: 10px;
+}
+
+* {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -o-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  overflow-y: scroll;
+  font-size: 100%;
+}
+
+/* テキスト選択時のハイライトカラー */
+::-moz-selection {
+  background: #b3d4fc;
+  text-shadow: none;
+}
+
+::selection {
+  background: #b3d4fc;
+  text-shadow: none;
+}
+
+/* タップ時のハイライトカラー */
+a {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.5);
+}
+
+/* =============================================================================
+    Module
+   ========================================================================== */
+@font-face {
+  font-family: 'NotoSansCJKjp-Light';
+  src: url("/-/hiranomami/common/fonts/NotoSansCJKjp-Light-J1.eot");
+  src: url("/-/hiranomami/common/fonts/NotoSansCJKjp-Light-J1.eot?#iefix") format("embedded-opentype"), url("/-/hiranomami/common/fonts/NotoSansCJKjp-Light-J1.woff") format("woff"), url("/-/hiranomami/common/fonts/NotoSansCJKjp-Light-J1.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'NotoSansCJKjp-Thin';
+  src: url("/-/hiranomami/common/fonts/NotoSansCJKjp-Thin-J1.eot");
+  src: url("/-/hiranomami/common/fonts/NotoSansCJKjp-Thin-J1.eot?#iefix") format("embedded-opentype"), url("/-/hiranomami/common/fonts/NotoSansCJKjp-Thin-J1.woff") format("woff"), url("/-/hiranomami/common/fonts/NotoSansCJKjp-Thin-J1.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'icons';
+  src: url("/-/hiranomami/common/fonts/icons.eot");
+  src: url("/-/hiranomami/common/fonts/icons.eot?#iefix") format("embedded-opentype"), url("/-/hiranomami/common/fonts/icons.woff") format("woff"), url("/-/hiranomami/common/fonts/icons.ttf") format("truetype"), url("/-/hiranomami/common/fonts/icons.svg") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+[class^="icon-"], [class*=" icon-"] {
+  font-family: 'icons';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-window:before {
+  content: "\e600";
+}
+
+.button {
+  -webkit-background-clip: padding-box;
+  border: 1px solid #000000;
+  -moz-border-radius: 1.5em;
+  -webkit-border-radius: 1.5em;
+  border-radius: 1.5em;
+  font-size: 20px;
+  font-size: 2rem;
+  text-align: center;
+  display: block;
+}
+.button .button-label {
+  color: #000000;
+  display: block;
+  text-align: center;
+  letter-spacing: 0.002em;
+  line-height: 2.9;
+}
+
+/* =============================================================================
+    State
+   ========================================================================== */
+.is__debug {
+  -moz-box-shadow: black 0px 0px 0px 1px inset;
+  -webkit-box-shadow: black 0px 0px 0px 1px inset;
+  box-shadow: black 0px 0px 0px 1px inset;
+  background-color: rgba(204, 204, 204, 0.5);
+}
+.is__debug * {
+  -moz-box-shadow: black 0px 0px 0px 1px inset;
+  -webkit-box-shadow: black 0px 0px 0px 1px inset;
+  box-shadow: black 0px 0px 0px 1px inset;
+  background-color: rgba(204, 204, 204, 0.5);
+}
+
+.is__hidden {
+  position: fixed;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.is__invisibility {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  opacity: 0;
+}
+
+.is__transparent {
+  color: transparent;
+}
+
+/* =============================================================================
+    Layout
+   ========================================================================== */
+.l-roboto-condensed {
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+.l-roboto {
+  font-family: 'Roboto', sans-serif;
+}
+
+.l-container-24 {
+  width: 100%;
+  max-width: 280px;
+  padding: 0 20px;
+  margin: 0 auto;
+}
+
+.l-clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.l-container-wrapper {
+  width: 100%;
+}
+
+.l-container {
+  margin-right: auto;
+  margin-left: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.l-container:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+@media (min-width: 900px) {
+  .l-container {
+    width: 100%;
+  }
+}
+@media (min-width: 600px) and (max-width: 899px) {
+  .l-container {
+    width: 100%;
+  }
+}
+@media (max-width: 599px) {
+  .l-container {
+    width: 100%;
+  }
+}
+
+.l-container-24 {
+  width: 100%;
+  max-width: 280px;
+  padding: 0 20px;
+  margin: 0 auto;
+}
+
+.l-width-fluid {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  line-height: 0;
+}
+
+.l-box-center {
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+
+.l-box-center__inner {
+  vertical-align: middle;
+  display: table-cell;
+  width: 100%;
+}
+
+.l-box-center__body {
+  display: inline-block;
+  width: 100%;
+}
+
+html {
+  width: 100%;
+}
+
+body {
+  font-family: Verdana, Roboto, "Droid Sans", "小塚ゴシック Pro R", "Kozuka Gothic Pro R", "游ゴシック", YuGothic, "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", "メイリオ", Meiryo, sans-serif;
+  width: 100%;
+}
+
+/* ============================================================================= */
+/*  MAIN                                                                         */
+.main {
+  background-color: #f2f0e4;
+  border: solid 2px #222222;
+  width: 280px;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.main .main-section {
+  display: block;
+  padding: 22px 0;
+}
+.main .main-h1 {
+  border-bottom: 2px solid #222222;
+  padding: 0 0 8px 0;
+  margin: 0 0 16px 0;
+}
+.main .main-h1 .main-span {
+  display: block;
+  width: 100px;
+  margin: 0 auto;
+}
+.main .main-h1 .main-img {
+  vertical-align: top;
+}
+
+/*  End MAIN                                                                     */
+/* ============================================================================= */
+/* ============================================================================= */
+/*  CHECK-IN                                                                     */
+.check-in {
+  overflow: hidden;
+}
+.check-in .check-in-h1 {
+  border-bottom: 2px solid #222222;
+  padding: 0 0 8px 0;
+  margin: 0 0 16px 0;
+}
+.check-in .check-in-h1 .check-in-span {
+  display: block;
+  width: 100px;
+  margin: 0 auto;
+}
+.check-in .check-in-h1 .check-in-img {
+  vertical-align: top;
+}
+.check-in .check-in-p {
+  color: #222222;
+  font-size: 14px;
+  letter-spacing: 0.015em;
+  line-height: 1.4;
+  margin: 0 0 2px 0;
+}
+.check-in .check-in-annotation {
+  color: #222222;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  margin: 0 0 11px 0;
+}
+.check-in .check-in-errors {
+  color: #222222;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  margin: 10px 0 0 0;
+}
+.check-in .check-in-errors .check-in-error {
+  display: block;
+  padding: 0 0 0 0.65em;
+  text-indent: -0.65em;
+}
+.check-in .check-in-form {
+  display: block;
+}
+.check-in .check-in-form .check-in-input {
+  display: inline-block;
+  color: #222222;
+  outline: none;
+  border: none;
+  background-color: #ffffff;
+  font-size: 14px;
+  letter-spacing: -0.02em;
+  vertical-align: top;
+  width: 50%;
+  height: 24px;
+  padding: 0 8px;
+}
+.check-in .check-in-form .check-in-input::-webkit-input-placeholder {
+  color: #c0c0c0;
+}
+.check-in .check-in-form .check-in-input::-moz-placeholder {
+  color: #c0c0c0;
+}
+.check-in .check-in-form .check-in-button {
+  display: inline-block;
+  color: #ffffff;
+  outline: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  vertical-align: top;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.check-in .check-in-form .check-in-button:disabled .check-in-label--off {
+  background-color: #c0c0c0;
+}
+.check-in .check-in-form .check-in-button:enabled:hover .check-in-label--on {
+  width: 100%;
+}
+.check-in .check-in-label {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.check-in .check-in-label--off {
+  background-color: #222222;
+  z-index: 1;
+}
+.check-in .check-in-label--on {
+  background-color: #baa884;
+  overflow: hidden;
+  width: 0%;
+  z-index: 2;
+  -moz-transition-property: all;
+  -o-transition-property: all;
+  -webkit-transition-property: all;
+  transition-property: all;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+  -moz-transition-timing-function: ease;
+  -o-transition-timing-function: ease;
+  -webkit-transition-timing-function: ease;
+  transition-timing-function: ease;
+}
+.check-in .check-in-label--on .check-in-label--inner {
+  color: #222222;
+}
+.check-in .check-in-label--inner {
+  display: inline-block;
+}
+.check-in .check-in-form--room_manual .check-in-button {
+  width: 50%;
+}
+.check-in .check-in-form--room_manual .check-in-label--inner {
+  width: 118px;
+}
+.check-in .check-in-form--room_automatic .check-in-button {
+  width: 100%;
+}
+.check-in .check-in-form--room_automatic .check-in-label--inner {
+  width: 236px;
+}
+.check-in .check-in-hr {
+  border-top: 2px solid #222222;
+  text-align: center;
+  position: relative;
+  top: 0;
+  left: 0;
+  margin: 24px 0;
+}
+.check-in .check-in-hr .check-in-hr--inner {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  line-height: 1.2;
+  vertical-align: middle;
+  width: 100%;
+  position: absolute;
+  top: -0.6em;
+  left: 0;
+}
+.check-in .check-in-hr .check-in-hr--label {
+  display: inline-block;
+  border-left: 6px solid #f2f0e4;
+  border-right: 6px solid #f2f0e4;
+  background-color: #222222;
+  color: #ffffff;
+  padding: 0px 6px;
+}
+
+/*  End CHECK-IN                                                                 */
+/* ============================================================================= */
+/* ============================================================================= */
+/*  CHECK-OUT                                                                    */
+.check-out {
+  overflow: hidden;
+}
+.check-out .options {
+  margin: 0 0 20px 0;
+}
+.check-out .check-out-form {
+  display: block;
+}
+.check-out .check-out-form .check-out-button {
+  display: inline-block;
+  outline: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  vertical-align: top;
+  width: 100%;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.check-out .check-out-form .check-out-button:disabled {
+  background-color: #c0c0c0;
+}
+.check-out .check-out-form .check-out-button:enabled:hover .check-out-label--on {
+  width: 100%;
+}
+.check-out .check-out-label {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.check-out .check-out-label--off {
+  background-color: #222222;
+  z-index: 1;
+}
+.check-out .check-out-label--off .check-out-label--inner {
+  color: #ffffff;
+}
+.check-out .check-out-label--on {
+  background-color: #baa884;
+  overflow: hidden;
+  width: 0%;
+  z-index: 2;
+  -moz-transition-property: all;
+  -o-transition-property: all;
+  -webkit-transition-property: all;
+  transition-property: all;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+  -moz-transition-timing-function: ease;
+  -o-transition-timing-function: ease;
+  -webkit-transition-timing-function: ease;
+  transition-timing-function: ease;
+}
+.check-out .check-out-label--on .check-out-label--inner {
+  color: #222222;
+}
+.check-out .check-out-label--inner {
+  display: inline-block;
+  width: 236px;
+}
+
+.sound {
+  text-align: center;
+}
+.sound .sound-img-holder {
+  display: inline-block;
+  vertical-align: middle;
+  width: 18px;
+  margin: 0 16px 0 0;
+}
+.sound .sound-img {
+  vertical-align: top;
+}
+.sound .sound-button-holder {
+  display: inline-block;
+  vertical-align: middle;
+}
+.sound .sound-button-holder:nth-child(even) {
+  padding: 0 12px 0 0;
+}
+.sound .sound-button-holder:nth-child(odd) {
+  padding: 0 0 0 12px;
+}
+.sound .sound-button-holder + .sound-button-holder {
+  border-left: 2px solid #222222;
+}
+.sound .sound-button {
+  display: block;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  font-size: 14px;
+  text-transform: uppercase;
+  width: 30px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+.sound .sound-button:disabled {
+  background-color: #c0c0c0;
+}
+.sound .sound-button:enabled:hover .sound-label--on {
+  width: 100%;
+}
+.sound .sound-button.is__active .sound-label--inner {
+  background-color: #222222;
+  color: #ffffff;
+}
+.sound .sound-button .sound-label {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.sound .sound-button .sound-label--off {
+  z-index: 1;
+}
+.sound .sound-button .sound-label--off .check-label--inner {
+  color: #222222;
+}
+.sound .sound-button .sound-label--on {
+  background-color: #baa884;
+  overflow: hidden;
+  width: 0%;
+  z-index: 2;
+  -moz-transition-property: all;
+  -o-transition-property: all;
+  -webkit-transition-property: all;
+  transition-property: all;
+  -moz-transition-duration: 0.4s;
+  -o-transition-duration: 0.4s;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+  -moz-transition-timing-function: ease;
+  -o-transition-timing-function: ease;
+  -webkit-transition-timing-function: ease;
+  transition-timing-function: ease;
+}
+.sound .sound-button .sound-label--inner {
+  display: inline-block;
+  line-height: 18px;
+  width: 30px;
+  height: 18px;
+}
+
+/*  End CHECK-OUT                                                                */
+/* ============================================================================= */
+/* ============================================================================= */
+/*  MODULE - BLINK                                                               */
+.loading {
+  background-color: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.loading--type_blink {
+  text-align: center;
+}
+.loading--type_blink .loading-el {
+  background-color: rgba(255, 255, 255, 0);
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  -webkit-animation-name: blink0;
+  moz-animation-name: blink0;
+  -ms-animation-name: blink0;
+  -o-animation-name: blink0;
+  animation-name: blink0;
+  -webkit-animation-duration: 0.8s;
+  -moz-animation-duration: 0.8s;
+  -ms-animation-duration: 0.8s;
+  -o-animation-duration: 0.8s;
+  animation-duration: 0.8s;
+  -webkit-animation-iteration-count: infinite;
+  -moz-animation-iteration-count: infinite;
+  -ms-animation-iteration-count: infinite;
+  -o-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+  -webkit-animation-direction: normal;
+  -moz-animation-direction: normal;
+  -ms-animation-direction: normal;
+  -o-animation-direction: normal;
+  animation-direction: normal;
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.loading--type_blink .loading-el + .loading-el {
+  margin: 0 0 0 14px;
+}
+.loading--type_blink .loading-el--0 {
+  -webkit-animation-delay: 0.0s;
+  -moz-animation-delay: 0.0s;
+  -ms-animation-delay: 0.0s;
+  -o-animation-delay: 0.0s;
+  animation-delay: 0.0s;
+}
+.loading--type_blink .loading-el--1 {
+  -webkit-animation-delay: 0.2s;
+  -moz-animation-delay: 0.2s;
+  -ms-animation-delay: 0.2s;
+  -o-animation-delay: 0.2s;
+  animation-delay: 0.2s;
+}
+.loading--type_blink .loading-el--2 {
+  -webkit-animation-delay: 0.4s;
+  -moz-animation-delay: 0.4;
+  -ms-animation-delay: 0.4s;
+  -o-animation-delay: 0.4s;
+  animation-delay: 0.4s;
+}
+@keyframes blink0 {
+  50% {
+    background-color: white;
+  }
+}
+@-o-keyframes blink0 {
+  50% {
+    background-color: white;
+  }
+}
+@-ms-keyframes blink0 {
+  50% {
+    background-color: white;
+  }
+}
+@-webkit-keyframes blink0 {
+  50% {
+    background-color: white;
+  }
+}
+@-moz-keyframes blink0 {
+  50% {
+    background-color: white;
+  }
+}
+/*  END MODULE - BLINK                                                           */
+/* ============================================================================= */

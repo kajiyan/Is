@@ -29,7 +29,7 @@ module.exports = (sn) ->
         # オブジェクトを取得
         @_getElements()
 
-        # イベント関係のの設定
+        # イベント関係の設定
         @_events()
 
         onDone()
