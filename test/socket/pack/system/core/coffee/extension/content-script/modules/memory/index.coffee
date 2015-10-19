@@ -270,7 +270,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         console.log "%c[Memory] MemoryItemView -> _showCreateAt", debug.style
         return $.Deferred (defer) =>
           Velocity.animate @ui.createAt,
-            width: @ui.createAtInner.width()
+            width: @ui.createAtInner.outerWidth()
           ,
             duration: 400
             delay: 0
@@ -357,11 +357,11 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       console.log "%c[Memory] addInitializer", debug.style, options
 
       # DEBUG
-      # createAt = sn.moment(SETTING.CONFIG.MEMORY.createAt)
-      # SETTING.CONFIG.MEMORY.createAt = createAt.format("DD MMMM YYYY [at] HH:mm")
-      # memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY])
+      createAt = sn.moment(SETTING.CONFIG.MEMORY.createAt)
+      SETTING.CONFIG.MEMORY.createAt = createAt.format("DD MMMM YYYY [at] HH:mm")
+      memorysCollection = new MemorysCollection([SETTING.CONFIG.MEMORY])
 
-      memorysCollection = new MemorysCollection()
+      # memorysCollection = new MemorysCollection()
 
       memorysCollectionView = new MemorysCollectionView
         collection: memorysCollection

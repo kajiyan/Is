@@ -107,8 +107,12 @@ Day = (function() {
           port = ':' + config['port'];
         }
 
-        // process.env
-        result = config.protocol + '://' + config.host + port + '/memorys/' + this.dayId + '/' + this._id;
+        if (process.env.NODE_ENV === 'production') {
+          result = config.protocol + '://' + config.host + '/not-found/extention/memorys/' + this.dayId + '/' + this._id;
+        } else {
+          result = config.protocol + '://' + config.host + port + '/memorys/' + this.dayId + '/' + this._id;
+        }
+        
         return result;
       });
 
@@ -122,23 +126,14 @@ Day = (function() {
           port = ':' + config['port'];
         }
 
-        result = config.protocol + '://' + config.host + port + '/memorys/' + this.dayId + '/' + this._id + this.ext;
+        if (process.env.NODE_ENV === 'production') {
+          result = config.protocol + '://' + config.host + '/not-found/extention/memorys/' + this.dayId + '/' + this._id + this.ext;
+        } else {
+          result = config.protocol + '://' + config.host + port + '/memorys/' + this.dayId + '/' + this._id + this.ext;
+        }
+
         return result;
       });
-
-    // MemorySchema
-    //   .virtual('imgSrc')
-    //   .get(function() {
-    //     var result = '';
-    //     var port = '';
-         
-    //     if (config['port'] !== null) {
-    //       port = ':' + config['port'];
-    //     }
-
-    //     result = '//' + config.host + port + '/memorys/' + this.dayId + '/' + this._id + this.ext;
-    //     return result;
-    //   });
 
 
     // ManualRoom Schema の定義

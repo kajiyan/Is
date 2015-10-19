@@ -25531,11 +25531,7 @@
 	      },
 	      _connect: function() {
 	        console.log("%c[Socket] SocketModel -> _connect", debug.style);
-	        if (SETTING.MODE === "PRODUCTION") {
-	          this.socket = io.connect(SETTING.PROTOCOL + "://" + SETTING.PRODUCTION_HOST + ":" + (SETTING.PORT + (~~(Math.random() * 4))) + "/extension");
-	        } else {
-	          this.socket = io.connect(SETTING.PROTOCOL + ":" + SETTING.BASE_URL + "extension");
-	        }
+	        this.socket = io.connect(SETTING.PROTOCOL + "://localhost:8001/extension");
 	        this.socket.on("connect", this._connectHandler.bind(this));
 	        this.socket.on("error", this._socketErrorHandler.bind(this));
 	        this.socket.on("disconnect", this._disconnectHandler.bind(this));
