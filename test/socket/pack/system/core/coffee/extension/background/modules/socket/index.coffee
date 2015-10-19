@@ -89,13 +89,13 @@ module.exports = (App, sn, $, _) ->
       _connect: () ->
         console.log "%c[Socket] SocketModel -> _connect", debug.style
         
-        # if SETTING.MODE is "PRODUCTION"
-        #   @socket = io.connect("#{SETTING.PROTOCOL}://#{SETTING.PRODUCTION_HOST}:#{ SETTING.PORT + (~~(Math.random() * 4)) }/extension")
-        # else
-        #   @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
+        if SETTING.MODE is "PRODUCTION"
+          @socket = io.connect("#{SETTING.PROTOCOL}://#{SETTING.PRODUCTION_HOST}:#{ SETTING.PORT + (~~(Math.random() * 4)) }/extension")
+        else
+          @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
 
         # DEBUG
-        @socket = io.connect("#{SETTING.PROTOCOL}://localhost:8001/extension");
+        # @socket = io.connect("#{SETTING.PROTOCOL}://localhost:8001/extension");
 
         # @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
         # @socket = io("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");

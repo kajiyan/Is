@@ -9410,7 +9410,7 @@
 	        window.console = { log: noop };
 	      }
 	    } else if (setting.MODE === "PRODUCTION") {
-	      // window.console = { log: noop };
+	      window.console = { log: noop };
 	    }
 	
 	    if ( window.location.hostname.indexOf(setting.PRODUCTION_HOST) >= 0 ) {
