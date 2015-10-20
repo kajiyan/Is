@@ -9997,7 +9997,6 @@
 	    function TypeFrameWork(options) {
 	      this._get_root_path = bind(this._get_root_path, this);
 	      this._get_relative_path = bind(this._get_relative_path, this);
-	      this.devicemotionProcess = bind(this.devicemotionProcess, this);
 	      this.fullScreenChangeProcess = bind(this.fullScreenChangeProcess, this);
 	      this.orientationChangeProcess = bind(this.orientationChangeProcess, this);
 	      this.windowScrollProcess = bind(this.windowScrollProcess, this);
@@ -10040,9 +10039,6 @@
 	        $window.on("orientationchange", this.orientationChangeProcess);
 	      }
 	      $window.on("fullscreenchange webkitfullscreenchange mozfullscreenchange msfullscreenchange", this.fullScreenChangeProcess);
-	      if (sn.support.addEventListener) {
-	        window.addEventListener("devicemotion", this.devicemotionProcess);
-	      }
 	    }
 	
 	    TypeFrameWork.prototype.setup = function(method) {
@@ -10779,23 +10775,6 @@
 	
 	    TypeFrameWork.prototype.fullScreenChangeProcess = function() {
 	      this._fullScreenChange(this.isFullScreen());
-	    };
-	
-	    TypeFrameWork.prototype.devicemotionProcess = function(e) {
-	      var acceleration, accelerationIncludingGravity, rotationRate;
-	      e.preventDefault();
-	      acceleration = e.acceleration;
-	      accelerationIncludingGravity = e.accelerationIncludingGravity;
-	      rotationRate = e.rotationRate;
-	      this.accelerationX = acceleration.x;
-	      this.accelerationY = acceleration.y;
-	      this.accelerationZ = acceleration.z;
-	      this.gravityX = accelerationIncludingGravity.x;
-	      this.gravityY = accelerationIncludingGravity.y;
-	      this.gravityZ = accelerationIncludingGravity.z;
-	      this.rotationA = rotationRate.alpha;
-	      this.rotationB = rotationRate.beta;
-	      this.rotationG = rotationRate.gamma;
 	    };
 	
 	    TypeFrameWork.prototype.type = function(obj) {

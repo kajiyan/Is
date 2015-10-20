@@ -78,19 +78,22 @@ Extension = (function() {
         //   return;
         // }
 
-        var joinRoomDocId = ''; // 所属するRoom Document のID
-        var joinRoomId = ''; // 所属するRoom ID
+        socket.__joinRoomDocId = ''; // 所属するRoom Document のID
+        socket.__joinRoomId = ''; // 所属するRoom ID
+
+        // var joinRoomDocId = ''; // 所属するRoom Document のID
+        // var joinRoomId = ''; // 所属するRoom ID
 
         // --------------------------------------------------------------
         // 接続が切れるとroom をデクリメントする
         socket.on('disconnect', function() {
-          console.log('[Controller] Extension -> disconnect', joinRoomId, joinRoomDocId);
+          console.log('[Controller] Extension -> disconnect', socket.__joinRoomId, socket.__joinRoomDocId);
 
-          capacity = config.roomCapacity - _.keys(_this._extensionSocketIo.adapter.rooms[joinRoomId]).length;
+          capacity = config.roomCapacity - _.keys(_this._extensionSocketIo.adapter.rooms[socket.__joinRoomId]).length;
 
           // 同じRoom に所属するユーザーにSocket ID を送信する
           _this._extensionSocketIo
-            .to(joinRoomId)
+            .to(socket.__joinRoomId)
             .emit('checkOut', {
               'id': socket.id
             });
@@ -99,7 +102,7 @@ Extension = (function() {
           _this._dayModel.updateAutomaticRoom({
             'query': {
               'conditions': {
-                '_id': joinRoomDocId
+                '_id': socket.__joinRoomDocId
               },
               'update': {
                 'capacity': capacity
@@ -160,10 +163,10 @@ Extension = (function() {
                 .then(
                   function(data) {
                     if (data.ok) {
-                      joinRoomDocId = manualRoom._id;
-                      joinRoomId = 'M-' + manualRoom.roomId;
-                      console.log('join - ' + joinRoomId);
-                      socket.join(joinRoomId);
+                      socket.__joinRoomDocId = manualRoom._id;
+                      socket.__joinRoomId = 'M-' + manualRoom.roomId;
+                      console.log('join - ' + socket.__joinRoomId);
+                      socket.join(socket.__joinRoomId);
                       callback({ status: 'success' });
                     }
                   },
@@ -197,10 +200,10 @@ Extension = (function() {
                       .then(
                         function(data) {
                           if (data.ok) {
-                            joinRoomDocId = manualRoom._id;
-                            joinRoomId = 'M-' + manualRoom.roomId;
-                            console.log('join - ' + joinRoomId);
-                            socket.join(joinRoomId);
+                            socket.__joinRoomDocId = manualRoom._id;
+                            socket.__joinRoomId = 'M-' + manualRoom.roomId;
+                            console.log('join - ' + socket.__joinRoomId);
+                            socket.join(socket.__joinRoomId);
                             callback({ status: 'success' });
                           }
                         },
@@ -282,10 +285,10 @@ Extension = (function() {
                     // update に成功したAutomaticRoomへjoinする
                     if (data.ok) {
                       // disconnectの際に使うMongoID
-                      joinRoomDocId = automaticRooms[index]._id;
-                      joinRoomId = 'A-' + automaticRooms[index].roomId;
-                      console.log('join - ' + joinRoomId);
-                      socket.join(joinRoomId);
+                      socket.__joinRoomDocId = automaticRooms[index]._id;
+                      socket.__joinRoomId = 'A-' + automaticRooms[index].roomId;
+                      console.log('join - ' + socket.__joinRoomId);
+                      socket.join(socket.__joinRoomId);
                       callback({ status: 'success' });
                     }
                   },
@@ -362,7 +365,7 @@ Extension = (function() {
             // ポインターの初期値を送信者以外に送る
             socket
               .broadcast
-              .to(joinRoomId)
+              .to(socket.__joinRoomId)
               .emit('addUser', {
                 'id': socket.id,
                 'position': {
@@ -417,7 +420,7 @@ Extension = (function() {
             
             socket
               .broadcast
-              .to(joinRoomId)
+              .to(socket.__joinRoomId)
               .emit('updateLocation', {
                 'id': socket.id,
                 'link': data.link
@@ -437,7 +440,7 @@ Extension = (function() {
 
             socket
               .broadcast
-              .to(joinRoomId)
+              .to(socket.__joinRoomId)
               .emit('updateWindowSize', {
                 'id': socket.id,
                 'window': windowSize
@@ -453,7 +456,7 @@ Extension = (function() {
           // _this._extensionSocketIo
           socket
             .broadcast
-            .to(joinRoomId)
+            .to(socket.__joinRoomId)
             .emit('updatePointer', {
               'id': socket.id,
               'position': position
@@ -474,7 +477,7 @@ Extension = (function() {
           // 同じRoom に所属するユーザーにスクリーンショットをBase64 で発信する
           socket
             .broadcast
-            .to(joinRoomId)
+            .to(socket.__joinRoomId)
             .emit('updateLandscape', {
               'id': socket.id,
               'landscape': data.landscape
@@ -602,8 +605,8 @@ Extension = (function() {
     //   var keyData = {
     //     roomId: 'debug8'
     //   };
-    //   var joinRoomDocId = '';
-    //   var joinRoomId = '';
+    //   var socket.__joinRoomDocId = '';
+    //   var socket.__joinRoomId = '';
     //   var response = {};
     //   Q.fcall(
     //     function(){
@@ -641,11 +644,11 @@ Extension = (function() {
     //       .then(
     //         function(data) {
     //           if (data.ok) {
-    //             joinRoomDocId = manualRoom._id;
-    //             joinRoomId = 'M-' + manualRoom.roomId;
+    //             socket.__joinRoomDocId = manualRoom._id;
+    //             socket.__joinRoomId = 'M-' + manualRoom.roomId;
 
-    //             console.log('join - ' + joinRoomId);
-    //             // socket.join(joinRoomId);
+    //             console.log('join - ' + socket.__joinRoomId);
+    //             // socket.join(socket.__joinRoomId);
 
     //             // これが呼ばれるとclient 側のjoin emit 第3引数を呼び出す
     //             callback({
@@ -690,11 +693,11 @@ Extension = (function() {
     //             .then(
     //               function(data) {
     //                 if (data.ok) {
-    //                   joinRoomDocId = manualRoom._id;
-    //                   joinRoomId = 'M-' + manualRoom.roomId;
+    //                   socket.__joinRoomDocId = manualRoom._id;
+    //                   socket.__joinRoomId = 'M-' + manualRoom.roomId;
 
-    //                   console.log('join - ' + joinRoomId);
-    //                   // socket.join(joinRoomId);
+    //                   console.log('join - ' + socket.__joinRoomId);
+    //                   // socket.join(socket.__joinRoomId);
 
     //                   callback({ status: 'success' });
     //                 }

@@ -109,8 +109,8 @@ module.exports = (window=window, document=document, $=jQuery) ->
       # fullscreen change event
       $window.on "fullscreenchange webkitfullscreenchange mozfullscreenchange msfullscreenchange", @fullScreenChangeProcess
 
-      if sn.support.addEventListener
-        window.addEventListener "devicemotion", @devicemotionProcess
+      # if sn.support.addEventListener
+      #   window.addEventListener "devicemotion", @devicemotionProcess
 
 
     #--------------------------------------------------------------
@@ -758,25 +758,25 @@ module.exports = (window=window, document=document, $=jQuery) ->
  
  
     #--------------------------------------------------------------
-    devicemotionProcess: (e) =>
-      e.preventDefault()
+    # devicemotionProcess: (e) =>
+    #   e.preventDefault()
  
-      acceleration = e.acceleration
-      accelerationIncludingGravity = e.accelerationIncludingGravity
-      rotationRate = e.rotationRate
+    #   acceleration = e.acceleration
+    #   accelerationIncludingGravity = e.accelerationIncludingGravity
+    #   rotationRate = e.rotationRate
  
-      @accelerationX = acceleration.x
-      @accelerationY = acceleration.y
-      @accelerationZ = acceleration.z
+    #   @accelerationX = acceleration.x
+    #   @accelerationY = acceleration.y
+    #   @accelerationZ = acceleration.z
  
-      @gravityX = accelerationIncludingGravity.x
-      @gravityY = accelerationIncludingGravity.y
-      @gravityZ = accelerationIncludingGravity.z
+    #   @gravityX = accelerationIncludingGravity.x
+    #   @gravityY = accelerationIncludingGravity.y
+    #   @gravityZ = accelerationIncludingGravity.z
  
-      @rotationA = rotationRate.alpha
-      @rotationB = rotationRate.beta
-      @rotationG = rotationRate.gamma
-      return
+    #   @rotationA = rotationRate.alpha
+    #   @rotationB = rotationRate.beta
+    #   @rotationG = rotationRate.gamma
+    #   return
  
     #--------------------------------------------------------------
     type: (obj) ->
