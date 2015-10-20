@@ -117,13 +117,13 @@
 	          return loadQueue.loadManifest([
 	            {
 	              id: "imageNoise0",
-	              src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/images/extension/noise-0.gif"
+	              src: "chrome-extension://" + SETTING.EXTENSION_ID + "/public/images/extension/noise-0.gif"
 	            }, {
 	              id: "soundSignal0",
-	              src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-signal-0.ogg"
+	              src: "chrome-extension://" + SETTING.EXTENSION_ID + "/public/sounds/extension/content-script/sound-effect-signal-0.ogg"
 	            }, {
 	              id: "soundNoise0",
-	              src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-noise-0.ogg"
+	              src: "chrome-extension://" + SETTING.EXTENSION_ID + "/public/sounds/extension/content-script/sound-effect-noise-0.ogg"
 	            }
 	          ]);
 	        };
@@ -37466,7 +37466,7 @@
 	          return function(loadQueue) {
 	            setPosition();
 	            _this.ui.landscape.css({
-	              "background-image": "url(chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/images/extension/noise-0.gif), url(" + landscape + ")"
+	              "background-image": "url(chrome-extension://" + SETTING.EXTENSION_ID + "/public/images/extension/noise-0.gif), url(" + landscape + ")"
 	            });
 	            return _this._showBodyImg();
 	          };

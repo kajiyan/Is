@@ -67,6 +67,7 @@ module.exports = function( options ){
     /*
      * 本番用サーバーの設定
      */
+    setting.EXTENSION_ID = "deigneohddgilekagppfbninocicdjhp";
     setting.PROTOCOL = "http";
     setting.HOST = setting.PRODUCTION_HOST;
     setting.PORT = setting.PRODUCTION_PORT;
@@ -80,6 +81,7 @@ module.exports = function( options ){
       /*
        * 開発用サーバーの設定
        */
+      setting.EXTENSION_ID = "kcondcikicihkpnhhohgdngemopbdjmi";
       setting.PROTOCOL = "http";
       setting.HOST = setting.DEBUG_HOST;
       setting.PORT = setting.DEBUG_PORT;
@@ -92,6 +94,7 @@ module.exports = function( options ){
       /*
        * ローカルサーバーの設定
        */
+      setting.EXTENSION_ID = "kcondcikicihkpnhhohgdngemopbdjmi";
       setting.PROTOCOL = "http";
       setting.HOST = setting.DEBUG_LOCAL_HOST;
       setting.PORT = setting.DEBUG_LOCAL_PORT;

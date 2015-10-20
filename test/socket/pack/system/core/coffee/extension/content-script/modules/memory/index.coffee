@@ -184,7 +184,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
           (loadQueue) =>
             setPosition()
             @ui.landscape.css
-              "background-image": "url(chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/images/extension/noise-0.gif), url(#{landscape})"
+              "background-image": "url(chrome-extension://#{SETTING.EXTENSION_ID}/public/images/extension/noise-0.gif), url(#{landscape})"
         
             return @_showBodyImg()
         ).then(

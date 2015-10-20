@@ -314,10 +314,11 @@ do (window=window, document=document, $=jQuery) ->
           # createjs.Sound.alternateExtensions = ["mp3"]
           loadQueue.installPlugin createjs.Sound
           loadQueue.loadManifest [
-            { id: "imageNoise0", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/images/extension/noise-0.gif" }
-            { id: "soundSignal0", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-signal-0.ogg" }
-            { id: "soundNoise0", src: "chrome-extension://kcondcikicihkpnhhohgdngemopbdjmi/public/sounds/extension/content-script/sound-effect-noise-0.ogg" }
+            { id: "imageNoise0", src: "chrome-extension://#{SETTING.EXTENSION_ID}/public/images/extension/noise-0.gif" }
+            { id: "soundSignal0", src: "chrome-extension://#{SETTING.EXTENSION_ID}/public/sounds/extension/content-script/sound-effect-signal-0.ogg" }
+            { id: "soundNoise0", src: "chrome-extension://#{SETTING.EXTENSION_ID}/public/sounds/extension/content-script/sound-effect-noise-0.ogg" }
           ]
+
         .promise(),
         $.Deferred (defer) =>
           sn.webFontLoader.load(

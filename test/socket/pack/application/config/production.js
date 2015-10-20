@@ -5,6 +5,7 @@ var path = require('path');
 module.exports = (function(){
   var result = {};
 
+  result.EXTENSION_ID = "deigneohddgilekagppfbninocicdjhp";
   result.BASE_PATH = process.cwd();
   result.AVAILABLE_PERIOD = 0.25 * 24 * 60 * 60 * 1000;
   result.protocol = 'http';

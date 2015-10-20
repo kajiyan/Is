@@ -9364,6 +9364,7 @@
 	    /*
 	     * 本番用サーバーの設定
 	     */
+	    setting.EXTENSION_ID = "deigneohddgilekagppfbninocicdjhp";
 	    setting.PROTOCOL = "http";
 	    setting.HOST = setting.PRODUCTION_HOST;
 	    setting.PORT = setting.PRODUCTION_PORT;
@@ -9377,6 +9378,7 @@
 	      /*
 	       * 開発用サーバーの設定
 	       */
+	      setting.EXTENSION_ID = "kcondcikicihkpnhhohgdngemopbdjmi";
 	      setting.PROTOCOL = "http";
 	      setting.HOST = setting.DEBUG_HOST;
 	      setting.PORT = setting.DEBUG_PORT;
@@ -9389,6 +9391,7 @@
 	      /*
 	       * ローカルサーバーの設定
 	       */
+	      setting.EXTENSION_ID = "kcondcikicihkpnhhohgdngemopbdjmi";
 	      setting.PROTOCOL = "http";
 	      setting.HOST = setting.DEBUG_LOCAL_HOST;
 	      setting.PORT = setting.DEBUG_LOCAL_PORT;
@@ -9410,7 +9413,7 @@
 	        window.console = { log: noop };
 	      }
 	    } else if (setting.MODE === "PRODUCTION") {
-	      // window.console = { log: noop };
+	      window.console = { log: noop };
 	    }
 	
 	    if ( window.location.hostname.indexOf(setting.PRODUCTION_HOST) >= 0 ) {
