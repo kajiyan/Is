@@ -506,7 +506,7 @@ Extension = (function() {
               function(memory) {
                 callback({
                   status: 'success'
-                });  
+                });
               }
             )
             .catch(function (error) {

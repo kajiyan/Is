@@ -1054,6 +1054,21 @@ Day = (function() {
         var result = {};
         var memory = new _this.Model.Memory(query);
 
+        // helpers.utils.parseDataUrl({
+        //   'dataUrl': query.landscape
+        // })
+        // .then(
+        //   function(data) {
+        //     var ext = '.' + data.ext;
+        //     memory.ext = ext;
+            
+        //     return helpers.utils.writeFile({
+        //       'dirPath': config.MEMORYS_DIR_PATH + helpers.utils.getDayId() + '/',
+        //       'fileName': validator.toString(memory._id) + ext,
+        //       'blob': data.blob
+        //     });
+        //   }
+        // )
         helpers.utils.parseDataUrl({
           'dataUrl': query.landscape
         })
@@ -1062,10 +1077,10 @@ Day = (function() {
             var ext = '.' + data.ext;
             memory.ext = ext;
             
-            return helpers.utils.writeFile({
+            return helpers.utils.writeBase64File({
               'dirPath': config.MEMORYS_DIR_PATH + helpers.utils.getDayId() + '/',
               'fileName': validator.toString(memory._id) + ext,
-              'blob': data.blob
+              'base64': data.base64
             });
           }
         )

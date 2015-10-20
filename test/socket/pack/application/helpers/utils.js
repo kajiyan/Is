@@ -134,20 +134,56 @@ var Utils = (function() {
 
       return (function(_this) {
         return Q.Promise(function(resolve, reject, notify) {
-          if (/^data:.+\/(.+);base64,(.*)$/.test(keyData.dataUrl)) {
-            resolve({
-              ext: RegExp.$1,
-              blob: new Buffer(RegExp.$2, 'base64')
-            });
-          } else {
-            reject(new Error('[Helpers] Utils -> mkdir | Validation Error: Query Value Type is not DataURL.'));
+          var matches = keyData.dataUrl.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
+
+          if (matches.length !== 3) {
+            return new Error('[Helpers] Utils -> mkdir | Validation Error: Query Value Type is not DataURL.');
           }
+
+          resolve({
+            ext: matches[1],
+            base64: matches[2]
+          });
+
+          // if (/^data:.+\/(.+);base64,(.*)$/.test(keyData.dataUrl)) {
+          //   resolve({
+          //     ext: RegExp.$1,
+          //     base64: RegExp.$2
+          //   });
+          // } else {
+          //   reject(new Error('[Helpers] Utils -> mkdir | Validation Error: Query Value Type is not DataURL.'));
+          // }
         });
       })(this);
     } catch(error) {
       console.log(error);
     }
   };
+
+  // Utils.prototype.parseDataUrl = function(_keyData) {
+  //   console.log('[Helpers] Utils -> parseDataUrl');
+
+  //   try {
+  //     var keyData = _.extend({
+  //       'dataUrl': null,
+  //     }, _keyData);
+
+  //     return (function(_this) {
+  //       return Q.Promise(function(resolve, reject, notify) {
+  //         if (/^data:.+\/(.+);base64,(.*)$/.test(keyData.dataUrl)) {
+  //           resolve({
+  //             ext: RegExp.$1,
+  //             blob: new Buffer(RegExp.$2, 'base64')
+  //           });
+  //         } else {
+  //           reject(new Error('[Helpers] Utils -> mkdir | Validation Error: Query Value Type is not DataURL.'));
+  //         }
+  //       });
+  //     })(this);
+  //   } catch(error) {
+  //     console.log(error);
+  //   }
+  // };
 
   // --------------------------------------------------------------
   /**
@@ -192,6 +228,51 @@ var Utils = (function() {
       console.log(error);
     }
   };
+
+  // --------------------------------------------------------------
+  /**
+   * utils#writeBase64File
+   * base64データをファイルに書き出す
+   * @param {Object} _keyData
+   * @prop {strinf} [basePath] - 書き出し先のディレクトリを設定する、初期値はpublic 以下
+   * @prop {strinf} dirName - 書き出し先のディレクトリ名
+   * @prop {strinf} fileName - 書き出すファイル名
+   * @prop {buffer} base64 - ファイルに書き出すバイナリデータ
+   * @return {Object} Q promise
+   */
+  // --------------------------------------------------------------
+  Utils.prototype.writeBase64File = function(_keyData) {
+    console.log('[Helpers] Utils -> writeFile');
+
+    try {
+      var keyData = _.extend({
+        'dirPath': config.PUBLIC,
+        'fileName': null,
+        'base64': null
+      }, _keyData);
+
+      return (function(_this) {
+        return Q.Promise(function(resolve, reject, notify) {
+          if (!validator.isLength(keyData.fileName, 1) && validator.isNull(keyData.base64)) {
+            reject(new Error('[Helpers] Utils -> writeFile | Validation Error: Query Value.'));
+            return;
+          }
+
+          fs.writeFile(path.join(keyData.dirPath, keyData.fileName), keyData.base64, 'base64', function(error){
+            if (error) {
+              reject(error);
+              return;
+            }
+
+            resolve();
+          });
+        });
+      })(this);
+    } catch(error) {
+      console.log(error);
+    }
+  };
+
 
   // ImageFile.prototype.save = function(roomId, fileName, data) {
   //   console.log('ImageFile -> save');

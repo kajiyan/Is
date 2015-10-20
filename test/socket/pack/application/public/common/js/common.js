@@ -9492,8 +9492,10 @@
 	      BASE_MIN_HEIGHT : 600
 	    },
 	    FRAME_RATE: 24,
-	    REC_INTERVAL: 1000 * 60 * 1,
-	    MEMORY_GET_INTERVAL: 1000 * 30,
+	    // REC_INTERVAL: 1000 * 60 * 1,
+	    // MEMORY_GET_INTERVAL: 1000 * 30,
+	    REC_INTERVAL: 1000 * 20,
+	    MEMORY_GET_INTERVAL: 1000 * 15,
 	    MEMORY: {
 	      _id: '55e5c4b75ae10c89bf74c8fd',
 	      dayId: '20150902',
