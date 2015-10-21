@@ -440,6 +440,7 @@ module.exports = (App, sn, $, _) ->
         
         console.log "------------------------------------------------------------"
         residents = @get "residents"
+        console.log data
 
         # residentsが空であれば重複をチェックせずdataを追加する
         if residents.length is 0

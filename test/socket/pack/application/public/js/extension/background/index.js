@@ -25678,6 +25678,7 @@
 	        console.log("%c[Socket] SocketModel -> _receiveAddResidentHandler", debug.style, data);
 	        console.log("------------------------------------------------------------");
 	        residents = this.get("residents");
+	        console.log(data);
 	        if (residents.length === 0) {
 	          residents.push(data);
 	          this.set("residents", residents);

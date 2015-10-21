@@ -36707,8 +36707,8 @@
 	        App.vent.on("connectJointed", this._jointedHandler.bind(this));
 	        App.vent.on("connectInitializeResident", this._initializeResidentHandler.bind(this));
 	        this.model.set("window", {
-	          width: this.$el.width(),
-	          height: this.$el.height()
+	          width: this.$el[0].innerWidth,
+	          height: this.$el[0].innerHeight
 	        });
 	        this._scrollTop = this.$el.scrollTop();
 	        this._scrollInterval = 100;
@@ -36726,8 +36726,8 @@
 	            var windowSize;
 	            console.log("%c[Stage] StageItemView -> _windowResizeDebounce", debug.style, e);
 	            windowSize = {
-	              width: _this.$el.width(),
-	              height: _this.$el.height()
+	              width: _this.$el[0].innerWidth,
+	              height: _this.$el[0].innerHeight
 	            };
 	            _this.model.set("window", windowSize);
 	            return App.vent.trigger("stageWindowResize", windowSize);

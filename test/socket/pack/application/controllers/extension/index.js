@@ -362,8 +362,9 @@ Extension = (function() {
           function(data) {
             console.log('[Controller] Extension -> Socket Receive Message | initializeUser');
 
-            data.position.x = 0;
-            data.position.y = 0;
+            // マウスカーソルの大きさの分だけoffsetを指定する
+            data.position.x = -16;
+            data.position.y = -22;
 
             // ポインターの初期値を送信者以外に送る
             socket
@@ -400,8 +401,9 @@ Extension = (function() {
           function(data) {
             console.log('[Controller] Extension -> Socket Receive Message | initializeResident');
 
-            data.position.x = 0;
-            data.position.y = 0;
+            // マウスカーソルの大きさの分だけoffsetを指定する
+            data.position.x = -16;
+            data.position.y = -22;
 
             socket
               .to(data.toSocketId)

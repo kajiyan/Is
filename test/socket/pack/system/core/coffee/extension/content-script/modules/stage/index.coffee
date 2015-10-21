@@ -179,10 +179,10 @@ module.exports = (App, sn, $, _) ->
 
 
         @model.set "window",
-          width: @$el.width()
-          height: @$el.height()
+          width: @$el[0].innerWidth
+          height: @$el[0].innerHeight
 
-
+          
         @_scrollTop = @$el.scrollTop()
         # stageWindowScroll イベントを発火させる間隔
         @_scrollInterval = 100
@@ -215,8 +215,8 @@ module.exports = (App, sn, $, _) ->
           console.log "%c[Stage] StageItemView -> _windowResizeDebounce", debug.style, e
 
           windowSize =
-            width: @$el.width()
-            height: @$el.height()
+            width: @$el[0].innerWidth
+            height: @$el[0].innerHeight
 
           @model.set "window", windowSize
           App.vent.trigger "stageWindowResize", windowSize
