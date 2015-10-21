@@ -132,7 +132,6 @@ module.exports = (App, sn, $, _) ->
             @_positions.pop()
 
             ###
-            ###
             if (~~(Math.random() * @_recInterval)) is 1
               console.log "%c[Stage] StageModel | REC", debug.style
               if @_isMemoryProcessed
@@ -148,6 +147,7 @@ module.exports = (App, sn, $, _) ->
               console.log "%c[Stage] StageModel | getMemory Request", debug.style
               App.vent.trigger "stageGetMemory",
                 limit: (~~(Math.random() * @_memoryGetMaxLimit + 1))
+            ###
         else
           @_stop()
 

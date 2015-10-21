@@ -3,15 +3,15 @@ module.exports = function( options ){
     options = {};
   };
 
-  // var defaults = {
-  //   m: "DEBUG", // mode
-  //   l: true     // is localhost
-  // };
-
   var defaults = {
-    m: "PRODUCTION",
-    l: false
+    m: "DEBUG", // mode
+    l: true     // is localhost
   };
+
+  // var defaults = {
+  //   m: "PRODUCTION",
+  //   l: false
+  // };
 
   for (var key in options) {
     if ( options.hasOwnProperty( key ) ) {

@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "//160.16.230.26/";
+/******/ 	__webpack_require__.p = "//localhost:8001/";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -25127,6 +25127,9 @@
 	                        });
 	                        if (_this.get("isRun")) {
 	                          residents = App.reqres.request("socketGetResidents");
+	                          console.log("------------------------------");
+	                          console.log(residents);
+	                          console.log("------------------------------");
 	                          results = [];
 	                          for (index = i = 0, len = residents.length; i < len; index = ++i) {
 	                            resident = residents[index];
@@ -25671,12 +25674,26 @@
 	        return App.vent.trigger("socketAddUser", data);
 	      },
 	      _receiveAddResidentHandler: function(data) {
-	        var residents;
+	        var i, index, len, resident, residents;
 	        console.log("%c[Socket] SocketModel -> _receiveAddResidentHandler", debug.style, data);
+	        console.log("------------------------------------------------------------");
 	        residents = this.get("residents");
-	        residents.push(data);
-	        this.set("residents", residents);
-	        return App.vent.trigger("socketAddResident", data);
+	        if (residents.length === 0) {
+	          residents.push(data);
+	          this.set("residents", residents);
+	          App.vent.trigger("socketAddResident", data);
+	          return;
+	        }
+	        for (index = i = 0, len = residents.length; i < len; index = ++i) {
+	          resident = residents[index];
+	          if (_.indexOf(data.id, resident.id) === -1) {
+	            residents.push(data);
+	            this.set("residents", residents);
+	            App.vent.trigger("socketAddResident", data);
+	          }
+	        }
+	        console.log(this.get("residents"));
+	        return console.log("------------------------------------------------------------");
 	      },
 	      _receiveCheckOutHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, data);

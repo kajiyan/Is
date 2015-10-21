@@ -226,6 +226,10 @@ module.exports = (App, sn, $, _) ->
                           # 同じroomIdにjoinしているユーザーを取得する
                           residents = App.reqres.request "socketGetResidents"
 
+                          console.log "------------------------------"
+                          console.log residents
+                          console.log "------------------------------"
+
                           for resident, index in residents
                             # 表示リストに表示されていないResidentがあるか調べる
                             if _.indexOf(initializedResidents, resident.id) is -1
@@ -255,6 +259,7 @@ module.exports = (App, sn, $, _) ->
                         (dataUrl) ->
                           landscape = dataUrl
 
+                          # socketがlisten
                           App.vent.trigger "connectInitializeUser",
                             position:
                               x: message.body.position.x

@@ -91,8 +91,10 @@ module.exports = (App, sn, $, _) ->
         
         if SETTING.MODE is "PRODUCTION"
           @socket = io.connect("#{SETTING.PROTOCOL}://#{SETTING.PRODUCTION_HOST}:#{ SETTING.PORT + (~~(Math.random() * 4)) }/extension")
+          # @socket = io.connect("#{SETTING.PROTOCOL}://#{SETTING.PRODUCTION_HOST}:#{ SETTING.PORT + (~~(Math.random() * 4)) }/extension")
         else
           @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
+          # @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
 
         # DEBUG
         # @socket = io.connect("#{SETTING.PROTOCOL}://localhost:8001/extension");
@@ -167,6 +169,7 @@ module.exports = (App, sn, $, _) ->
             @set "isRoomJoin", false
           
           # socketJointed イベントを発火する
+          # connect がイベントを購読している
           App.vent.trigger "socketJointed", data
           
       # ------------------------------------------------------------
@@ -434,12 +437,32 @@ module.exports = (App, sn, $, _) ->
       # ------------------------------------------------------------
       _receiveAddResidentHandler: (data) ->
         console.log "%c[Socket] SocketModel -> _receiveAddResidentHandler", debug.style, data
-
+        
+        console.log "------------------------------------------------------------"
         residents = @get "residents"
-        residents.push data
-        @set "residents", residents
 
-        App.vent.trigger "socketAddResident", data
+        # residentsが空であれば重複をチェックせずdataを追加する
+        if residents.length is 0
+          residents.push data
+          @set "residents", residents
+          App.vent.trigger "socketAddResident", data
+          return
+
+        # 表示リストに追加されていないResidentがあるか調べる
+        for resident, index in residents
+          if _.indexOf(data.id, resident.id) is -1
+            residents.push data
+            @set "residents", residents
+            App.vent.trigger "socketAddResident", data
+
+        console.log @get "residents"
+        console.log "------------------------------------------------------------"
+
+        # residents = @get "residents"
+        # residents.push data
+        # @set "residents", residents
+
+        
 
       # # ------------------------------------------------------------
       # # /**

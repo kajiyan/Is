@@ -362,6 +362,9 @@ Extension = (function() {
           function(data) {
             console.log('[Controller] Extension -> Socket Receive Message | initializeUser');
 
+            data.position.x = 0;
+            data.position.y = 0;
+
             // ポインターの初期値を送信者以外に送る
             socket
               .broadcast
@@ -397,11 +400,17 @@ Extension = (function() {
           function(data) {
             console.log('[Controller] Extension -> Socket Receive Message | initializeResident');
 
+            data.position.x = 0;
+            data.position.y = 0;
+
             socket
               .to(data.toSocketId)
               .emit('addResident', {
                 'id': socket.id,
-                'position': data.position,
+                'position': {
+                  'x': data.position.x,
+                  'y': data.position.y
+                },
                 'window': data.window,
                 'link': data.link,
                 'landscape': data.landscape

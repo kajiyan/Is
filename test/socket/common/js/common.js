@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "//160.16.230.26/";
+/******/ 	__webpack_require__.p = "//localhost:8001/";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -9300,15 +9300,15 @@
 	    options = {};
 	  };
 	
-	  // var defaults = {
-	  //   m: "DEBUG", // mode
-	  //   l: true     // is localhost
-	  // };
-	
 	  var defaults = {
-	    m: "PRODUCTION",
-	    l: false
+	    m: "DEBUG", // mode
+	    l: true     // is localhost
 	  };
+	
+	  // var defaults = {
+	  //   m: "PRODUCTION",
+	  //   l: false
+	  // };
 	
 	  for (var key in options) {
 	    if ( options.hasOwnProperty( key ) ) {

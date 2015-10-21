@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "//160.16.230.26/";
+/******/ 	__webpack_require__.p = "//localhost:8001/";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -36669,30 +36669,26 @@
 	          })(this._positionsSize);
 	          return this._update((function(_this) {
 	            return function() {
-	              var limit, positions;
 	              _this._positions.unshift(_this.get("position"));
-	              _this._positions.pop();
+	              return _this._positions.pop();
 	
 	              /*
-	               */
-	              if ((~~(Math.random() * _this._recInterval)) === 1) {
-	                console.log("%c[Stage] StageModel | REC", debug.style);
-	                if (_this._isMemoryProcessed) {
-	                  _this._isMemoryProcessed = false;
-	                  limit = ~~(Math.random() * (_this._positionsSize - _this._positionsSelectOffset) + _this._positionsSelectOffset);
-	                  positions = _.first(_this._positions, limit);
-	                  App.vent.trigger("stageAddMemory", {
-	                    window: _this.get("window"),
+	              if (~~(Math.random() * @_recInterval)) is 1
+	                console.log "%c[Stage] StageModel | REC", debug.style
+	                if @_isMemoryProcessed
+	                  @_isMemoryProcessed = false # フラグを処理中にする
+	                  limit = ~~(Math.random() * (@_positionsSize - @_positionsSelectOffset) + @_positionsSelectOffset)
+	                  positions = _.first(@_positions, limit)
+	              
+	                  App.vent.trigger "stageAddMemory",
+	                    window: @get "window"
 	                    positions: positions
-	                  });
-	                }
-	              }
-	              if ((~~(Math.random() * _this._memoryGetInterval)) === 1) {
-	                console.log("%c[Stage] StageModel | getMemory Request", debug.style);
-	                return App.vent.trigger("stageGetMemory", {
-	                  limit: ~~(Math.random() * _this._memoryGetMaxLimit + 1)
-	                });
-	              }
+	              
+	              if (~~(Math.random() * @_memoryGetInterval)) is 1
+	                console.log "%c[Stage] StageModel | getMemory Request", debug.style
+	                App.vent.trigger "stageGetMemory",
+	                  limit: (~~(Math.random() * @_memoryGetMaxLimit + 1))
+	               */
 	            };
 	          })(this));
 	        } else {
