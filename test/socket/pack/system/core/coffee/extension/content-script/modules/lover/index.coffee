@@ -124,7 +124,8 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       _updateLocationHandler: (data) ->
         console.log "%c[Lover] LoversCollection -> _updateLocationHandler", debug.style, data
         loverModel = @findWhere id: data.id
-        loverModel.set "link": data.link
+        if loverModel?
+          loverModel.set "link": data.link
 
       # --------------------------------------------------------------
       # /**
@@ -139,7 +140,8 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       _updateWindowSizeHandler: (data) ->
         console.log "%c[Lover] LoversCollection -> _updateWindowSizeHandler", debug.style, data
         loverModel = @findWhere id: data.id
-        loverModel.set "window": data.window
+        if loverModel?
+          loverModel.set "window": data.window
 
       # --------------------------------------------------------------
       # /**
@@ -154,7 +156,8 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
       _updatePointerHandler: (data) ->
         # console.log "%c[Lover] LoversCollection -> _updatePointerHandler", debug.style, data
         loverModel = @findWhere id: data.id
-        loverModel.set position: data.position
+        if loverModel?
+          loverModel.set position: data.position
 
       # --------------------------------------------------------------
       # /**
@@ -171,7 +174,8 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         console.log "%c[Lover] LoversCollection -> _updateLandscapeHandler", debug.style, data
 
         loverModel = @findWhere id: data.id
-        loverModel.set landscape: data.landscape
+        if loverModel?
+          loverModel.set landscape: data.landscape
 
 
 

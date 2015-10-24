@@ -9494,14 +9494,14 @@
 	    FRAME_RATE: 24,
 	    // REC_INTERVAL: 1000 * 60 * 1,
 	    // MEMORY_GET_INTERVAL: 1000 * 30,
-	    REC_INTERVAL: 1000 * 20,
-	    MEMORY_GET_INTERVAL: 1000 * 15,
+	    REC_INTERVAL: 1000 * 30,
+	    MEMORY_GET_INTERVAL: 1000 * 20,
 	    MEMORY: {
 	      _id: '55e5c4b75ae10c89bf74c8fd',
 	      dayId: '20150902',
 	      link: 'http://www.aozora.gr.jp/cards/001695/files/55131_49647.html',
 	      ext: '.jpeg',
-	      createAt: '2015-07-26T14:18:07.492Z',
+	      createAt: '2015-09-26T14:18:07.492Z',
 	      random: [ 0.6454489470925182, 0 ],
 	      positions: [
 	        { x: 685, y: 151 },

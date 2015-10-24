@@ -25127,6 +25127,9 @@
 	                        });
 	                        if (_this.get("isRun")) {
 	                          residents = App.reqres.request("socketGetResidents");
+	                          console.log("------------------------------");
+	                          console.log(residents);
+	                          console.log("------------------------------");
 	                          results = [];
 	                          for (index = i = 0, len = residents.length; i < len; index = ++i) {
 	                            resident = residents[index];
@@ -25532,7 +25535,7 @@
 	      _connect: function() {
 	        console.log("%c[Socket] SocketModel -> _connect", debug.style);
 	        if (SETTING.MODE === "PRODUCTION") {
-	          this.socket = io.connect(SETTING.PROTOCOL + "://" + SETTING.PRODUCTION_HOST + ":" + (SETTING.PORT + (~~(Math.random() * 4))) + "/extension");
+	          this.socket = io.connect(SETTING.PROTOCOL + "://" + SETTING.PRODUCTION_HOST + ":" + SETTING.PORT + "/extension");
 	        } else {
 	          this.socket = io.connect(SETTING.PROTOCOL + ":" + SETTING.BASE_URL + "extension");
 	        }
@@ -25671,12 +25674,27 @@
 	        return App.vent.trigger("socketAddUser", data);
 	      },
 	      _receiveAddResidentHandler: function(data) {
-	        var residents;
+	        var i, index, len, resident, residents, results;
 	        console.log("%c[Socket] SocketModel -> _receiveAddResidentHandler", debug.style, data);
 	        residents = this.get("residents");
-	        residents.push(data);
-	        this.set("residents", residents);
-	        return App.vent.trigger("socketAddResident", data);
+	        if (residents.length === 0) {
+	          residents.push(data);
+	          this.set("residents", residents);
+	          App.vent.trigger("socketAddResident", data);
+	          return;
+	        }
+	        results = [];
+	        for (index = i = 0, len = residents.length; i < len; index = ++i) {
+	          resident = residents[index];
+	          if (_.indexOf(data.id, resident.id) === -1) {
+	            residents.push(data);
+	            this.set("residents", residents);
+	            results.push(App.vent.trigger("socketAddResident", data));
+	          } else {
+	            results.push(void 0);
+	          }
+	        }
+	        return results;
 	      },
 	      _receiveCheckOutHandler: function(data) {
 	        console.log("%c[Socket] SocketModel -> _receiveCheckOutHandler", debug.style, data);

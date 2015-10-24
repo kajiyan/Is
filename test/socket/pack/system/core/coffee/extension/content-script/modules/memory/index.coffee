@@ -240,7 +240,7 @@ module.exports = (App, sn, $, _, isElShadowRoot) ->
         console.log "%c[Memory] MemoryItemView -> _showBodyImg", debug.style
         return $.Deferred (defer) =>
           @ui.createAtInner.css
-            width: @ui.createAt.width()
+            width: (@ui.createAt.width() + 1) # 端数処理
 
           @ui.createAt.css
             width: 0

@@ -41,7 +41,6 @@ do (window=window, document=document, $=jQuery) ->
 
   sn.moment = require "moment"
   sn.webFontLoader = require "webfontloader/webfontloader"
-  require "pepjs/dist/pep.min"
   require "backbone.marionette/lib/backbone.marionette.min"
   require "velocity/velocity.min"
   require "velocity/velocity.ui.min"

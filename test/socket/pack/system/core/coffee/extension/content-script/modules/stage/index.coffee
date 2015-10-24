@@ -132,6 +132,7 @@ module.exports = (App, sn, $, _) ->
             @_positions.pop()
 
             ###
+            ###
             if (~~(Math.random() * @_recInterval)) is 1
               console.log "%c[Stage] StageModel | REC", debug.style
               if @_isMemoryProcessed
@@ -147,7 +148,7 @@ module.exports = (App, sn, $, _) ->
               console.log "%c[Stage] StageModel | getMemory Request", debug.style
               App.vent.trigger "stageGetMemory",
                 limit: (~~(Math.random() * @_memoryGetMaxLimit + 1))
-            ###
+            
         else
           @_stop()
 
@@ -182,7 +183,7 @@ module.exports = (App, sn, $, _) ->
           width: @$el[0].innerWidth
           height: @$el[0].innerHeight
 
-          
+
         @_scrollTop = @$el.scrollTop()
         # stageWindowScroll イベントを発火させる間隔
         @_scrollInterval = 100
@@ -229,7 +230,7 @@ module.exports = (App, sn, $, _) ->
       events: 
         scroll: "_windowScrollHandler"
         resize: "_windowResizeHandler"
-        pointermove: "_pointerMoveHandler"
+        mousemove: "_mouseMoveHandler"
 
       # --------------------------------------------------------------
       # /**
@@ -255,13 +256,13 @@ module.exports = (App, sn, $, _) ->
 
       # --------------------------------------------------------------
       # /**
-      #  * StageItemView#_pointerMoveHandler
+      #  * StageItemView#_mouseMoveHandler
       #  * @el でpointerMove イベントが発生すると呼ばれるイベントハンドラー
       #  * @param {Object} e - pointermove のイベントオブジェクト
       #  */
       # --------------------------------------------------------------
-      _pointerMoveHandler: (e) ->
-        # console.log "%c[Stage] StageItemView -> _pointerMoveHandler", debug.style
+      _mouseMoveHandler: (e) ->
+        # console.log "%c[Stage] StageItemView -> _mouseMoveHandler", debug.style, e.clientX, e.clientY
         position =
           x: e.clientX
           y: e.clientY

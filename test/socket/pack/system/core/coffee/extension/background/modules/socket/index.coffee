@@ -90,7 +90,7 @@ module.exports = (App, sn, $, _) ->
         console.log "%c[Socket] SocketModel -> _connect", debug.style
         
         if SETTING.MODE is "PRODUCTION"
-          @socket = io.connect("#{SETTING.PROTOCOL}://#{SETTING.PRODUCTION_HOST}:#{ SETTING.PORT + (~~(Math.random() * 4)) }/extension")
+          @socket = io.connect("#{SETTING.PROTOCOL}://#{SETTING.PRODUCTION_HOST}:#{SETTING.PORT}/extension")
           # @socket = io.connect("#{SETTING.PROTOCOL}://#{SETTING.PRODUCTION_HOST}:#{ SETTING.PORT + (~~(Math.random() * 4)) }/extension")
         else
           @socket = io.connect("#{SETTING.PROTOCOL}:#{SETTING.BASE_URL}extension");
@@ -438,9 +438,7 @@ module.exports = (App, sn, $, _) ->
       _receiveAddResidentHandler: (data) ->
         console.log "%c[Socket] SocketModel -> _receiveAddResidentHandler", debug.style, data
         
-        console.log "------------------------------------------------------------"
         residents = @get "residents"
-        console.log data
 
         # residentsが空であれば重複をチェックせずdataを追加する
         if residents.length is 0
@@ -456,14 +454,10 @@ module.exports = (App, sn, $, _) ->
             @set "residents", residents
             App.vent.trigger "socketAddResident", data
 
-        console.log @get "residents"
-        console.log "------------------------------------------------------------"
-
         # residents = @get "residents"
         # residents.push data
         # @set "residents", residents
 
-        
 
       # # ------------------------------------------------------------
       # # /**

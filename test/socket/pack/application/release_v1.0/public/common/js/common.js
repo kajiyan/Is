@@ -9494,14 +9494,14 @@
 	    FRAME_RATE: 24,
 	    // REC_INTERVAL: 1000 * 60 * 1,
 	    // MEMORY_GET_INTERVAL: 1000 * 30,
-	    REC_INTERVAL: 1000 * 20,
-	    MEMORY_GET_INTERVAL: 1000 * 15,
+	    REC_INTERVAL: 1000 * 30,
+	    MEMORY_GET_INTERVAL: 1000 * 20,
 	    MEMORY: {
 	      _id: '55e5c4b75ae10c89bf74c8fd',
 	      dayId: '20150902',
 	      link: 'http://www.aozora.gr.jp/cards/001695/files/55131_49647.html',
 	      ext: '.jpeg',
-	      createAt: '2015-07-26T14:18:07.492Z',
+	      createAt: '2015-09-26T14:18:07.492Z',
 	      random: [ 0.6454489470925182, 0 ],
 	      positions: [
 	        { x: 685, y: 151 },
@@ -9997,7 +9997,6 @@
 	    function TypeFrameWork(options) {
 	      this._get_root_path = bind(this._get_root_path, this);
 	      this._get_relative_path = bind(this._get_relative_path, this);
-	      this.devicemotionProcess = bind(this.devicemotionProcess, this);
 	      this.fullScreenChangeProcess = bind(this.fullScreenChangeProcess, this);
 	      this.orientationChangeProcess = bind(this.orientationChangeProcess, this);
 	      this.windowScrollProcess = bind(this.windowScrollProcess, this);
@@ -10040,9 +10039,6 @@
 	        $window.on("orientationchange", this.orientationChangeProcess);
 	      }
 	      $window.on("fullscreenchange webkitfullscreenchange mozfullscreenchange msfullscreenchange", this.fullScreenChangeProcess);
-	      if (sn.support.addEventListener) {
-	        window.addEventListener("devicemotion", this.devicemotionProcess);
-	      }
 	    }
 	
 	    TypeFrameWork.prototype.setup = function(method) {
@@ -10779,23 +10775,6 @@
 	
 	    TypeFrameWork.prototype.fullScreenChangeProcess = function() {
 	      this._fullScreenChange(this.isFullScreen());
-	    };
-	
-	    TypeFrameWork.prototype.devicemotionProcess = function(e) {
-	      var acceleration, accelerationIncludingGravity, rotationRate;
-	      e.preventDefault();
-	      acceleration = e.acceleration;
-	      accelerationIncludingGravity = e.accelerationIncludingGravity;
-	      rotationRate = e.rotationRate;
-	      this.accelerationX = acceleration.x;
-	      this.accelerationY = acceleration.y;
-	      this.accelerationZ = acceleration.z;
-	      this.gravityX = accelerationIncludingGravity.x;
-	      this.gravityY = accelerationIncludingGravity.y;
-	      this.gravityZ = accelerationIncludingGravity.z;
-	      this.rotationA = rotationRate.alpha;
-	      this.rotationB = rotationRate.beta;
-	      this.rotationG = rotationRate.gamma;
 	    };
 	
 	    TypeFrameWork.prototype.type = function(obj) {

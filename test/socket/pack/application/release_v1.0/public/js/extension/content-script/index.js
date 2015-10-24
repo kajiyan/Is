@@ -36711,8 +36711,8 @@
 	        App.vent.on("connectJointed", this._jointedHandler.bind(this));
 	        App.vent.on("connectInitializeResident", this._initializeResidentHandler.bind(this));
 	        this.model.set("window", {
-	          width: this.$el.width(),
-	          height: this.$el.height()
+	          width: this.$el[0].innerWidth,
+	          height: this.$el[0].innerHeight
 	        });
 	        this._scrollTop = this.$el.scrollTop();
 	        this._scrollInterval = 100;
@@ -36730,8 +36730,8 @@
 	            var windowSize;
 	            console.log("%c[Stage] StageItemView -> _windowResizeDebounce", debug.style, e);
 	            windowSize = {
-	              width: _this.$el.width(),
-	              height: _this.$el.height()
+	              width: _this.$el[0].innerWidth,
+	              height: _this.$el[0].innerHeight
 	            };
 	            _this.model.set("window", windowSize);
 	            return App.vent.trigger("stageWindowResize", windowSize);
@@ -37077,9 +37077,11 @@
 	        loverModel = this.findWhere({
 	          id: data.id
 	        });
-	        return loverModel.set({
-	          "link": data.link
-	        });
+	        if (loverModel != null) {
+	          return loverModel.set({
+	            "link": data.link
+	          });
+	        }
 	      },
 	      _updateWindowSizeHandler: function(data) {
 	        var loverModel;
@@ -37087,18 +37089,22 @@
 	        loverModel = this.findWhere({
 	          id: data.id
 	        });
-	        return loverModel.set({
-	          "window": data.window
-	        });
+	        if (loverModel != null) {
+	          return loverModel.set({
+	            "window": data.window
+	          });
+	        }
 	      },
 	      _updatePointerHandler: function(data) {
 	        var loverModel;
 	        loverModel = this.findWhere({
 	          id: data.id
 	        });
-	        return loverModel.set({
-	          position: data.position
-	        });
+	        if (loverModel != null) {
+	          return loverModel.set({
+	            position: data.position
+	          });
+	        }
 	      },
 	      _updateLandscapeHandler: function(data) {
 	        var loverModel;
@@ -37106,9 +37112,11 @@
 	        loverModel = this.findWhere({
 	          id: data.id
 	        });
-	        return loverModel.set({
-	          landscape: data.landscape
-	        });
+	        if (loverModel != null) {
+	          return loverModel.set({
+	            landscape: data.landscape
+	          });
+	        }
 	      }
 	    }, LoverItemView = Backbone.Marionette.ItemView.extend({
 	      initialize: function() {
@@ -37515,7 +37523,7 @@
 	        return $.Deferred((function(_this) {
 	          return function(defer) {
 	            _this.ui.createAtInner.css({
-	              width: _this.ui.createAt.width()
+	              width: _this.ui.createAt.width() + 1
 	            });
 	            _this.ui.createAt.css({
 	              width: 0

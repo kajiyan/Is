@@ -2,7 +2,9 @@
   "apps" : [
     {
       "name": "notFound",
-      "script": "bin/www"
+      "script": "bin/www",
+      "exec_mode": "fork_mode",
+      "instances": 1
     }
   ]
 }
